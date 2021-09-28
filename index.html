@@ -9,8 +9,50 @@
 </head>
 
 <body>
-    <script src="script.js"></script>
+    <!-- Top Panel Region -->
+    <div class="topPanel">
+
+        <div class="buttonContainer" id="btnContain">
+
+            <div class="button active" id="homeBtn" unselectable="on" onselectstart="return false;"
+                onmousedown="return false;">
+                Home
+            </div>
+
+            <div class="button" id="projectsBtn" unselectable="on" onselectstart="return false;"
+                onmousedown="return false;">
+                Projects
+            </div>
+
+        </div>
+
+
+    </div>
+    <!-- Dropdown Menu -->
+    <ul class="dropdownList">
+        <li>
+            <div class="dropdownButton smallDropdown" id="button1" unselectable="on" onselectstart="return false;"
+                onmousedown="return false;">
+                Button 1
+            </div>
+        </li>
+        <li>
+            <div class="dropdownButton smallDropdown" id="button2" unselectable="on" onselectstart="return false;"
+                onmousedown="return false;">
+                Button 2
+            </div>
+        </li>
+        <li>
+            <div class="dropdownButton smallDropdown" id="button3" unselectable="on" onselectstart="return false;"
+                onmousedown="return false;">
+                Button 3
+            </div>
+        </li>
+    </ul>
+
+    <!-- Load JS -->
     <script src="lib.js"></script>
+    <script src="script.js"></script>
 </body>
 
 </html>

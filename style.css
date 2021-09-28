@@ -1,0 +1,164 @@
+/* Import fonts */
+@import url('https://fonts.googleapis.com/css?family=Open+Sans&display=swap');
+
+/* Element Selectors */
+body {
+    margin: 0px;
+    font-family: 'Open Sans', sans-serif;
+}
+
+/* ID Selectors */
+#dropdown{
+    background: #00ADB5;
+
+    position: fixed;
+    top: 8.5%;
+
+    width: 100%;
+
+    padding: 0px;
+    display: flex;
+    justify-content: center;
+
+    box-shadow: 0px 0px 7px black;
+    
+}
+
+
+/* Class Selectors */
+.topPanel {
+    /* Background color shape, and position */
+    z-index: 100;
+
+    background: #EEEEEE;
+
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: 5%;
+
+    padding: 15px;
+
+    box-shadow: 0px 0px 7px black;
+
+    /* Text */
+    text-align: center;
+
+    /* Center Buttons */
+    display: flex;
+    justify-content: center;
+}
+
+.buttonContainer {
+
+    width: fit-content;
+
+    /* Children Grid */
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 20px;
+}
+
+.button {
+    /* Background Color and Shape */
+    margin: 0px 10px;
+    background: #009199;
+    padding: 12px 16px;
+    border-radius: 5px;
+    box-shadow: 0px 0px 5px rgb(65, 65, 65);
+
+    /* Text */
+    color: white;
+    text-align: center;
+
+    /* Transition */
+    transition: 250ms;
+
+    /* Selection */
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -o-user-select: none;
+}
+
+.button:hover {
+    /* Transition */
+    background: #EEEEEE;
+    color: #393E46;
+    cursor: pointer;
+}
+
+/* Active Button */
+.active {
+    background: #393E46;
+}
+
+.active:hover {
+    background: #393E46;
+    color: white;
+    cursor: default;
+}
+
+.dropdownButton {
+    /* Background Color and Shape */
+    margin: 0px;
+    background: white;
+    padding: 12px 32px;
+
+    /* Text */
+    color: #009199;
+    text-align: center;
+
+    /* Transition */
+    transition: 250ms;
+
+    /* Selection */
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -o-user-select: none;
+}
+
+.dropdownButton:hover {
+    /* Transition */
+    background: #646d7a;
+    color: #EEEEEE;
+    cursor: pointer;
+}
+
+.dropdownList{
+    width: 100%;
+    padding: 0px;
+    margin: 0px;
+
+    position: fixed;
+    top: 8.5%;
+
+    width: 100%;
+
+    padding: 0px;
+}
+
+.dropdownList li{
+    list-style: none;
+}
+
+.smallDropdown{
+    background: #009199;
+    font-size: 0px;
+    padding: 0px;
+}
+
+.dropdownList :nth-child(1) div.smallDropdown{
+    transition-delay: 0.0s;
+}
+
+.dropdownList :nth-child(2) div.smallDropdown{
+    transition-delay: 0.1s;
+}
+
+.dropdownList :nth-child(3) div.smallDropdown{
+    transition-delay: 0.2s;
+}
