@@ -22,4 +22,8 @@ function dropdownToggle(toggle, array) {
     return toggle;
 }
 
+function gotoHome() {
+    location.replace("")
+}
+
 // 
