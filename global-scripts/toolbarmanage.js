@@ -6,6 +6,9 @@
 // Button array on dropdown menu
 let buttonsArrayEl = docGetClass("dropdownButton");
 
+// Dropdown Buttons
+let gravSimBtnEl = replaceHTML('gravitySimBtn', 'Basic Gravity Simulator');
+
 // Toolbar Buttons
 let projectBtnEl = docGetID("projectsBtn");
 let homeBtnEl = docGetID("homeBtn");
@@ -21,3 +24,7 @@ projectBtnEl.addEventListener('click', function() {
 if(!homeBtnEl.classList.contains("active")){
     homeBtnEl.addEventListener('click', gotoHome);
 }
+
+gravSimBtnEl.addEventListener('click', function() {
+    location.replace('../gravitySim/');
+});

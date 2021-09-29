@@ -25,6 +25,12 @@ function dropdownToggle(toggle, array) {
     return toggle;
 }
 
+// - Replace ID & innerHTML -
+function replaceHTML(searchID, resultHTML) {
+    docGetID(searchID).innerHTML = resultHTML;
+    return docGetID(searchID);
+}
+
 // - Mouse handlers -
 function getMousePos(event, canvas) {
     let canvasOffset = canvas.getBoundingClientRect();
@@ -64,9 +70,9 @@ CanvasRenderingContext2D.prototype.roundRect = function (x, y, width, height, ra
 function checkButtonPress(event, button, canvas) {
     !event.preventDefault();
     mousePos = getMousePos(event, canvas);
-    if(mousePos.x > button.x && mousePos.y > button.y && mousePos.x < button.x+button.w && mousePos.y < button.y+button.h){
+    if (mousePos.x > button.x && mousePos.y > button.y && mousePos.x < button.x + button.w && mousePos.y < button.y + button.h) {
         return true;
-    } else{
+    } else {
         return false;
     }
 }
