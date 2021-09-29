@@ -3,7 +3,7 @@
 
 <head>
 
-    <title>Gravity Simulation</title>
+    <title>Document</title>
     <link rel="stylesheet" href="../style.css" type="text/css">
 
 </head>
@@ -14,7 +14,7 @@
 
         <div class="buttonContainer" id="btnContain">
 
-            <div class="button" id="homeBtn" unselectable="on" onselectstart="return false;"
+            <div class="button active" id="homeBtn" unselectable="on" onselectstart="return false;"
                 onmousedown="return false;">
                 Home
             </div>
@@ -50,14 +50,10 @@
         </li>
     </ul>
 
-    <!-- Add Canvas Element -->
-    <div id="canvasContainer">
-        <canvas id="gravityCanvas"></canvas>
-    </div>
 
     <!-- Background Image -->
     <div class="background">
-        <div class="slidingBackground greenBack"></div>
+        <div class="slidingBackground"></div>
     </div>
     <!-- Load JS -->
     <script src="../global-scripts/lib.js"></script>

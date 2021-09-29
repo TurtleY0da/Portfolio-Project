@@ -5,6 +5,8 @@
 // - HTML Element References -
 // Button array on dropdown menu
 let buttonsArrayEl = docGetClass("dropdownButton");
+
+// Toolbar Buttons
 let projectBtnEl = docGetID("projectsBtn");
 let homeBtnEl = docGetID("homeBtn");
 

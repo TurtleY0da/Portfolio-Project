@@ -7,8 +7,17 @@ body {
     font-family: 'Open Sans', sans-serif;
 }
 
+canvas {
+    position: relative;
+    z-index: 20;
+    margin: 20px;
+    margin-top: 100px;
+    background: rgb(235, 235, 235);
+    box-shadow: 0px 0px 5px rgb(255, 255, 255);
+}
+
 /* ID Selectors */
-#dropdown{
+#dropdown {
     background: #00ADB5;
 
     position: fixed;
@@ -21,12 +30,26 @@ body {
     justify-content: center;
 
     box-shadow: 0px 0px 7px black;
-    
+
 }
 
+#dropdownList {
+    width: 100%;
+    padding: 0px;
+    margin: 0px;
 
-/* Class Selectors */
-.topPanel {
+    box-shadow: 0px 0px 7px black;
+
+    position: fixed;
+    z-index: 70;
+    top: 8.4%;
+
+    width: 100%;
+
+    padding: 0px;
+}
+
+#topPanel {
     /* Background color shape, and position */
     z-index: 100;
 
@@ -37,7 +60,7 @@ body {
     width: 100%;
     height: 5%;
 
-    padding: 15px;
+    padding: 15px 0px;
 
     box-shadow: 0px 0px 7px black;
 
@@ -48,6 +71,29 @@ body {
     display: flex;
     justify-content: center;
 }
+
+#dropdownList li {
+    list-style: none;
+}
+
+#dropdownList :nth-child(1) div.smallDropdown {
+    transition-delay: 0.0s;
+}
+
+#dropdownList :nth-child(2) div.smallDropdown {
+    transition-delay: 0.1s;
+}
+
+#dropdownList :nth-child(3) div.smallDropdown {
+    transition-delay: 0.2s;
+}
+
+#canvasContainer {
+    text-align: center;
+}
+
+/* Class Selectors */
+
 
 .buttonContainer {
 
@@ -119,6 +165,9 @@ body {
     -ms-user-select: none;
     user-select: none;
     -o-user-select: none;
+
+    position: relative;
+    z-index: 70;
 }
 
 .dropdownButton:hover {
@@ -128,39 +177,43 @@ body {
     cursor: pointer;
 }
 
-#dropdownList{
-    width: 100%;
-    padding: 0px;
-    margin: 0px;
 
-    box-shadow: 0px 0px 7px black;
-
-    position: fixed;
-    top: 8.4%;
-
-    width: 100%;
-
-    padding: 0px;
-}
-
-#dropdownList li{
-    list-style: none;
-}
-
-.smallDropdown{
+.smallDropdown {
     background: #009199;
     font-size: 0px;
     padding: 0px;
 }
 
-#dropdownList :nth-child(1) div.smallDropdown{
-    transition-delay: 0.0s;
+.background {
+    overflow: hidden;
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
 }
 
-#dropdownList :nth-child(2) div.smallDropdown{
-    transition-delay: 0.1s;
+.slidingBackground {
+    position: relative;
+    z-index: 0;
+    background: url("./img/blueNebula.png") repeat;
+    height: 4320px;
+    width: 7680px;
+    animation: slide 180s linear infinite;
 }
 
-#dropdownList :nth-child(3) div.smallDropdown{
-    transition-delay: 0.2s;
+/* Background Overrides => */
+.greenBack{
+    background: url("./img/greenNebula.png") repeat;
 }
+
+/* Animation */
+
+@keyframes slide {
+    0% {
+      transform: translate3d(0, 0, 0);
+    }
+    100% {
+      transform: translate3d(-4096px, -3072px, 0); /* The image width */
+    }
+  }
