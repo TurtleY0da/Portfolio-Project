@@ -76,3 +76,18 @@ function checkButtonPress(event, button, canvas) {
         return false;
     }
 }
+
+function checkShift(shiftBool, newValue, oldValue) {
+    if(shiftBool){
+        if(newValue > oldValue){
+            return 4;
+        }else if (newValue < oldValue){
+            return -4;
+        } else {
+            console.log('down');
+            return 0;
+        }
+    } else {
+        return 0;
+    }
+}
