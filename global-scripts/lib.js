@@ -1,5 +1,8 @@
 // -- Global Functions --
 
+// Async Pause
+const timer = ms => new Promise(res => setTimeout(res, ms));
+
 // - Helpers -
 function docGetID(id) {
     return document.getElementById(id);
@@ -84,7 +87,6 @@ function checkShift(shiftBool, newValue, oldValue) {
         } else if (newValue < oldValue) {
             return -4;
         } else {
-            console.log('down');
             return 0;
         }
     } else {
@@ -198,9 +200,9 @@ function checkCells(gridArray) {
     return true;
 }
 
-// Calculate Decorative Circles
+// Calculate Decorative Squares
 
-function calculateCircles(gridArray) {
+function calculateSquares(gridArray) {
     let sets = new Object();
     for (let x = 0; x < gridArray.length; x++) {
         for (let y = 0; y < gridArray[0].length; y++) {
@@ -218,15 +220,172 @@ function calculateCircles(gridArray) {
     const maxNum = Math.max(...setsArray);
     const maxNumArrayIndex = setsArray.indexOf(maxNum);
     const propertyValue = +setsKey[maxNumArrayIndex]
-    
+
     let result = new Array();
 
     for (let x = 0; x < gridArray.length; x++) {
         for (let y = 0; y < gridArray[0].length; y++) {
-            if (gridArray[x][y].set === propertyValue){
+            if (gridArray[x][y].set === propertyValue) {
                 result.push(gridArray[x][y]);
             }
         }
     }
     return result;
+}
+
+// Convert cells and walls to maze
+function convertToMaze(wallsObject, gridSize) {
+    let mazeArray = new Array();
+
+    for (let x = 0; x < (gridSize.width * 2) - 1; x++) {
+        mazeArray.push(new Array());
+        for (let y = 0; y < (gridSize.height * 2) - 1; y++) {
+            mazeArray[x].push(new Object({
+                x: x,
+                y: y,
+                gCost: 0,
+                hCost: 0,
+                fCost: 0,
+                type: undefined,
+                parent: undefined
+            }));
+
+            if (x % 2 === 0 && y % 2 === 0) {
+                mazeArray[x][y].type = 'emptyCell';
+            }
+
+            if (x % 2 === 1 && y % 2 === 1) {
+                mazeArray[x][y].type = 'wall';
+            }
+
+            if (x % 2 === 1 && y % 2 === 0) {
+                check_horizontal_walls: for (let arrayY = 0; arrayY < wallsObject.horizontalWalls.length; arrayY++) {
+                    for (let arrayX = 0; arrayX < wallsObject.horizontalWalls[arrayY].length; arrayX++) {
+                        if (wallsObject.horizontalWalls[arrayY][arrayX].leftCell.x * 2 + 1 === x && wallsObject.horizontalWalls[arrayY][arrayX].leftCell.y * 2 === y) {
+                            mazeArray[x][y].type = 'wall'
+                            break check_horizontal_walls;
+                        }
+                    }
+                }
+            }
+
+            if (x % 2 === 0 && y % 2 === 1) {
+                check_vertical_walls: for (let arrayX = 0; arrayX < wallsObject.verticalWalls.length; arrayX++) {
+                    for (let arrayY = 0; arrayY < wallsObject.verticalWalls[arrayX].length; arrayY++) {
+                        if (wallsObject.verticalWalls[arrayX][arrayY].aboveCell.x * 2 === x && wallsObject.verticalWalls[arrayX][arrayY].aboveCell.y * 2 + 1 === y) {
+                            mazeArray[x][y].type = 'wall'
+                            break check_vertical_walls;
+                        }
+                    }
+                }
+            }
+
+            if (mazeArray[x][y].type === undefined) {
+                mazeArray[x][y].type = 'emptyCell';
+            }
+
+            if (x === gridSize.width * 2 - 2 && y === 0) {
+                mazeArray[x][y].type = 'exitCell';
+            }
+
+            if (x === 0 && y === gridSize.height * 2 - 2) {
+                mazeArray[x][y].type = 'entranceCell';
+            }
+
+        }
+    }
+    return mazeArray;
+}
+
+// Find a path to the end
+function findPath(startingNode, targetNode, mazeGrid) {
+    let openSet = new Array();
+    let closedSet = new Array();
+
+    startingNode.hCost = getDistance(startingNode, targetNode);
+    startingNode.fCost = startingNode.gCost+startingNode.hCost;
+
+    openSet.push(startingNode);
+    while(openSet.length > 0){
+        let node = openSet[0]
+        let index = 0;
+
+        for(let n = 1; n < openSet.length; n++){
+            if(openSet[n].fCost <= node.fCost){
+                if(openSet[n].hCost < node.hCost){
+                    node = openSet[n];
+                    index = n;
+                }
+            }
+        }
+
+        openSet.splice(index, 1);
+        closedSet.push(node);
+
+        if(node === targetNode){
+            let path = retracePath(startingNode, targetNode);
+            let result = {
+                path:path,
+                closedSet:closedSet,
+            }
+            return result;
+        }
+
+        for(const neighbour of getNeighbours(mazeGrid, node)){
+            if(neighbour.type === 'wall' || closedSet.includes(neighbour)) continue;
+
+            let newGCost = node.gCost + getDistance(node, neighbour);
+            if (newGCost < neighbour.gCost || !openSet.includes(neighbour)) {
+                neighbour.gCost = newGCost;
+                neighbour.hCost = getDistance(neighbour, targetNode);
+                neighbour.parent = node;
+
+                if (!openSet.includes(neighbour)) openSet.push(neighbour);
+            }
+        }
+    }
+}
+
+// Retrace Final Path
+function retracePath(startingNode, targetNode) {
+    let path = new Array();
+    let currentNode = targetNode;
+
+    while (currentNode != startingNode) {
+        path.push(currentNode);
+        currentNode = currentNode.parent;
+    }
+
+    path.reverse();
+    return path;
+}
+
+// Get distance to a cell
+function getDistance(startingNode, targetNode) {
+    const dstX = Math.abs(startingNode.x - targetNode.x);
+    const dstY = Math.abs(startingNode.y - targetNode.y);
+
+    if (dstX > dstY) return 14 * dstY + 10 * (dstX - dstY);
+
+    return 14 * dstX + 10 * (dstY - dstX);
+}
+
+// Get neighbours of cell
+function getNeighbours(mazeGrid, node) {
+    let neighbours = new Array();
+
+    for(let x = -1; x <= 1; x++){
+        for(let y = -1; y <= 1; y++){
+            if (x === 0 && y === 0) continue;
+            if (Math.abs(x) === 1 && Math.abs(y) === 1) continue;
+
+            let checkX = node.x + x;
+			let checkY = node.y + y;
+
+            if (checkX >= 0 && checkX < mazeGrid.length && checkY >= 0 && checkY < mazeGrid[0].length) {
+                neighbours.push(mazeGrid[checkX][checkY]);
+            }
+        }
+    }
+    return neighbours;
 }

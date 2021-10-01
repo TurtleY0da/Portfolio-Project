@@ -56,11 +56,13 @@
             Width: <input type="number" min="8" max="48" value="16" id="mazeWidthIn" onkeydown="return false">
             Height: <input type="number" min="8" max="27" value="9" id="mazeHeightIn" onkeydown="return false">
             Iteration Time: <input type="number" min="1" max="50" value="2" id="genSpeedIn" onkeydown="return false">
-            Show Widgets:<input type="checkbox" id="showWidgetsBox" class="checkbox" onkeydown="return false">
+            Show Widgets:<input type="checkbox" id="showWidgetsBox" class="checkbox" onkeydown="return false"> 
+            Solve Maze:<input type="checkbox" id="solveMazeBox" class="checkbox" onkeydown="return false">
             <br>
 
             <button id="generateBtn" unselectable="on" onselectstart="return false;"
                 onmousedown="return false;">Generate</button>
+
         </p>
         <canvas id="mazeCanvas"></canvas>
     </div>

@@ -13,6 +13,7 @@ let inputs = {
     heightEl: docGetID("mazeHeightIn"),
     speedEl: docGetID("genSpeedIn"),
     showWidgetsEl: docGetID("showWidgetsBox"),
+    solveMazeEl: docGetID("solveMazeBox"),
     generateBtnEl: docGetID("generateBtn")
 };
 
@@ -26,17 +27,29 @@ let iterator = {
     speed: 2
 }
 
+let solutionDraw = {
+    closedSet: 0,
+    path: 0
+}
+
 margin = 18;
 
 let grid = new Array();
 
 let circles = new Array();
 
-let walls = {};
+let maze = new Array();
 
-let go = false;
+let walls = new Object();
+
+let result = new Object();
 
 let color = 'black';
+
+let mazeSolver = {
+    solve: false,
+    solved: false,
+};
 
 // - Glbl Variables -
 
@@ -54,20 +67,57 @@ requestAnimationFrame(drawLoop);
 function drawLoop() {
     // - Draw -
 
-    drawGrid(cnv, ctx, grid, margin, color);
+    if (!mazeSolver.solved) {
+        drawGrid(cnv, ctx, grid, margin, color);
+        drawWalls(ctx, walls, margin);
+        if (inputs.showWidgetsEl.checked) {
+            squares = calculateSquares(grid);
 
-    if(inputs.showWidgetsEl.checked){
-        circles = calculateCircles(grid);
+            ctx.fillStyle = 'rgb(0,10,255)';
+            squares.forEach(element => {
+                ctx.fillRect(element.x * 20 + margin + 2, element.y * 20 + margin + 2, 6, 6)
+            });
+            ctx.fillStyle = 'white';
+            ctx.fillText(`Common ID: ${squares[0].set}`, 2, 10)
+        }
+    } else {
+        if (solutionDraw.closedSet === 0 && solutionDraw.path === 0) {
+            color = 'white';
+            drawGrid(cnv, ctx, grid, margin, color);
+            drawWalls(ctx, walls, margin);
+        }
 
-    ctx.fillStyle = 'rgb(0,10,255)';
-    circles.forEach(element => {
-        ctx.fillRect(element.x * 20 + margin + 2, element.y * 20 + margin + 2, 6, 6)
-    });
-    ctx.fillStyle = 'white';
-    ctx.fillText(`Common ID: ${circles[0].set}`,2,10)
+        if (solutionDraw.closedSet !== result.closedSet.length) {
+            
+            if (solutionDraw.closedSet === 0) {
+                ctx.fillStyle = '#00FF00'
+            } else if (solutionDraw.closedSet === result.closedSet.length - 1) {
+                ctx.fillStyle = '#FF0000'
+            } else {
+                ctx.fillStyle = 'orange'   
+            }
+            ctx.fillRect(result.closedSet[solutionDraw.closedSet].x * 10 + margin, result.closedSet[solutionDraw.closedSet].y * 10 + margin, 10, 10);
+            solutionDraw.closedSet++;
+        } else if (solutionDraw.path !== result.path.length) {
+            ctx.lineWidth = 2;
+            ctx.lineCap = "round";
+            ctx.strokeStyle = ctx.fillStyle = '#12756b';
+            if (solutionDraw.path === 0) {
+                ctx.beginPath();
+                ctx.moveTo(maze[0][maze[0].length - 1].x * 10 + margin + 5, maze[0][maze[0].length - 1].y * 10 + margin + 5);
+                ctx.lineTo(result.path[solutionDraw.path].x * 10 + margin + 5, result.path[solutionDraw.path].y * 10 + margin + 5);
+                ctx.stroke();
+            } else {
+                ctx.beginPath();
+                ctx.moveTo(result.path[solutionDraw.path - 1].x * 10 + margin + 5, result.path[solutionDraw.path - 1].y * 10 + margin + 5);
+                ctx.lineTo(result.path[solutionDraw.path].x * 10 + margin + 5, result.path[solutionDraw.path].y * 10 + margin + 5);
+                ctx.stroke();
+            }
+            // ctx.fillStyle = '#12756b';
+            // ctx.fillRect(result.path[solutionDraw.path].x * 10 + margin, result.path[solutionDraw.path].y * 10 + margin, 10, 10);
+            solutionDraw.path++;
+        }
     }
-
-    drawWalls(ctx, walls, margin);
 
     // - End -
     requestAnimationFrame(drawLoop);
@@ -76,10 +126,6 @@ function drawLoop() {
 // -- Add Event Listeners
 
 inputs.generateBtnEl.addEventListener('click', generate);
-
-cnv.addEventListener('click', function () {
-    go = true;
-});
 
 // -- Functions --
 
@@ -98,10 +144,14 @@ function generate() {
     drawGrid(cnv, ctx, grid, margin);
     drawWalls(ctx, walls, margin);
 
-
+    mazeSolver.solve = inputs.solveMazeEl.checked;
+    mazeSolver.solved = false;
 
     iterator.speed = +inputs.speedEl.value;
     iterator.cycle = +inputs.speedEl.value;
+
+    solutionDraw.closedSet = 0;
+    solutionDraw.path = 0;
 }
 
 function genLoop() {
@@ -180,6 +230,21 @@ function genLoop() {
                     }
 
                 }
+            } else if (mazeSolver.solve && !mazeSolver.solved) {
+                mazeSolver.solved = true;
+
+                drawGrid(cnv, ctx, grid, margin, color);
+                drawWalls(ctx, walls, margin);
+
+                maze = []
+
+                maze = convertToMaze(walls, gridSize);
+
+                console.log(JSON.stringify(maze));
+
+                result = {}
+
+                result = findPath(maze[0][maze[0].length - 1], maze[maze.length - 1][0], maze);
             } else {
                 color = 'white';
             }
