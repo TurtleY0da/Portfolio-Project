@@ -8,6 +8,7 @@ let buttonsArrayEl = docGetClass("dropdownButton");
 
 // Dropdown Buttons
 let gravSimBtnEl = replaceHTML('gravitySimBtn', 'Basic Gravity Simulator');
+let mazeGenBtnEl = replaceHTML('mazeGenBtn', 'Random Maze Generator');
 
 // Toolbar Buttons
 let projectBtnEl = docGetID("projectsBtn");
@@ -27,4 +28,8 @@ if(!homeBtnEl.classList.contains("active")){
 
 gravSimBtnEl.addEventListener('click', function() {
     location.replace('../gravitySim/');
+});
+
+mazeGenBtnEl.addEventListener('click', function() {
+    location.replace('../randomMaze/');
 });

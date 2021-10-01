@@ -195,7 +195,6 @@ function loop() {
         ctx.beginPath();
         ctx.moveTo(circle.x, circle.y);
         ctx.lineTo(indicator.destX, indicator.destY);
-        ctx.closePath();
         ctx.stroke();
     }
 
@@ -217,13 +216,13 @@ cnv.addEventListener('mousemove', function (event) {
 });
 
 document.addEventListener('keydown', function(event){
-    if(event.key == 'Shift'){
+    if(event.key === 'Shift'){
         shiftDown = true;
     }
 });
 
 document.addEventListener('keyup', function(event){
-    if(event.key == 'Shift'){
+    if(event.key === 'Shift'){
         shiftDown = false;
     }
 });

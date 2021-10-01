@@ -3,7 +3,7 @@
 
 <head>
 
-    <title>Name</title>
+    <title>Maze Generator</title>
     <link rel="stylesheet" href="../style.css" type="text/css">
 
 </head>
@@ -51,11 +51,23 @@
     </ul>
 
     <!-- Add Canvas Element -->
-    <canvas id="myCanvas"></canvas>
+    <div id="canvasContainer">
+        <p>
+            Width: <input type="number" min="8" max="48" value="16" id="mazeWidthIn" onkeydown="return false">
+            Height: <input type="number" min="8" max="27" value="9" id="mazeHeightIn" onkeydown="return false">
+            Iteration Time: <input type="number" min="1" max="50" value="2" id="genSpeedIn" onkeydown="return false">
+            Show Widgets:<input type="checkbox" id="showWidgetsBox" class="checkbox" onkeydown="return false">
+            <br>
+
+            <button id="generateBtn" unselectable="on" onselectstart="return false;"
+                onmousedown="return false;">Generate</button>
+        </p>
+        <canvas id="mazeCanvas"></canvas>
+    </div>
 
     <!-- Background Image -->
     <div class="background">
-        <div class="slidingBackground"></div>
+        <div class="slidingBackground greenBack"></div>
     </div>
 
     <!-- Load JS -->

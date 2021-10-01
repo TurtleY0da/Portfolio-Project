@@ -19,20 +19,54 @@ p {
     color: #EEEEEE;
     font-weight: 400;
     font-size: 12px;
-    letter-spacing: 3px;
+    letter-spacing: 2px;
 
     margin: 0px;
     position: relative;
     z-index: 20;
 }
 
-h3{
-    font-weight: 300;
-    color: #AAAAAA;
+button{
+    margin-top: 8px;
+    margin-bottom: 4px;
+    padding: 5px 10px;
 
-    margin: 2px;
-    position: relative;
-    z-index: 20;
+    background: #009199;
+    border-radius: 4px;
+    border: 0px;
+
+    font-size: 18px;
+    color: #EEEEEE;
+    text-shadow: 1px 1px black;
+
+    transition: 250ms;
+
+    /* Selection */
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -o-user-select: none;
+}
+
+button:hover{
+    margin-top: 6px;
+    margin-bottom: 6px;
+
+    background: #EEEEEE;
+
+    color: #009199;
+}
+
+button:active{
+    transition: 55ms;
+
+    margin-top: 10px;
+    margin-bottom: 2px;
+
+    background: #00696E;
+
+    color: #EEEEEE;
 }
 
 /* ID Selectors */
@@ -205,6 +239,11 @@ h3{
     height: 4320px;
     width: 7680px;
     animation: slide 180s linear infinite;
+}
+
+.checkbox{
+    position: relative;
+    vertical-align: middle;
 }
 
 /* Background Overrides => */
