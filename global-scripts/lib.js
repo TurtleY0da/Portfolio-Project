@@ -303,16 +303,16 @@ function findPath(startingNode, targetNode, mazeGrid) {
     let closedSet = new Array();
 
     startingNode.hCost = getDistance(startingNode, targetNode);
-    startingNode.fCost = startingNode.gCost+startingNode.hCost;
+    startingNode.fCost = startingNode.gCost + startingNode.hCost;
 
     openSet.push(startingNode);
-    while(openSet.length > 0){
+    while (openSet.length > 0) {
         let node = openSet[0]
         let index = 0;
 
-        for(let n = 1; n < openSet.length; n++){
-            if(openSet[n].fCost <= node.fCost){
-                if(openSet[n].hCost < node.hCost){
+        for (let n = 1; n < openSet.length; n++) {
+            if (openSet[n].fCost <= node.fCost) {
+                if (openSet[n].hCost < node.hCost) {
                     node = openSet[n];
                     index = n;
                 }
@@ -322,17 +322,17 @@ function findPath(startingNode, targetNode, mazeGrid) {
         openSet.splice(index, 1);
         closedSet.push(node);
 
-        if(node === targetNode){
+        if (node === targetNode) {
             let path = retracePath(startingNode, targetNode);
             let result = {
-                path:path,
-                closedSet:closedSet,
+                path: path,
+                closedSet: closedSet,
             }
             return result;
         }
 
-        for(const neighbour of getNeighbours(mazeGrid, node)){
-            if(neighbour.type === 'wall' || closedSet.includes(neighbour)) continue;
+        for (const neighbour of getNeighbours(mazeGrid, node)) {
+            if (neighbour.type === 'wall' || closedSet.includes(neighbour)) continue;
 
             let newGCost = node.gCost + getDistance(node, neighbour);
             if (newGCost < neighbour.gCost || !openSet.includes(neighbour)) {
@@ -374,13 +374,13 @@ function getDistance(startingNode, targetNode) {
 function getNeighbours(mazeGrid, node) {
     let neighbours = new Array();
 
-    for(let x = -1; x <= 1; x++){
-        for(let y = -1; y <= 1; y++){
+    for (let x = -1; x <= 1; x++) {
+        for (let y = -1; y <= 1; y++) {
             if (x === 0 && y === 0) continue;
             if (Math.abs(x) === 1 && Math.abs(y) === 1) continue;
 
             let checkX = node.x + x;
-			let checkY = node.y + y;
+            let checkY = node.y + y;
 
             if (checkX >= 0 && checkX < mazeGrid.length && checkY >= 0 && checkY < mazeGrid[0].length) {
                 neighbours.push(mazeGrid[checkX][checkY]);

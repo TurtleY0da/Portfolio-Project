@@ -39,6 +39,8 @@ button{
     color: #EEEEEE;
     text-shadow: 1px 1px black;
 
+    box-shadow: 0px 5px grey;
+
     transition: 250ms;
 
     /* Selection */
@@ -53,6 +55,8 @@ button:hover{
     margin-top: 6px;
     margin-bottom: 6px;
 
+    box-shadow: 0px 7px grey;
+
     background: #EEEEEE;
 
     color: #009199;
@@ -63,6 +67,8 @@ button:active{
 
     margin-top: 10px;
     margin-bottom: 2px;
+
+    box-shadow: 0px 3px grey;
 
     background: #00696E;
 
@@ -128,6 +134,10 @@ button:active{
 #canvasContainer {
     margin-top: 85px;
     text-align: center;
+}
+
+#test{
+    height: 5000px;
 }
 
 /* Class Selectors */
@@ -233,7 +243,7 @@ button:active{
 }
 
 .slidingBackground {
-    position: relative;
+    position: fixed;
     z-index: 0;
     background: url("./img/blueNebula.png") repeat;
     height: 4320px;
