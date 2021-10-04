@@ -12,7 +12,7 @@
     <!-- Top Panel Region -->
     <div id="topPanel">
 
-        <div class="buttonContainer" id="btnContain">
+        <div id="buttonContainer">
 
             <div class="button" id="homeBtn" unselectable="on" onselectstart="return false;"
                 onmousedown="return false;">
@@ -48,6 +48,12 @@
                 Button 3
             </div>
         </li>
+        <li>
+            <div class="dropdownButton smallDropdown" id="button4" unselectable="on" onselectstart="return false;"
+            onmousedown="return false;">
+                Button 4
+            </div>
+        </li>
     </ul>
 
     <!-- Add Canvas Element -->
@@ -56,8 +62,8 @@
             Width: <input type="number" min="8" max="48" value="16" id="mazeWidthIn" onkeydown="return false">
             Height: <input type="number" min="8" max="27" value="9" id="mazeHeightIn" onkeydown="return false">
             Iteration Time: <input type="number" min="1" max="50" value="2" id="genSpeedIn" onkeydown="return false">
-            Show Widgets:<input type="checkbox" id="showWidgetsBox" class="checkbox" onkeydown="return false"> 
-            Solve Maze:<input type="checkbox" id="solveMazeBox" class="checkbox" onkeydown="return false">
+            Show Widgets:<input type="checkbox" id="showWidgetsBox" class="vertCenter" onkeydown="return false"> 
+            Solve Maze:<input type="checkbox" id="solveMazeBox" class="vertCenter" onkeydown="return false">
             <br>
 
             <button id="generateBtn" unselectable="on" onselectstart="return false;"

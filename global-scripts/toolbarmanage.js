@@ -9,7 +9,7 @@ let buttonsArrayEl = docGetClass("dropdownButton");
 // Dropdown Buttons
 let gravSimBtnEl = replaceHTML('gravitySimBtn', 'Basic Gravity Simulator');
 let mazeGenBtnEl = replaceHTML('mazeGenBtn', 'Random Maze Generator');
-let gridSnapBtnEl = replaceHTML('gridSnapBtn', 'Grid Snapping Experiment');
+let gridSnapBtnEl = replaceHTML('gridSnapBtn', 'Pixel Art Experiment');
 
 // Toolbar Buttons
 let projectBtnEl = docGetID("projectsBtn");

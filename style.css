@@ -115,6 +115,17 @@ button:active{
     justify-content: center;
 }
 
+#buttonContainer {
+
+    width: fit-content;
+    height: fit-content;
+
+    /* Children Grid */
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 20px;
+}
+
 #dropdownList li {
     list-style: none;
 }
@@ -131,6 +142,10 @@ button:active{
     transition-delay: 0.2s;
 }
 
+#dropdownList :nth-child(4) div.smallDropdown {
+    transition-delay: 0.3s;
+}
+
 #canvasContainer {
     margin-top: 85px;
     text-align: center;
@@ -141,18 +156,6 @@ button:active{
 }
 
 /* Class Selectors */
-
-
-.buttonContainer {
-
-    width: fit-content;
-    height: fit-content;
-
-    /* Children Grid */
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-gap: 20px;
-}
 
 .button {
     /* Background Color and Shape */
@@ -251,7 +254,7 @@ button:active{
     animation: slide 180s linear infinite;
 }
 
-.checkbox{
+.vertCenter{
     position: relative;
     vertical-align: middle;
 }

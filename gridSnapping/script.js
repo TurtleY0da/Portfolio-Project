@@ -1,4 +1,4 @@
-// [Name] by Timothy V 
+// Grid Snapping Script by Timothy V 
 
 // Initialize Variables
 
@@ -7,11 +7,17 @@ let cnv = document.getElementById("gridCanvas");
 
 // Glbl Variables
 
+let inputs = {
+    colorEl: docGetID("colorIn"),
+    eraseEl: docGetID("eraseBtn")
+};
+
 let grid = create80x45();
 
 let mouse = {
     x: 0,
-    y: 0
+    y: 0,
+    down: false
 };
 
 // -- Canvas & Context setup
@@ -35,8 +41,10 @@ function loop() {
 
     for (let x = 0; x < 80; x++) {
         for (let y = 0; y < 45; y++) {
+
             ctx.fillStyle = grid[x][y].type;
-            ctx.fillRect(x * 13, y * 13, 13, 13);
+
+            ctx.fillRect(x * 13 + 1, y * 13 + 1, 12, 12);
         }
     }
 
@@ -48,6 +56,10 @@ function loop() {
 cnv.addEventListener('mousemove', mouseMoveHandler);
 
 cnv.addEventListener('mousedown', mouseDownHandler);
+cnv.addEventListener('mouseup', mouseUpHandler);
+cnv.addEventListener('mouseleave', mouseUpHandler);
+
+inputs.eraseEl.addEventListener('mousedown', erase);
 
 // -- Functions --
 
@@ -60,26 +72,21 @@ function mouseMoveHandler(event) {
 }
 
 function mouseDownHandler() {
-    let column = 0;
-    let row = 0;
+    mouse.down = true;
+}
 
+function mouseUpHandler() {
+    mouse.down = false;
+}
+
+function erase() {
     for (let x = 0; x < 80; x++) {
+        for (let y = 0; y < 45; y++) {
 
-        if (Math.abs((x * 13 + 6.5) - mouse.x) < Math.abs((column * 13 + 6.5) - mouse.x)) {
-            column = x;
+            grid[x][y].active = false;
+
         }
-
     }
-
-    for (let y = 0; y < 80; y++) {
-
-        if (Math.abs((y * 13 + 6.5) - mouse.y) < Math.abs((row * 13 + 6.5) - mouse.y)) {
-            row = y;
-        }
-
-    }
-
-    grid[column][row].active = true;
 }
 
 // - Functions -
@@ -108,10 +115,19 @@ function updateLoop() {
 
     for (let x = 0; x < 80; x++) {
         for (let y = 0; y < 45; y++) {
-            grid[x][y].type = 'lightgrey';
+            if (!grid[x][y].active) {
+                grid[x][y].type = 'lightgrey';
+            }
         }
     }
 
-    grid[column][row].type = 'grey';
+    if (!grid[column][row].active) {
+        grid[column][row].type = 'grey';
+    }
+
+    if (mouse.down) {
+        grid[column][row].active = true;
+        grid[column][row].type = inputs.colorEl.value;
+    }
 
 }
