@@ -389,3 +389,31 @@ function getNeighbours(mazeGrid, node) {
     }
     return neighbours;
 }
+
+// - Grid snapping -
+
+// Generate 80 x 45 grid
+function create80x45() {
+
+    let array = new Array();
+
+    for(let x = 0; x < 80; x++){
+
+        array.push(new Array());
+
+        for(let y = 0; y < 45; y++){
+
+            array[x].push(new Object({
+                x:x,
+                y:y,
+                type: 'white',
+                active: false
+            }));
+
+        }
+
+    }
+
+    return array;
+
+}
