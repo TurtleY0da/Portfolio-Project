@@ -249,6 +249,10 @@ button:active{
     bottom: 0;
 }
 
+.canvasImage{
+    display: none;
+}
+
 .slidingBackground {
     position: fixed;
     z-index: 0;
