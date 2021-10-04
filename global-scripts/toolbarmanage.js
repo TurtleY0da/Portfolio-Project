@@ -10,6 +10,7 @@ let buttonsArrayEl = docGetClass("dropdownButton");
 let gravSimBtnEl = replaceHTML('gravitySimBtn', 'Basic Gravity Simulator');
 let mazeGenBtnEl = replaceHTML('mazeGenBtn', 'Random Maze Generator');
 let gridSnapBtnEl = replaceHTML('gridSnapBtn', 'Pixel Art Experiment');
+let imgZoomBtnEl = replaceHTML('imgZoomBtn', 'Image Zoom Experiment');
 
 // Toolbar Buttons
 let projectBtnEl = docGetID("projectsBtn");
@@ -37,4 +38,8 @@ mazeGenBtnEl.addEventListener('click', function() {
 
 gridSnapBtnEl.addEventListener('click', function() {
     location.replace('../gridSnapping/');
+});
+
+imgZoomBtnEl.addEventListener('click', function() {
+    location.replace('../imageZoom/');
 });

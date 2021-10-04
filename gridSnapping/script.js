@@ -12,20 +12,20 @@ let inputs = {
     eraseEl: docGetID("eraseBtn")
 };
 
-let grid = create80x45();
-
 let mouse = {
     x: 0,
     y: 0,
     down: false
 };
 
+let grid = create80x45();
+
 // -- Canvas & Context setup
 /** @type {CanvasRenderingContext2D} */
 let ctx = cnv.getContext("2d");
 
-cnv.width = 1040;
-cnv.height = 585;
+cnv.width = 1041;
+cnv.height = 586;
 
 // -- Main Loop --
 requestAnimationFrame(loop);
