@@ -1,6 +1,6 @@
 // -- Global Functions --
 
-// Async Pause
+// - Async Pause -
 const timer = ms => new Promise(res => setTimeout(res, ms));
 
 // - Helpers -
@@ -52,7 +52,7 @@ function gotoHome() {
     location.replace("../mainPage/")
 }
 
-// Rounded Rectangle
+// - Rounded Rectangle -
 CanvasRenderingContext2D.prototype.roundRect = function (x, y, width, height, radius) {
     if (width < 2 * radius) radius = width / 2;
     if (height < 2 * radius) radius = height / 2;
@@ -64,6 +64,13 @@ CanvasRenderingContext2D.prototype.roundRect = function (x, y, width, height, ra
     this.arcTo(x, y, x + width, y, radius);
     this.closePath();
     return this;
+}
+
+// - Create an Image -
+function createImage(width, height, x, y, source, canvas2dContext, mouse) {
+
+    canvas2dContext.drawImage(source, x, y, width, height);
+
 }
 
 // -- Local Functions --
@@ -397,15 +404,15 @@ function create80x45() {
 
     let array = new Array();
 
-    for(let x = 0; x < 80; x++){
+    for (let x = 0; x < 80; x++) {
 
         array.push(new Array());
 
-        for(let y = 0; y < 45; y++){
+        for (let y = 0; y < 45; y++) {
 
             array[x].push(new Object({
-                x:x,
-                y:y,
+                x: x,
+                y: y,
                 type: 'white',
                 active: false
             }));
