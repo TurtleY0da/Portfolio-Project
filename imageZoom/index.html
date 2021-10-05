@@ -3,7 +3,7 @@
 
 <head>
 
-    <title>Name</title>
+    <title>Image Zoomer</title>
     <link rel="stylesheet" href="../style.css" type="text/css">
 
 </head>
@@ -58,13 +58,16 @@
 
     <!-- Add Canvas Element -->
     <div id="canvasContainer">
-        <img src="../img/exampleImage.jpg" alt="exampleImage" class="canvasImage">
-        <canvas id="myCanvas"></canvas>
+        <p>
+            Press + and - to zoom in and out. Use the arrow keys to move the image around. Hold shift to move & zoom faster
+        </p>
+        <img src="../img/exampleImage.jpg" alt="exampleImage" class="canvasImage" id="exampleImage">
+        <canvas id="zoomCanvas"></canvas>
     </div>
 
     <!-- Background Image -->
     <div class="background">
-        <div class="slidingBackground redBack"></div>
+        <div class="slidingBackground purpleBack"></div>
     </div>
 
     <!-- Load JS -->

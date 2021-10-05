@@ -272,6 +272,10 @@ button:active{
     background: url("./img/greenNebula.png") repeat;
 }
 
+.purpleBack {
+    background: url("./img/purpleNebula.png") repeat;
+}
+
 /* Animation */
 
 @keyframes slide {
