@@ -1,4 +1,4 @@
-// -- Global Functions --
+6 // -- Global Functions --
 
 // - Async Pause -
 const timer = ms => new Promise(res => setTimeout(res, ms));
@@ -67,10 +67,17 @@ CanvasRenderingContext2D.prototype.roundRect = function (x, y, width, height, ra
 }
 
 // - Create an Image -
-function createImage(width, height, x, y, source, canvas2dContext, mouse) {
+function createImage(source, canvas2dContext, canvas) {
 
-    canvas2dContext.drawImage(source, x, y, width, height);
+    let width = canvas.width + (source.zoom * (canvas.width / canvas.height))
+	let height = canvas.height + source.zoom;
 
+    let coords = {
+        x: 0 - (source.x / canvas.width) * (width - canvas.width),
+        y: 0 - (source.y / canvas.height) * (height - canvas.height)
+    };
+
+    canvas2dContext.drawImage(source.url, coords.x, coords.y, width, height);
 }
 
 // -- Local Functions --
