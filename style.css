@@ -159,6 +159,18 @@ button:active{
     cursor: crosshair;
 }
 
+#launchBtn{
+    background: #ca0000;
+}
+
+#launchBtn:hover{
+    background: #ff5353;
+}
+
+#launchBtn:active{
+    background: #8d0000;
+}
+
 /* Class Selectors */
 
 .button {

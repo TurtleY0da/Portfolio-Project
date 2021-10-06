@@ -70,7 +70,7 @@ CanvasRenderingContext2D.prototype.roundRect = function (x, y, width, height, ra
 function createImage(source, canvas2dContext, canvas) {
 
     let width = canvas.width + (source.zoom * (canvas.width / canvas.height))
-	let height = canvas.height + source.zoom;
+    let height = canvas.height + source.zoom;
 
     let coords = {
         x: 0 - (source.x / canvas.width) * (width - canvas.width),
@@ -430,4 +430,18 @@ function create80x45() {
 
     return array;
 
+}
+
+// - Fireworks -
+
+// Create a firework
+
+function createFirework(canvas) {
+    let firework = {
+        x: canvas.width / 2,
+        y: canvas.height + 10,
+        motionX: (Math.random()*4)-2,
+        motionY: -13+(Math.random()*4)-2
+    }
+    return firework;
 }

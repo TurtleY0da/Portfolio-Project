@@ -3,7 +3,7 @@
 
 <head>
 
-    <title>Gravity Simulation</title>
+    <title>Firework Simulation</title>
     <link rel="stylesheet" href="../style.css" type="text/css">
 
 </head>
@@ -50,33 +50,31 @@
         </li>
         <li>
             <div class="dropdownButton smallDropdown" id="imgZoomBtn" unselectable="on" onselectstart="return false;"
-            onmousedown="return false;">
+                onmousedown="return false;">
                 Button 4
             </div>
         </li>
         <li>
-            <div class="dropdownButton smallDropdown" id="fireworkSimBtn" unselectable="on" onselectstart="return false;"
-                onmousedown="return false;">
+            <div class="dropdownButton smallDropdown" id="fireworkSimBtn" unselectable="on"
+                onselectstart="return false;" onmousedown="return false;">
                 Button 5
             </div>
         </li>
     </ul>
 
-    <!-- Add Canvas Element & Input Elements -->
+    <!-- Add Canvas Element -->
     <div id="canvasContainer">
         <p>
-            X Pos: <input type="number" min="-462" max="462" value="0" id="xPosIn" onkeydown="return false">
-            Y Pos: <input type="number" min="-238" max="238" value="0" id="yPosIn" onkeydown="return false">
-            X Motion: <input type="number" min="-50" max="50" value="0" id="xMotionIn" onkeydown="return false">
-            Y Motion: <input type="number" min="-50" max="50" value="0" id="yMotionIn" onkeydown="return false">
+            <button id="launchBtn">Launch</button>
         </p>
-        <canvas id="gravityCanvas"></canvas>
+        <canvas id="fireworkCanvas"></canvas>
     </div>
 
     <!-- Background Image -->
     <div class="background">
         <div class="slidingBackground greenBack"></div>
     </div>
+
     <!-- Load JS -->
     <script src="../global-scripts/lib.js"></script>
     <script src="script.js"></script>

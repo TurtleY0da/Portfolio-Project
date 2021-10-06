@@ -11,6 +11,7 @@ let gravSimBtnEl = replaceHTML('gravitySimBtn', 'Basic Gravity Simulator');
 let mazeGenBtnEl = replaceHTML('mazeGenBtn', 'Random Maze Generator');
 let gridSnapBtnEl = replaceHTML('gridSnapBtn', 'Pixel Art Experiment');
 let imgZoomBtnEl = replaceHTML('imgZoomBtn', 'Image Zoom Experiment');
+let fireworkSimBtnEl = replaceHTML('fireworkSimBtn', 'Firework Simulator');
 
 // Toolbar Buttons
 let projectBtnEl = docGetID("projectsBtn");
@@ -42,4 +43,8 @@ gridSnapBtnEl.addEventListener('click', function() {
 
 imgZoomBtnEl.addEventListener('click', function() {
     location.replace('../imageZoom/');
+});
+
+fireworkSimBtnEl.addEventListener('click', function() {
+    location.replace('../fireworkSim/');
 });
