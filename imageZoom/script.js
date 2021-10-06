@@ -60,17 +60,17 @@ function loop() {
 
     if(!controls.shift){
         if(controls.up && image.y > 0){
-            image.y -= 3/image.zooming;
+            image.y -= 6/image.zooming;
         }
         if(controls.down && image.y < 585){
-            image.y += 3/image.zooming;
+            image.y += 6/image.zooming;
         }
     
         if(controls.left && image.x > 0){
-            image.x -= 3/image.zooming;
+            image.x -= 6/image.zooming;
         }
         if(controls.right && image.x < 1040){
-            image.x += 3/image.zooming;
+            image.x += 6/image.zooming;
         }
     } else {
         if(controls.up && image.y > 0){
@@ -146,7 +146,7 @@ function keyDownHandler(event) {
 function keyUpHandler(event) {
 
     if (event.key === 'Shift') {
-        shift = false;
+        controls.shift = false;
     } else if (event.key === 'ArrowUp') {
         controls.up = false;
     } else if (event.key === 'ArrowDown') {
