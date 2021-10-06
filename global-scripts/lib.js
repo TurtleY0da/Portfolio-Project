@@ -434,14 +434,54 @@ function create80x45() {
 
 // - Fireworks -
 
-// Create a firework
+// Firework class
 
-function createFirework(canvas) {
-    let firework = {
-        x: canvas.width / 2,
-        y: canvas.height + 10,
-        motionX: (Math.random()*4)-2,
-        motionY: -13+(Math.random()*4)-2
+class firework {
+    constructor(canvas, color) {
+
+        this.x = canvas.width / 2;
+        this.y = canvas.height + 10;
+        this.motionX = (Math.random() * 4) - 2;
+        this.motionY = -24 + (Math.random() * 4) - 2;
+        this.heat = 230 + (Math.random() * 50) - 25;
+        this.baseColor = color;
+        this.color = 'rgb(255,255,255)';
+
     }
-    return firework;
+    update(deltaTime, drag) {
+        this.motionY += 0.98 * deltaTime / 30;
+        this.heat = this.heat / 1.05;
+
+        let helperArray = this.baseColor.slice(4, -1).split(',');
+        this.color = `rgb(${Math.min(255, +helperArray[0]+this.heat)},${Math.min(255, +helperArray[1]+this.heat)},${Math.min(255, +helperArray[2]+this.heat)})`;
+
+        // Add drag
+        this.motionX = this.motionX * Math.exp(-drag * deltaTime);
+        this.motionY = this.motionY * Math.exp(-drag * deltaTime);
+
+        this.y += Math.round(this.motionY * 100) / 100;
+        this.x += Math.round(this.motionX * 100) / 100;
+    }
+}
+
+// Firework trail particle class
+
+class particle {
+    constructor(firework) {
+
+        this.x = firework.x;
+        this.y = firework.y;
+        this.motionX = -firework.motionX*0.5;
+        this.motionY = -firework.motionY*0.5;
+        this.color = firework.color;
+        this.size = 9;
+
+    }
+    update(deltaTime){
+        this.motionY += 0.98 * deltaTime / 600;
+        this.size -= deltaTime/50
+
+        this.y += Math.round(this.motionY * 100) / 100;
+        this.x += Math.round(this.motionX * 100) / 100;
+    }
 }
