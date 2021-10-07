@@ -11,7 +11,9 @@ let inputs = {
     launchEl: docGetID("launchBtn"),
     delayEl: docGetID("delayIn"),
     colorEl: docGetID("colorIn"),
-    randomColorEL: docGetID("randomColorBox")
+    randomColorEL: docGetID("randomColorBox"),
+    styleEl: docGetID("fireworkSelect"),
+    randomStyleEL: docGetID("randomStyleBox"),
 };
 
 let objects = {
@@ -36,6 +38,7 @@ let time = {
 };
 
 let drag = 0.001;
+let style = 0;
 
 // -- Canvas & Context setup
 /** @type {CanvasRenderingContext2D} */
@@ -62,6 +65,14 @@ function loop() {
         inputs.colorEl.disabled = false;
     }
 
+    if (inputs.randomStyleEL.checked) {
+        inputs.styleEl.disabled = true;
+        style = Math.round(Math.random()*(inputs.styleEl.length-1));
+    } else {
+        inputs.styleEl.disabled = false;
+        style = +inputs.styleEl.value;
+    }
+
     let indexA = 0;
     objects.fireworkMain.forEach(element => {
         objects.fireworkTrail.push(new trail(element));
@@ -73,7 +84,7 @@ function loop() {
 
             audioObj.addEventListener('canplaythrough', function () {
                 audioObj.play();
-                createExplosion(objects.fireworkExplosion, element, 0);
+                createExplosion(objects.fireworkExplosion, element, style);
             });
 
             objects.fireworkMain.splice(indexA, 1);

@@ -29,45 +29,21 @@
 
     </div>
     <!-- Dropdown Menu -->
-    <ul id="dropdownList">
-        <li>
-            <div class="dropdownButton smallDropdown" id="gravitySimBtn" unselectable="on" onselectstart="return false;"
-                onmousedown="return false;">
-                Button 1
-            </div>
-        </li>
-        <li>
-            <div class="dropdownButton smallDropdown" id="mazeGenBtn" unselectable="on" onselectstart="return false;"
-                onmousedown="return false;">
-                Button 2
-            </div>
-        </li>
-        <li>
-            <div class="dropdownButton smallDropdown" id="gridSnapBtn" unselectable="on" onselectstart="return false;"
-                onmousedown="return false;">
-                Button 3
-            </div>
-        </li>
-        <li>
-            <div class="dropdownButton smallDropdown" id="imgZoomBtn" unselectable="on" onselectstart="return false;"
-                onmousedown="return false;">
-                Button 4
-            </div>
-        </li>
-        <li>
-            <div class="dropdownButton smallDropdown" id="fireworkSimBtn" unselectable="on"
-                onselectstart="return false;" onmousedown="return false;">
-                Button 5
-            </div>
-        </li>
-    </ul>
+    <ul id="dropdownList"></ul>
 
     <!-- Add Canvas Element -->
     <div id="canvasContainer">
         <p>
             Button Delay: <input type="number" min="150" max="1000" step="50" value="250" id="delayIn" class="vertCenter" onkeydown="return false"> 
-            Firework Color: <input type="color" value="#FF0000" id="colorIn" class="vertCenter" onkeydown="return false">
-            Random Color:<input type="checkbox" id="randomColorBox" class="vertCenter" onkeydown="return false">
+            Firework Color: <input type="color" value="#FF0000" id="colorIn" class="vertCenter">
+            Random Color:<input type="checkbox" id="randomColorBox" class="vertCenter">
+            Firework Style: <select name="firework" id="fireworkSelect">
+                <option value=0>Circle</option>
+                <option value=1>Cone</option>
+                <option value=2>Ring</option>
+                <option value=3>Spiral</option>
+            </select> 
+            Random Style: <input type="checkbox" id="randomStyleBox" class="vertCenter">
             <br>
             <button id="launchBtn">Launch</button>
         </p>

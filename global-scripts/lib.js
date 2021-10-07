@@ -34,6 +34,27 @@ function replaceHTML(searchID, resultHTML) {
     return docGetID(searchID);
 }
 
+// - Add button -
+function addDropdownButton(string) {
+    let menuEl = docGetID("dropdownList");
+    const listEL = document.createElement('li');
+    let buttonEl = document.createElement('div');
+
+    buttonEl.append(string);
+
+    buttonEl.classList.add("dropdownButton");
+    buttonEl.classList.add("smallDropdown");
+    buttonEl.setAttribute("unselectable", 'on');
+    buttonEl.setAttribute("onselectstart", 'return false;');
+    buttonEl.setAttribute("onmousedown", 'return false;');
+
+    listEL.append(buttonEl);
+
+    menuEl.append(listEL);
+
+    return buttonEl;
+}
+
 // - Mouse handlers -
 function getMousePos(event, canvas) {
     let canvasOffset = canvas.getBoundingClientRect();
@@ -573,5 +594,26 @@ async function createExplosion(fireworkExplosionArray, firework, explosionStyle)
                 fireworkExplosionArray.push(new explosion(firework, n + (Math.random() * 2 - 1), 4 + (Math.random() * 4 - 3.9), 80));
             }
             break;
+        case 2:
+            for (let n = -45; n < 45; n++) {
+                fireworkExplosionArray.push(new explosion(firework, n * 4 + (Math.random() * 2 - 1), 6 + (Math.random() * 6 - 5.9), 80));
+            }
+            await timer(30);
+            for (let n = -45; n < 45; n++) {
+                fireworkExplosionArray.push(new explosion(firework, n * 4 + (Math.random() * 2 - 1), 4 + (Math.random() * 4 - 3.9), 80));
+            }
+            firework.color = 'rgb(230,230,230)'
+            for (let n = -45; n < 45; n++) {
+                fireworkExplosionArray.push(new explosion(firework, n * 4 + (Math.random() * 2 - 1), 8 + (Math.random() * 1 - 0.9), 80));
+            }
+            break;
+        case 3:
+            for (let n = -15; n < 15; n++) {
+                fireworkExplosionArray.push(new explosion(firework, n * 6 + 180 + (Math.random() * 2 - 1), 6 + (Math.random() * 2 - 1.9), 80));
+                fireworkExplosionArray.push(new explosion(firework, n * -6 + (Math.random() * 2 - 1), 6 + (Math.random() * 2 - 1.9), 80));
+                fireworkExplosionArray.push(new explosion(firework, n * 6 + 183 + (Math.random() * 2 - 1), 6 + (Math.random() * 2 - 1.9), 80));
+                fireworkExplosionArray.push(new explosion(firework, n * -6 + 3 + (Math.random() * 2 - 1), 6 + (Math.random() * 2 - 1.9), 80));
+                await timer(0.2);
+            }
     }
 }

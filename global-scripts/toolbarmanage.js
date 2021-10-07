@@ -2,16 +2,31 @@
 
 // -- Initialize Variables --
 
+// - Create buttons
+
+addDropdownButton('Basic Gravity Simulator').addEventListener('click', function() {
+    location.replace('../gravitySim/');
+});
+
+addDropdownButton('Random Maze Generator').addEventListener('click', function() {
+    location.replace('../randomMaze/');
+});
+
+addDropdownButton('Pixel Art Experiment').addEventListener('click', function() {
+    location.replace('../gridSnapping/');
+});
+
+addDropdownButton('Image Zooming Experiment').addEventListener('click', function() {
+    location.replace('../imageZoom/');
+});
+
+addDropdownButton('Firework Simulator').addEventListener('click', function() {
+    location.replace('../fireworkSim/');
+});
+
 // - HTML Element References -
 // Button array on dropdown menu
 let buttonsArrayEl = docGetClass("dropdownButton");
-
-// Dropdown Buttons
-let gravSimBtnEl = replaceHTML('gravitySimBtn', 'Basic Gravity Simulator');
-let mazeGenBtnEl = replaceHTML('mazeGenBtn', 'Random Maze Generator');
-let gridSnapBtnEl = replaceHTML('gridSnapBtn', 'Pixel Art Experiment');
-let imgZoomBtnEl = replaceHTML('imgZoomBtn', 'Image Zoom Experiment');
-let fireworkSimBtnEl = replaceHTML('fireworkSimBtn', 'Firework Simulator');
 
 // Toolbar Buttons
 let projectBtnEl = docGetID("projectsBtn");
@@ -28,23 +43,3 @@ projectBtnEl.addEventListener('click', function() {
 if(!homeBtnEl.classList.contains("active")){
     homeBtnEl.addEventListener('click', gotoHome);
 }
-
-gravSimBtnEl.addEventListener('click', function() {
-    location.replace('../gravitySim/');
-});
-
-mazeGenBtnEl.addEventListener('click', function() {
-    location.replace('../randomMaze/');
-});
-
-gridSnapBtnEl.addEventListener('click', function() {
-    location.replace('../gridSnapping/');
-});
-
-imgZoomBtnEl.addEventListener('click', function() {
-    location.replace('../imageZoom/');
-});
-
-fireworkSimBtnEl.addEventListener('click', function() {
-    location.replace('../fireworkSim/');
-});
