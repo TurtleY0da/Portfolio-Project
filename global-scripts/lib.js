@@ -437,12 +437,20 @@ function create80x45() {
 // Firework class
 
 class firework {
+    x;
+    y;
+    motionX;
+    motionY;
+    heat;
+    baseColor;
+    color;
+
     constructor(canvas, color) {
 
-        this.x = canvas.width / 2;
+        this.x = canvas.width / 2 + (Math.random() * 800 - 400);
         this.y = canvas.height + 10;
         this.motionX = (Math.random() * 4) - 2;
-        this.motionY = -24 + (Math.random() * 4) - 2;
+        this.motionY = -20 + (Math.random() * 6) - 3;
         this.heat = 230 + (Math.random() * 50) - 25;
         this.baseColor = color;
         this.color = 'rgb(255,255,255)';
@@ -459,29 +467,111 @@ class firework {
         this.motionX = this.motionX * Math.exp(-drag * deltaTime);
         this.motionY = this.motionY * Math.exp(-drag * deltaTime);
 
+        this.y += Math.round(this.motionY * (deltaTime * 0.1) * 100) / 100;
+        this.x += Math.round(this.motionX * (deltaTime * 0.1) * 100) / 100;
+    }
+}
+
+// Firework trail class
+
+class trail {
+    x;
+    y;
+    motionX;
+    motionY;
+    color;
+    size;
+
+    constructor(firework) {
+
+        this.x = firework.x;
+        this.y = firework.y;
+        this.motionX = -firework.motionX * 0.5;
+        this.motionY = -firework.motionY * 0.5;
+        this.color = firework.color;
+        this.size = Math.max(0.01, firework.heat / 15 * 2);
+
+    }
+    update(deltaTime) {
+        this.motionY += 0.98 * deltaTime / 600;
+        this.size -= deltaTime / 50
+
         this.y += Math.round(this.motionY * 100) / 100;
         this.x += Math.round(this.motionX * 100) / 100;
     }
 }
 
-// Firework trail particle class
+// Firework explosion class
 
-class particle {
-    constructor(firework) {
+class explosion {
+    x;
+    y;
+    motionX;
+    motionY;
+    color;
+    size;
+    decayTime;
+
+    constructor(firework, direction, magnitude, decayTime) {
+
+        if (JSON.stringify(Math.sin(direction * (Math.PI / 180))).slice(-4) === 'e-16') {
+            this.motionX = -magnitude;
+            this.motionY = 0;
+        } else if (['e-16', 'e-17'].includes(JSON.stringify(Math.cos(direction * (Math.PI / 180))).slice(-4))) {
+            if (direction < 0) {
+                this.motionX = 0;
+                this.motionY = -magnitude;
+            } else {
+                this.motionX = 0;
+                this.motionY = magnitude;
+            }
+        } else {
+            this.motionX = magnitude * Math.cos(direction * (Math.PI / 180));
+            this.motionY = magnitude * Math.sin(direction * (Math.PI / 180));
+        }
 
         this.x = firework.x;
         this.y = firework.y;
-        this.motionX = -firework.motionX*0.5;
-        this.motionY = -firework.motionY*0.5;
         this.color = firework.color;
-        this.size = 9;
+        this.size = 4;
 
+        this.decayTime = decayTime;
     }
-    update(deltaTime){
-        this.motionY += 0.98 * deltaTime / 600;
-        this.size -= deltaTime/50
 
-        this.y += Math.round(this.motionY * 100) / 100;
-        this.x += Math.round(this.motionX * 100) / 100;
+    update(deltaTime, drag) {
+        // this.motionY += 0.98 * deltaTime / 30;
+        this.size -= deltaTime / this.decayTime
+
+        // Add drag
+        this.motionX = this.motionX * Math.exp(-drag * deltaTime);
+        this.motionY = this.motionY * Math.exp(-drag * deltaTime);
+
+        this.y += Math.round(this.motionY * (deltaTime * 0.1) * 100) / 100;
+        this.x += Math.round(this.motionX * (deltaTime * 0.1) * 100) / 100;
+    }
+}
+
+// Create an explosion
+
+async function createExplosion(fireworkExplosionArray, firework, explosionStyle) {
+    switch (explosionStyle) {
+        case 0:
+            for (let n = -90; n < 90; n++) {
+                fireworkExplosionArray.push(new explosion(firework, n * 2 + (Math.random() * 2 - 1), 6 + (Math.random() * 6 - 5.9), 80));
+            }
+            await timer(30);
+            for (let n = -45; n < 45; n++) {
+                fireworkExplosionArray.push(new explosion(firework, n * 4 + (Math.random() * 2 - 1), 4 + (Math.random() * 4 - 3.9), 80));
+            }
+            break;
+        case 1:
+            for (let n = -120; n < -60; n++) {
+                fireworkExplosionArray.push(new explosion(firework, n + (Math.random() * 2 - 1), 6 + (Math.random() * 6 - 5.9), 80));
+            }
+            await timer(30);
+            for (let n = -105; n < -85; n++) {
+                fireworkExplosionArray.push(new explosion(firework, n + (Math.random() * 2 - 1), 4 + (Math.random() * 4 - 3.9), 80));
+            }
+            break;
     }
 }

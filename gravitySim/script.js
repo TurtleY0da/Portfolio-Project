@@ -111,8 +111,8 @@ function loop() {
         circle.motionY = circle.motionY * Math.exp(-drag * dt);
 
         // Update Circle Position
-        circle.y += Math.round(circle.motionY * 100) / 100;
-        circle.x += Math.round(circle.motionX * 100) / 100;
+        circle.y += Math.round(circle.motionY*(dt*0.1) * 100) / 100;
+        circle.x += Math.round(circle.motionX*(dt*0.1) * 100) / 100;
     } else {
         // Calculate Indicator
 

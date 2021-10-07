@@ -65,6 +65,10 @@
     <!-- Add Canvas Element -->
     <div id="canvasContainer">
         <p>
+            Button Delay: <input type="number" min="150" max="1000" step="50" value="250" id="delayIn" class="vertCenter" onkeydown="return false"> 
+            Firework Color: <input type="color" value="#FF0000" id="colorIn" class="vertCenter" onkeydown="return false">
+            Random Color:<input type="checkbox" id="randomColorBox" class="vertCenter" onkeydown="return false">
+            <br>
             <button id="launchBtn">Launch</button>
         </p>
         <canvas id="fireworkCanvas"></canvas>
