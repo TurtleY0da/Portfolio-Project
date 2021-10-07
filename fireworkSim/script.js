@@ -73,7 +73,7 @@ function loop() {
 
             audioObj.addEventListener('canplaythrough', function () {
                 audioObj.play();
-                createExplosion(objects.fireworkExplosion, element, 1);
+                createExplosion(objects.fireworkExplosion, element, 0);
             });
 
             objects.fireworkMain.splice(indexA, 1);
