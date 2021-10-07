@@ -1,0 +1,9 @@
+Night Owl Theme
+Beautify
+Color Highlight
+Ctrl-Semicolon
+Git History
+Git Lens
+Live Server
+Path Intellisense
+vscode-icons
