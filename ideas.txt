@@ -1,0 +1,14 @@
+|Guaranteed| |Probably| |Maybe| |Probably Not|
+
+-- Simple games:
+Pong |Probably|
+
+-- Normal games:
+2-player (local) fighting game |Probably|
+
+-- Complex games:
+Robo Rally |Maybe|
+
+-- Unkown/general ideas:
+Scrolling platformer |Maybe|
+Rage game of some sort |Maybe|

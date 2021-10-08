@@ -161,6 +161,10 @@ select:disabled{
     transition-delay: 0.4s;
 }
 
+#dropdownList :nth-child(6) div.smallDropdown {
+    transition-delay: 0.5s;
+}
+
 #canvasContainer {
     margin-top: 85px;
     text-align: center;
@@ -306,6 +310,10 @@ select:disabled{
 
 .purpleBack {
     background: url("./img/purpleNebula.png") repeat;
+}
+
+.redBack {
+    background: url("./img/redNebula.png") repeat;
 }
 
 /* Animation */
