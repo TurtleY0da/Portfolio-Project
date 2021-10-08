@@ -1,6 +1,6 @@
 // Firework Script by Timothy V 
 
-// Initialize Variables
+// -- Initialize Variables --
 
 // HTML Elements
 let cnv = document.getElementById("fireworkCanvas");

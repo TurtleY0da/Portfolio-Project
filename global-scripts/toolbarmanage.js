@@ -28,6 +28,10 @@ addDropdownButton('Firework Simulator').addEventListener('click', function() {
     location.replace('../fireworkSim/');
 });
 
+addDropdownButton('Minesweeper').addEventListener('click', function() {
+    location.replace('../minesweeper/');
+});
+
 // - HTML Element References -
 // Button array on dropdown menu
 let buttonsArrayEl = docGetClass("dropdownButton");

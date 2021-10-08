@@ -1,6 +1,6 @@
 // Basic Gravity Simulator by Timothy V 
 
-// Initialize Variables
+// -- Initialize Variables --
 
 // - HTML Element References -
 let cnv = docGetID("gravityCanvas");

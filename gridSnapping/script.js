@@ -1,6 +1,6 @@
 // Grid Snapping Script by Timothy V 
 
-// Initialize Variables
+// -- Initialize Variables --
 
 // HTML Elements
 let cnv = document.getElementById("gridCanvas");

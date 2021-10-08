@@ -1,4 +1,4 @@
-6 // -- Global Functions --
+//#region -- Global Functions --
 
 // - Async Pause -
 const timer = ms => new Promise(res => setTimeout(res, ms));
@@ -100,10 +100,11 @@ function createImage(source, canvas2dContext, canvas) {
 
     canvas2dContext.drawImage(source.url, coords.x, coords.y, width, height);
 }
+//#endregion
 
-// -- Local Functions --
+//#region -- Local Functions --
 
-// - Gravity Sim -
+//#region - Gravity Sim -
 
 function checkButtonPress(event, button, canvas) {
     !event.preventDefault();
@@ -128,8 +129,9 @@ function checkShift(shiftBool, newValue, oldValue) {
         return 0;
     }
 }
+//#endregion
 
-// - Maze Generator -
+//#region - Maze Generator -
 
 // Generate Grid Array
 function generateGrid(gridWidth, gridHeight) {
@@ -424,8 +426,9 @@ function getNeighbours(mazeGrid, node) {
     }
     return neighbours;
 }
+//#endregion
 
-// - Grid snapping -
+//#region - Grid snapping -
 
 // Generate 80 x 45 grid
 function create80x45() {
@@ -452,8 +455,9 @@ function create80x45() {
     return array;
 
 }
+//#endregion
 
-// - Fireworks -
+//#region - Fireworks -
 
 // Firework class
 
@@ -617,3 +621,58 @@ async function createExplosion(fireworkExplosionArray, firework, explosionStyle)
             }
     }
 }
+//#endregion
+
+//#region - Minesweeper -
+
+// Create menu
+class menu {
+    buttonNameArray;
+    parentMenu;
+    buttonArray = new Array()
+    hidden;
+
+    constructor(nameArray, parent, hidden) {
+        this.buttonNameArray = nameArray;
+        this.parentMenu = parent;
+        this.hidden = hidden;
+
+        if (this.parentMenu === undefined) {
+            delete this.parentMenu;
+        }
+
+        if (Array.isArray(this.buttonNameArray)) {
+
+            this.buttonNameArray.forEach(name => {
+                this.buttonArray.push(new menuButton(name));
+            });
+
+        }
+    }
+    draw(CanvasRenderingContext2D, x, y, width, backgroundColor) {
+        if (!this.hidden) {
+
+        }
+    }
+    reveal() {
+
+    }
+    hide() {
+
+    }
+
+}
+
+// Create menu button
+class menuButton {
+    name;
+
+    constructor(name) {
+        this.name = name;
+    }
+
+}
+
+//#endregion
+
+//#endregion
