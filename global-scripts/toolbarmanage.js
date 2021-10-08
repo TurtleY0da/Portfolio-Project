@@ -4,6 +4,10 @@
 
 // - Create buttons
 
+let sheet = document.getElementById('stylesheet').sheet;
+
+let cssRulesNum = sheet.cssRules.length;
+
 addDropdownButton('Basic Gravity Simulator').addEventListener('click', function() {
     location.replace('../gravitySim/');
 });
@@ -42,4 +46,9 @@ projectBtnEl.addEventListener('click', function() {
 
 if(!homeBtnEl.classList.contains("active")){
     homeBtnEl.addEventListener('click', gotoHome);
+}
+
+// Add CSS Rules
+for (let n = 1; n <= buttonsArrayEl.length; n++) {
+    sheet.insertRule(`#dropdownList :nth-child(${n}) div.smallDropdown {transition-delay: 0.${n-1}s;`, cssRulesNum);
 }

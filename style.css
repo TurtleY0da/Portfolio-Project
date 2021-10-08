@@ -141,30 +141,6 @@ select:disabled{
     list-style: none;
 }
 
-#dropdownList :nth-child(1) div.smallDropdown {
-    transition-delay: 0.0s;
-}
-
-#dropdownList :nth-child(2) div.smallDropdown {
-    transition-delay: 0.1s;
-}
-
-#dropdownList :nth-child(3) div.smallDropdown {
-    transition-delay: 0.2s;
-}
-
-#dropdownList :nth-child(4) div.smallDropdown {
-    transition-delay: 0.3s;
-}
-
-#dropdownList :nth-child(5) div.smallDropdown {
-    transition-delay: 0.4s;
-}
-
-#dropdownList :nth-child(6) div.smallDropdown {
-    transition-delay: 0.5s;
-}
-
 #canvasContainer {
     margin-top: 85px;
     text-align: center;
