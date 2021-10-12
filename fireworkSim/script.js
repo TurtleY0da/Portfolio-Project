@@ -3,7 +3,7 @@
 // -- Initialize Variables --
 
 // HTML Elements
-let cnv = document.getElementById("fireworkCanvas");
+let cnv = docGetID("fireworkCanvas");
 
 // Glbl Variables
 

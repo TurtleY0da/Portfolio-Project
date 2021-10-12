@@ -3,7 +3,7 @@
 // -- Initialize Variables --
 
 // HTML Elements
-let cnv = document.getElementById("zoomCanvas");
+let cnv = docGetID("zoomCanvas");
 
 // Glbl Variables
 

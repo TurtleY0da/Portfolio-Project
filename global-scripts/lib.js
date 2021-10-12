@@ -673,6 +673,121 @@ class menuButton {
 
 }
 
+class mineGrid {
+    size;
+    grid = new Array();
+    started = false;
+    clickedSquare;
+
+    constructor(size) {
+        this.size = size;
+
+        for (let x = 0; x < this.size; x++) {
+            this.grid.push(new Array());
+            for (let y = 0; y < this.size; y++) {
+                this.grid[x].push(new mineCell(x, y));
+            }
+        }
+    }
+    populateMines(canvasBoundingBox, mouseObject, event, minesNum) {
+        mouseObject.x = event.clientX - canvasBoundingBox.left;
+        mouseObject.y = event.clientY - canvasBoundingBox.top;
+
+        if (mouseObject.x > 254.1 && mouseObject.x < 785.9 && mouseObject.y > 26.6 && mouseObject.y < 558.4) {
+
+            this.started = true;
+
+            mouseObject.squareX = (mouseObject.x - 254.1) / 531.8;
+            mouseObject.squareY = (mouseObject.y - 26.6) / 531.8;
+
+            this.clickedSquare = {
+                x: Math.floor(mouseObject.squareX * this.size),
+                y: Math.floor(mouseObject.squareY * this.size)
+            };
+
+            for (let n = 0; n < minesNum; n++) {
+                let canPlace = true;
+    
+                let coords = {
+                    x: Math.round(Math.random() * (this.size - 1)),
+                    y: Math.round(Math.random() * (this.size - 1))
+                }
+    
+                for (let a = -1; a <= 1; a++) {
+                    for (let b = -1; b <= 1; b++) {
+                        if (coords.x === this.clickedSquare.x + a && coords.y === this.clickedSquare.y + b) canPlace = false;
+                    }
+                }
+    
+                if (this.grid[coords.x][coords.y].mine === false && canPlace) {
+    
+                    this.grid[coords.x][coords.y].mine = true;
+    
+                } else {
+                    n--;
+                }
+            }
+        }
+
+        
+
+    }
+
+}
+
+class mineCell {
+    x;
+    y;
+    mine = false;
+    state = -1;
+
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+    }
+    checkCell(mineGrid) {
+        this.state = 0;
+
+        for (let x = -1; x <= 1; x++) {
+            for (let y = -1; y <= 1; y++) {
+                if (y === 0 && x === 0 || this.x + x < 0 || this.x + x >= mineGrid.size || this.y + y < 0 || this.y + y >= mineGrid.size) continue;
+
+                if (mineGrid.grid[this.x + x][this.y + y].mine) this.state++;
+            }
+        }
+
+        if (this.state === 0) {
+            for (let x = -1; x <= 1; x++) {
+                for (let y = -1; y <= 1; y++) {
+                    if (y === 0 && x === 0 || this.x + x < 0 || this.x + x >= mineGrid.size || this.y + y < 0 || this.y + y >= mineGrid.size) continue;
+
+                    if (mineGrid.grid[this.x + x][this.y + y].state === -1) mineGrid.grid[this.x + x][this.y + y].checkCell(mineGrid);
+                }
+            }
+        }
+    }
+}
+
+function checkMineClick(canvasBoundingBox, mouseObject, mineGrid, event) {
+    mouseObject.x = event.clientX - canvasBoundingBox.left;
+    mouseObject.y = event.clientY - canvasBoundingBox.top;
+
+    if (mouseObject.x > 254.1 && mouseObject.x < 785.9 && mouseObject.y > 26.6 && mouseObject.y < 558.4) {
+
+        mouseObject.squareX = (mouseObject.x - 254.1) / 531.8;
+        mouseObject.squareY = (mouseObject.y - 26.6) / 531.8;
+
+        let clickedSquare = mineGrid.grid[Math.floor(mouseObject.squareX * mineGrid.size)][Math.floor(mouseObject.squareY * mineGrid.size)];
+        console.log((clickedSquare.mine) ? "boom" : "safe");
+
+        if (clickedSquare.state !== -1) return;
+        if (clickedSquare.mine) return;
+
+        mineGrid.grid[clickedSquare.x][clickedSquare.y].checkCell(mineGrid);
+
+    }
+}
+
 //#endregion
 
 //#endregion

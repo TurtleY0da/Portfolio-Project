@@ -3,7 +3,7 @@
 // -- Initialize Variables --
 
 // HTML Elements
-let cnv = document.getElementById("gridCanvas");
+let cnv = docGetID("gridCanvas");
 
 // Glbl Variables
 
