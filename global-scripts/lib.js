@@ -673,10 +673,13 @@ class menuButton {
 
 }
 
+// Grid of tiles
 class mineGrid {
+    uncoveredCells = 0;
     size;
     grid = new Array();
     started = false;
+    gameOver = false;
     clickedSquare;
 
     constructor(size) {
@@ -707,34 +710,35 @@ class mineGrid {
 
             for (let n = 0; n < minesNum; n++) {
                 let canPlace = true;
-    
+
                 let coords = {
                     x: Math.round(Math.random() * (this.size - 1)),
                     y: Math.round(Math.random() * (this.size - 1))
                 }
-    
+
                 for (let a = -1; a <= 1; a++) {
                     for (let b = -1; b <= 1; b++) {
                         if (coords.x === this.clickedSquare.x + a && coords.y === this.clickedSquare.y + b) canPlace = false;
                     }
                 }
-    
+
                 if (this.grid[coords.x][coords.y].mine === false && canPlace) {
-    
+
                     this.grid[coords.x][coords.y].mine = true;
-    
+
                 } else {
                     n--;
                 }
             }
         }
 
-        
+
 
     }
 
 }
 
+// A single tile
 class mineCell {
     x;
     y;
@@ -746,6 +750,7 @@ class mineCell {
         this.y = y;
     }
     checkCell(mineGrid) {
+        mineGrid.uncoveredCells++;
         this.state = 0;
 
         for (let x = -1; x <= 1; x++) {
@@ -766,8 +771,16 @@ class mineCell {
             }
         }
     }
+    swapFlag() {
+        if(this.state === -1){
+            this.state = -2;
+        } else if(this.state === -2){
+            this.state = -1;
+        }
+    }
 }
 
+// Check a click on a tile
 function checkMineClick(canvasBoundingBox, mouseObject, mineGrid, event) {
     mouseObject.x = event.clientX - canvasBoundingBox.left;
     mouseObject.y = event.clientY - canvasBoundingBox.top;
@@ -778,12 +791,32 @@ function checkMineClick(canvasBoundingBox, mouseObject, mineGrid, event) {
         mouseObject.squareY = (mouseObject.y - 26.6) / 531.8;
 
         let clickedSquare = mineGrid.grid[Math.floor(mouseObject.squareX * mineGrid.size)][Math.floor(mouseObject.squareY * mineGrid.size)];
-        console.log((clickedSquare.mine) ? "boom" : "safe");
 
         if (clickedSquare.state !== -1) return;
-        if (clickedSquare.mine) return;
+        if (clickedSquare.mine) {
+            mineGrid.gameOver = true;
+            return;
+        }
 
         mineGrid.grid[clickedSquare.x][clickedSquare.y].checkCell(mineGrid);
+    }
+}
+
+// Place a flag
+function placeFlag(canvasBoundingBox, mouseObject, mineGrid, event) {
+    mouseObject.x = event.clientX - canvasBoundingBox.left;
+    mouseObject.y = event.clientY - canvasBoundingBox.top;
+
+    if (mouseObject.x > 254.1 && mouseObject.x < 785.9 && mouseObject.y > 26.6 && mouseObject.y < 558.4) {
+
+        mouseObject.squareX = (mouseObject.x - 254.1) / 531.8;
+        mouseObject.squareY = (mouseObject.y - 26.6) / 531.8;
+
+        let clickedSquare = mineGrid.grid[Math.floor(mouseObject.squareX * mineGrid.size)][Math.floor(mouseObject.squareY * mineGrid.size)];
+
+        if (clickedSquare.state > -1) return;
+
+        mineGrid.grid[clickedSquare.x][clickedSquare.y].swapFlag();
 
     }
 }
