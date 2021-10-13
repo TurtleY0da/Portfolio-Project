@@ -627,50 +627,91 @@ async function createExplosion(fireworkExplosionArray, firework, explosionStyle)
 
 // Create menu
 class menu {
-    buttonNameArray;
-    parentMenu;
-    buttonArray = new Array()
-    hidden;
+    name;
+    hover = false;
+    active = false;
+    transform = {
+        posX: 0,
+        posY: 0,
+        width: 0,
+        height: 0
+    };
+    decorations = {
+        hoverOverlay: 0
+    };
 
-    constructor(nameArray, parent, hidden) {
-        this.buttonNameArray = nameArray;
-        this.parentMenu = parent;
-        this.hidden = hidden;
+    constructor(name, posX, posY, width, height) {
+        if (name) this.name = name;
+        if (posX) this.transform.posX = posX;
+        if (posY) this.transform.posY = posY;
+        if (width) this.transform.width = width;
+        if (height) this.transform.height = height;
+    }
 
-        if (this.parentMenu === undefined) {
-            delete this.parentMenu;
+    modifyTransform(posX, posY, width, height) {
+        if (posX) this.transform.posX = posX;
+        if (posY) this.transform.posY = posY;
+        if (width) this.transform.width = width;
+        if (height) this.transform.height = height;
+    }
+
+    checkMouse(mouseObject, event, canvasBoundingBox) {
+        mouseObject.x = event.clientX - canvasBoundingBox.left;
+        mouseObject.y = event.clientY - canvasBoundingBox.top;
+
+        if (mouseObject.x > this.transform.posX && mouseObject.y > this.transform.posY && mouseObject.x < this.transform.posX + this.transform.width && mouseObject.y < this.transform.posY + this.transform.height) {
+            this.hover = true;
+        } else {
+            this.hover = false;
         }
+    }
 
-        if (Array.isArray(this.buttonNameArray)) {
+    draw(ctx, color) {
+        ctx.fillStyle = color;
+        ctx.fillRect(this.transform.posX, this.transform.posY, this.transform.width, this.transform.height);
+        ctx.save();
+        ctx.fillStyle = 'black';
+        ctx.globalAlpha = `${this.decorations.hoverOverlay}`;
+        ctx.fillRect(this.transform.posX, this.transform.posY, this.transform.width, this.transform.height);
+        ctx.restore();
 
-            this.buttonNameArray.forEach(name => {
-                this.buttonArray.push(new menuButton(name));
-            });
+    }
 
+    updateVariables() {
+        if (this.hover && this.decorations.hoverOverlay < 0.3) {
+            this.decorations.hoverOverlay += 0.05;
+        } else if (!this.hover && this.decorations.hoverOverlay > 0) {
+            this.decorations.hoverOverlay -= 0.05;
+        }
+        if(this.decorations.hoverOverlay < 0) {
+            this.decorations.hoverOverlay = 0;
+        }
+        if(this.decorations.hoverOverlay > 0.3) {
+            this.decorations.hoverOverlay = 0.3;
         }
     }
-    draw(CanvasRenderingContext2D, x, y, width, backgroundColor) {
-        if (!this.hidden) {
-
-        }
-    }
-    reveal() {
-
-    }
-    hide() {
-
-    }
-
 }
 
-// Create menu button
-class menuButton {
-    name;
+class parentMenu extends menu {
+    children = new Array();
+    trueWidth;
 
-    constructor(name) {
-        this.name = name;
+    constructor(name, posX, posY, width, height, childArray) {
+        super(name, posX, posY, width, height);
+        this.trueWidth = width;
+
+        this.children = childArray;
     }
+}
 
+class childMenu extends menu {
+    callback;
+
+    constructor(name, posX, posY, width, height, callback) {
+        super(name, posX, posY, width, height);
+
+        this.callback = callback;
+    }
 }
 
 // Grid of tiles
@@ -678,8 +719,6 @@ class mineGrid {
     uncoveredCells = 0;
     size;
     grid = new Array();
-    started = false;
-    gameOver = false;
     clickedSquare;
     gameState = 0;
 
@@ -773,9 +812,9 @@ class mineCell {
         }
     }
     swapFlag() {
-        if(this.state === -1){
+        if (this.state === -1) {
             this.state = -2;
-        } else if(this.state === -2){
+        } else if (this.state === -2) {
             this.state = -1;
         }
     }
@@ -824,7 +863,7 @@ function placeFlag(canvasBoundingBox, mouseObject, mineGrid, event) {
 
 // Check for victory
 function checkMineVictoryConditions(gameSetup, mineGrid) {
-    if(gameSetup.size**2 - gameSetup.mines <= mineGrid.uncoveredCells){
+    if (gameSetup.size ** 2 - gameSetup.mines <= mineGrid.uncoveredCells) {
         mineGrid.gameState = 3;
     }
 }

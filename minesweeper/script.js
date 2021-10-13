@@ -32,6 +32,8 @@ let mouse = {
     squareY: 0
 }
 
+let exampleMenu = new parentMenu('exampleMenu', 20, 20, 160, 90, [123, 456]);
+
 let openSans = new FontFace('openSans', 'url(./OpenSans-Light.ttf)');
 
 let grid = new mineGrid(game.size);
@@ -61,11 +63,12 @@ function loop() {
 
         }
     }
-
+    
     // - Draw -
     ctx.fillStyle = '#042847';
     ctx.fillRect(0, 0, cnv.width, cnv.height);
 
+    
     if (grid.gameState > 1) {
         ctx.save();
 
@@ -130,7 +133,13 @@ function loop() {
         });
     });
 
-    
+    exampleMenu.updateVariables();
+    exampleMenu.draw(ctx, '#3377CC');
+    if(exampleMenu.hover){
+        cnv.style = 'cursor: pointer;'
+    }else{
+        cnv.style = 'cursor: default;'
+    }
 
     // - End -
     requestAnimationFrame(loop);
@@ -154,6 +163,12 @@ cnv.addEventListener('mousedown', function (event) {
         }
     }
 
+});
+
+cnv.addEventListener('mousemove', function(event){
+    cnvRect = cnv.getBoundingClientRect();
+    exampleMenu.checkMouse(mouse, event, cnvRect);
+    if(exampleMenu.hover) exampleMenu.draw(ctx, '#333333');
 });
 
 cnv.oncontextmenu = function (event) {
