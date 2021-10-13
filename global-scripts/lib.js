@@ -681,6 +681,7 @@ class mineGrid {
     started = false;
     gameOver = false;
     clickedSquare;
+    gameState = 0;
 
     constructor(size) {
         this.size = size;
@@ -698,7 +699,7 @@ class mineGrid {
 
         if (mouseObject.x > 254.1 && mouseObject.x < 785.9 && mouseObject.y > 26.6 && mouseObject.y < 558.4) {
 
-            this.started = true;
+            this.gameState = 1;
 
             mouseObject.squareX = (mouseObject.x - 254.1) / 531.8;
             mouseObject.squareY = (mouseObject.y - 26.6) / 531.8;
@@ -794,7 +795,7 @@ function checkMineClick(canvasBoundingBox, mouseObject, mineGrid, event) {
 
         if (clickedSquare.state !== -1) return;
         if (clickedSquare.mine) {
-            mineGrid.gameOver = true;
+            mineGrid.gameState = 2;
             return;
         }
 
@@ -818,6 +819,13 @@ function placeFlag(canvasBoundingBox, mouseObject, mineGrid, event) {
 
         mineGrid.grid[clickedSquare.x][clickedSquare.y].swapFlag();
 
+    }
+}
+
+// Check for victory
+function checkMineVictoryConditions(gameSetup, mineGrid) {
+    if(gameSetup.size**2 - gameSetup.mines <= mineGrid.uncoveredCells){
+        mineGrid.gameState = 3;
     }
 }
 

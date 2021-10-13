@@ -21,7 +21,8 @@ flagImgEl.src = '../img/flag.png';
 let game = {
     mines: 10,
     size: 8,
-    mineCounter: 0
+    mineCounter: 0,
+    decorationRotation: 0
 }
 
 let mouse = {
@@ -47,10 +48,10 @@ document.fonts.add(openSans);
 
 function loop() {
     // - Update Variables -
-    if (grid.gameOver) {
+    if (grid.gameState > 1) {
         if (game.mineCounter < game.mines) {
-            loop1: for (let x = 0; x < game.size; x++) {
-                for (let y = 0; y < game.size; y++) {
+            loop1: for (let y = 0; y < game.size; y++) {
+                for (let x = 0; x < game.size; x++) {
                     if (grid.grid[x][y].state < 0 && grid.grid[x][y].mine) {
                         grid.grid[x][y].state = 0;
                         break loop1;
@@ -65,9 +66,32 @@ function loop() {
     ctx.fillStyle = '#042847';
     ctx.fillRect(0, 0, cnv.width, cnv.height);
 
+    if (grid.gameState > 1) {
+        ctx.save();
+
+        ctx.beginPath();
+        ctx.rect(250.1, 22.6, 539.8, 539.8);
+        ctx.clip();
+
+        if (grid.gameState === 2) ctx.fillStyle = 'rgb(255,150,150)';
+        if (grid.gameState === 3) ctx.fillStyle = 'rgb(150,255,150)';
+
+        ctx.beginPath();
+        ctx.arc(cnv.width/2, cnv.height/2, 400, 0, ((game.decorationRotation*4)*Math.PI/180));
+        ctx.lineTo(cnv.width/2, cnv.height/2);
+        ctx.fill();
+
+        ctx.restore();
+
+        if (game.decorationRotation < 90) game.decorationRotation++;
+    }
+
     grid.grid.forEach(array => {
+
         array.forEach(element => {
+
             if (element.state < 0) {
+
                 ctx.fillStyle = '#033057';
                 ctx.fillRect(element.x * size + (cnv.width / 2 - grid.size * size / 2), element.y * size + (cnv.height / 2 - grid.size * size / 2), size, size);
 
@@ -89,6 +113,7 @@ function loop() {
             } else {
 
                 ctx.fillStyle = '#36648b';
+                if(element.mine) ctx.fillStyle = '#095faa';
                 ctx.fillRect(element.x * size + (cnv.width / 2 - grid.size * size / 2) - 1, element.y * size + (cnv.height / 2 - grid.size * size / 2) - 1, size + 1, size + 1);
 
                 if (element.state > 0 && !element.mine) {
@@ -104,7 +129,9 @@ function loop() {
             }
         });
     });
-    console.log(grid.uncoveredCells);
+
+    
+
     // - End -
     requestAnimationFrame(loop);
 }
@@ -113,14 +140,15 @@ function loop() {
 cnv.addEventListener('mousedown', function (event) {
     event.preventDefault();
 
-    if (!grid.gameOver) {
-        if (event.which === 1) {
+    if (grid.gameState < 2) {
+        if (event.button === 0) {
             cnvRect = cnv.getBoundingClientRect();
-            if (!grid.started) {
+            if (grid.gameState === 0) {
                 grid.populateMines(cnvRect, mouse, event, game.mines);
             }
-            checkMineClick(cnvRect, mouse, grid, event)
-        } else if (event.which === 3) {
+            checkMineClick(cnvRect, mouse, grid, event);
+            checkMineVictoryConditions(game, grid);
+        } else if (event.button === 2) {
             cnvRect = cnv.getBoundingClientRect();
             placeFlag(cnvRect, mouse, grid, event);
         }
