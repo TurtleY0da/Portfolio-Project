@@ -679,9 +679,9 @@ class menu {
 
     updateVariables() {
         if (this.hover && this.decorations.hoverOverlay < 0.3) {
-            this.decorations.hoverOverlay += 0.05;
+            this.decorations.hoverOverlay += 0.01;
         } else if (!this.hover && this.decorations.hoverOverlay > 0) {
-            this.decorations.hoverOverlay -= 0.05;
+            this.decorations.hoverOverlay -= 0.01;
         }
         if(this.decorations.hoverOverlay < 0) {
             this.decorations.hoverOverlay = 0;
