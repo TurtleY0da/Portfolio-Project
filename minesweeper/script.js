@@ -32,16 +32,22 @@ let mouse = {
     squareY: 0
 }
 
-let exampleMenu = new parentMenu('exampleMenu', 20, 20, 160, 90, [123, 456]);
+let time = {
+    now: 0,
+    prev: Date.now(),
+    deltaTime: 0
+}
+
+let mainMenu = [new parentMenu('Easy', 270, 173, 500, 80, []), new parentMenu('Medium', 270, 252.5, 500, 80, []), new parentMenu('Hard', 270, 332, 500, 80, [])];
+
+let showMenu = true;
 
 let openSans = new FontFace('openSans', 'url(./OpenSans-Light.ttf)');
 
 let grid = new mineGrid(game.size);
+grid.gameState = 4;
 
 let size = cnv.height / grid.size / 1.1;
-
-// UpDown Margin 26.6
-// LeftRight Margin 254.1
 
 // -- Main Loop --
 requestAnimationFrame(loop);
@@ -50,7 +56,11 @@ document.fonts.add(openSans);
 
 function loop() {
     // - Update Variables -
-    if (grid.gameState > 1) {
+    time.now = Date.now();
+    time.deltaTime = time.now - time.prev;
+    time.prev = Date.now();
+
+    if (grid.gameState > 1 && grid.gameState !== 4) {
         if (game.mineCounter < game.mines) {
             loop1: for (let y = 0; y < game.size; y++) {
                 for (let x = 0; x < game.size; x++) {
@@ -63,13 +73,13 @@ function loop() {
 
         }
     }
-    
+
     // - Draw -
     ctx.fillStyle = '#042847';
     ctx.fillRect(0, 0, cnv.width, cnv.height);
 
-    
-    if (grid.gameState > 1) {
+
+    if (grid.gameState > 1 && grid.gameState !== 4) {
         ctx.save();
 
         ctx.beginPath();
@@ -80,13 +90,13 @@ function loop() {
         if (grid.gameState === 3) ctx.fillStyle = 'rgb(150,255,150)';
 
         ctx.beginPath();
-        ctx.arc(cnv.width/2, cnv.height/2, 400, 0, ((game.decorationRotation*4)*Math.PI/180));
-        ctx.lineTo(cnv.width/2, cnv.height/2);
+        ctx.arc(cnv.width / 2, cnv.height / 2, 400, 0, ((game.decorationRotation * 4) * Math.PI / 180));
+        ctx.lineTo(cnv.width / 2, cnv.height / 2);
         ctx.fill();
 
         ctx.restore();
 
-        if (game.decorationRotation < 90) game.decorationRotation++;
+        if (game.decorationRotation < 90) game.decorationRotation += 0.1 * time.deltaTime;
     }
 
     grid.grid.forEach(array => {
@@ -116,7 +126,8 @@ function loop() {
             } else {
 
                 ctx.fillStyle = '#36648b';
-                if(element.mine) ctx.fillStyle = '#095faa';
+                if (element.mine) ctx.fillStyle = '#095faa';
+
                 ctx.fillRect(element.x * size + (cnv.width / 2 - grid.size * size / 2) - 1, element.y * size + (cnv.height / 2 - grid.size * size / 2) - 1, size + 1, size + 1);
 
                 if (element.state > 0 && !element.mine) {
@@ -133,12 +144,17 @@ function loop() {
         });
     });
 
-    exampleMenu.updateVariables();
-    exampleMenu.draw(ctx, '#3377CC');
-    if(exampleMenu.hover){
-        cnv.style = 'cursor: pointer;'
-    }else{
-        cnv.style = 'cursor: default;'
+    cnv.style = 'cursor: default;'
+    if (showMenu) {
+        mainMenu.forEach(element => {
+            element.updateVariables(time.deltaTime);
+
+            element.draw(ctx, '#2255AA', mainMenu);
+
+            if (element.hover) {
+                cnv.style = 'cursor: pointer;'
+            }
+        });
     }
 
     // - End -
@@ -150,25 +166,48 @@ cnv.addEventListener('mousedown', function (event) {
     event.preventDefault();
 
     if (grid.gameState < 2) {
+
         if (event.button === 0) {
+
             cnvRect = cnv.getBoundingClientRect();
             if (grid.gameState === 0) {
                 grid.populateMines(cnvRect, mouse, event, game.mines);
             }
             checkMineClick(cnvRect, mouse, grid, event);
             checkMineVictoryConditions(game, grid);
+
         } else if (event.button === 2) {
+
             cnvRect = cnv.getBoundingClientRect();
             placeFlag(cnvRect, mouse, grid, event);
+
         }
+
+    } else if (!showMenu) {
+
+        showMenu = true;
+
+    } else if (showMenu) {
+
+        mainMenu.forEach(element => {
+            if(element.hover && !element.active){
+                element.active = true;
+            } else if(!element.hover || element.active){
+                element.active = false;
+            }
+        });
+        
     }
 
 });
 
-cnv.addEventListener('mousemove', function(event){
+cnv.addEventListener('mousemove', function (event) {
     cnvRect = cnv.getBoundingClientRect();
-    exampleMenu.checkMouse(mouse, event, cnvRect);
-    if(exampleMenu.hover) exampleMenu.draw(ctx, '#333333');
+
+    mainMenu.forEach(element => {
+        element.checkMouse(mouse, event, cnvRect);
+    });
+
 });
 
 cnv.oncontextmenu = function (event) {

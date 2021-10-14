@@ -625,7 +625,7 @@ async function createExplosion(fireworkExplosionArray, firework, explosionStyle)
 
 //#region - Minesweeper -
 
-// Create menu
+// Menu superclass
 class menu {
     name;
     hover = false;
@@ -669,6 +669,13 @@ class menu {
     draw(ctx, color) {
         ctx.fillStyle = color;
         ctx.fillRect(this.transform.posX, this.transform.posY, this.transform.width, this.transform.height);
+
+        ctx.fillStyle = 'white';
+        ctx.font = `${((this.transform.height - this.transform.height/6)/2.2)}px openSans`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(this.name, this.transform.posX + this.transform.width / 2, this.transform.posY + this.transform.height / 2);
+
         ctx.save();
         ctx.fillStyle = 'black';
         ctx.globalAlpha = `${this.decorations.hoverOverlay}`;
@@ -677,16 +684,16 @@ class menu {
 
     }
 
-    updateVariables() {
+    updateVariables(deltaTime) {
         if (this.hover && this.decorations.hoverOverlay < 0.3) {
-            this.decorations.hoverOverlay += 0.01;
+            this.decorations.hoverOverlay += 0.004 * deltaTime;
         } else if (!this.hover && this.decorations.hoverOverlay > 0) {
-            this.decorations.hoverOverlay -= 0.01;
+            this.decorations.hoverOverlay -= 0.004 * deltaTime;
         }
-        if(this.decorations.hoverOverlay < 0) {
+        if (this.decorations.hoverOverlay < 0) {
             this.decorations.hoverOverlay = 0;
         }
-        if(this.decorations.hoverOverlay > 0.3) {
+        if (this.decorations.hoverOverlay > 0.3) {
             this.decorations.hoverOverlay = 0.3;
         }
     }
@@ -700,7 +707,47 @@ class parentMenu extends menu {
         super(name, posX, posY, width, height);
         this.trueWidth = width;
 
-        this.children = childArray;
+        if (Array.isArray(childArray)) this.children = childArray;
+    }
+
+    checkMouse(mouseObject, event, canvasBoundingBox) {
+        super.checkMouse(mouseObject, event, canvasBoundingBox);
+
+        if (this.active) {
+            this.children.forEach(child => {
+                child.checkMouse(mouseObject, event, canvasBoundingBox);
+            });
+        }
+
+    }
+
+    draw(ctx, color, menuArray) {
+        this.transform.width = this.trueWidth;
+        if (Array.isArray(menuArray)) {
+            menuArray.forEach(element => {
+                if (element.active) this.transform.width = this.trueWidth / 2;
+            });
+        }
+
+        super.draw(ctx, color);
+
+        if (this.active) {
+            this.children.forEach(child => {
+                child.draw(ctx, color);
+            });
+        }
+
+    }
+
+    updateVariables(deltaTime) {
+        super.updateVariables(deltaTime);
+
+        if (this.active) {
+            this.children.forEach(child => {
+                child.updateVariables(deltaTime);
+            });
+        }
+
     }
 }
 
