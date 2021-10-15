@@ -32,6 +32,10 @@ addDropdownButton('Minesweeper').addEventListener('click', function() {
     location.replace('../minesweeper/');
 });
 
+addDropdownButton('To Do List').addEventListener('click', function() {
+    location.replace('../todoList/');
+});
+
 // - HTML Element References -
 // Button array on dropdown menu
 let buttonsArrayEl = docGetClass("dropdownButton");

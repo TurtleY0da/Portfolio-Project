@@ -3,7 +3,7 @@
 
 <head>
 
-    <title>Image Zoomer</title>
+    <title>To Do</title>
     <link rel="stylesheet" href="../style.css" type="text/css" id="stylesheet">
 
 </head>
@@ -31,18 +31,20 @@
     <!-- Dropdown Menu -->
     <ul id="dropdownList"></ul>
 
-    <!-- Add Canvas Element -->
-    <div id="canvasContainer">
+    <!-- Color Palette: #E4F9F5 #30E3CA #11999E #40514E -->
+    <div id="toDoContainer">
+        <h2>Add new item</h2>
         <p>
-            Use the + and - keys to zoom in and out. Use the arrow keys to pan around. Hold shift to pan faster.
+            <input type="text" class="vertCenter largeInput" maxlength="20" placeholder="Title" id="Title">
+            <input type="text" class="vertCenter  largeInput" maxlength="100" placeholder="Description"
+                id="Description">
         </p>
-        <img src="../img/exampleImage.jpg" alt="exampleImage" class="displayNone" id="exampleImage">
-        <canvas id="zoomCanvas"></canvas>
+        <hr>
     </div>
 
     <!-- Background Image -->
     <div class="background">
-        <div class="slidingBackground purpleBack"></div>
+        <div class="slidingBackground"></div>
     </div>
 
     <!-- Load JS -->

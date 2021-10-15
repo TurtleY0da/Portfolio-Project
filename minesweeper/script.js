@@ -62,7 +62,7 @@ let mainMenu = [new parentMenu('Easy', 270, 173, 500, 80, 173, ['8x8', '9x9', '1
 
 let showMenu = true;
 
-let openSans = new FontFace('openSans', 'url(./OpenSans-Light.ttf)');
+let openSans = new FontFace('openSans', 'url(../fonts/OpenSans-Light.ttf)');
 
 let grid = new mineGrid(game.size);
 grid.gameState = 4;
