@@ -703,11 +703,17 @@ class parentMenu extends menu {
     children = new Array();
     trueWidth;
 
-    constructor(name, posX, posY, width, height, childArray) {
+    constructor(name, posX, posY, width, height, startingY, childNames, childCallbacks, childParameters) {
         super(name, posX, posY, width, height);
         this.trueWidth = width;
 
-        if (Array.isArray(childArray)) this.children = childArray;
+        if (Array.isArray(childNames) && Array.isArray(childCallbacks) && Array.isArray(childParameters)){
+            if(childNames.length === childCallbacks.length && childNames.length === childParameters.length){
+                for(let n = 0; n < childNames.length; n++){
+                    this.children.push(new childMenu(childNames[n], this.transform.posX + this.transform.width/2 + 10, startingY + this.transform.height*n, this.transform.width/2-10, this.transform.height, childCallbacks[n], childParameters[n]));
+                }
+            }
+        }
     }
 
     checkMouse(mouseObject, event, canvasBoundingBox) {
@@ -753,11 +759,17 @@ class parentMenu extends menu {
 
 class childMenu extends menu {
     callback;
+    callbackParams;
 
-    constructor(name, posX, posY, width, height, callback) {
+    constructor(name, posX, posY, width, height, callback, parameters) {
         super(name, posX, posY, width, height);
 
         this.callback = callback;
+        this.callbackParams = parameters;
+    }
+    click(){
+        this.callback(this.callbackParams);
+        this.hover = false;
     }
 }
 

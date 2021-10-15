@@ -35,10 +35,30 @@ let mouse = {
 let time = {
     now: 0,
     prev: Date.now(),
-    deltaTime: 0
+    deltaTime: 0,
 }
 
-let mainMenu = [new parentMenu('Easy', 270, 173, 500, 80, []), new parentMenu('Medium', 270, 252.5, 500, 80, []), new parentMenu('Hard', 270, 332, 500, 80, [])];
+let counter = {
+    startTime: 0,
+    now: 0,
+    milliseconds: '000',
+    seconds: '00',
+    minutes: '0'
+}
+
+let mainMenu = [new parentMenu('Easy', 270, 173, 500, 80, 173, ['8x8', '9x9', '10x10'], [startGame, startGame, startGame], [
+    [8, 10],
+    [9, 10],
+    [10, 10]
+]), new parentMenu('Medium', 270, 252.5, 500, 80, 173, ['14x14', '15x15', '16x16'], [startGame, startGame, startGame], [
+    [14, 40],
+    [15, 40],
+    [16, 40]
+]), new parentMenu('Hard', 270, 332, 500, 80, 173, ['19x19', '20x20', '21x21'], [startGame, startGame, startGame], [
+    [19, 99],
+    [20, 99],
+    [21, 99]
+])];
 
 let showMenu = true;
 
@@ -59,6 +79,13 @@ function loop() {
     time.now = Date.now();
     time.deltaTime = time.now - time.prev;
     time.prev = Date.now();
+    counter.now = Date.now() - counter.startTime;
+
+    if (grid.gameState === 1) {
+        counter.milliseconds = JSON.stringify(counter.now % 1000);
+        counter.seconds = JSON.stringify(Math.floor(counter.now / 1000) % 60);
+        counter.minutes = JSON.stringify(Math.floor(counter.now / 60000));
+    }
 
     if (grid.gameState > 1 && grid.gameState !== 4) {
         if (game.mineCounter < game.mines) {
@@ -70,7 +97,7 @@ function loop() {
                     }
                 }
             }
-
+            game.mineCounter++;
         }
     }
 
@@ -90,13 +117,13 @@ function loop() {
         if (grid.gameState === 3) ctx.fillStyle = 'rgb(150,255,150)';
 
         ctx.beginPath();
-        ctx.arc(cnv.width / 2, cnv.height / 2, 400, 0, ((game.decorationRotation * 4) * Math.PI / 180));
+        ctx.arc(cnv.width / 2, cnv.height / 2, 400, 0, (game.decorationRotation * Math.PI / 180));
         ctx.lineTo(cnv.width / 2, cnv.height / 2);
         ctx.fill();
 
         ctx.restore();
 
-        if (game.decorationRotation < 90) game.decorationRotation += 0.1 * time.deltaTime;
+        game.decorationRotation = game.mineCounter / game.mines * 360;
     }
 
     grid.grid.forEach(array => {
@@ -144,15 +171,27 @@ function loop() {
         });
     });
 
+    ctx.fillStyle = 'white';
+    ctx.font = `48px openSans`;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'hanging';
+    ctx.fillText(`${counter.minutes}:${(counter.seconds.length === 1) ? '0' + counter.seconds : counter.seconds}:${counter.milliseconds.slice(0,-1)}`, 4, 0);
+
     cnv.style = 'cursor: default;'
     if (showMenu) {
         mainMenu.forEach(element => {
             element.updateVariables(time.deltaTime);
 
-            element.draw(ctx, '#2255AA', mainMenu);
+            element.draw(ctx, '#33DD77', mainMenu);
 
             if (element.hover) {
                 cnv.style = 'cursor: pointer;'
+            } else {
+                element.children.forEach(child => {
+                    if (child.hover) {
+                        cnv.style = 'cursor: pointer;'
+                    }
+                });
             }
         });
     }
@@ -171,6 +210,7 @@ cnv.addEventListener('mousedown', function (event) {
 
             cnvRect = cnv.getBoundingClientRect();
             if (grid.gameState === 0) {
+                counter.startTime = Date.now();
                 grid.populateMines(cnvRect, mouse, event, game.mines);
             }
             checkMineClick(cnvRect, mouse, grid, event);
@@ -178,25 +218,34 @@ cnv.addEventListener('mousedown', function (event) {
 
         } else if (event.button === 2) {
 
-            cnvRect = cnv.getBoundingClientRect();
-            placeFlag(cnvRect, mouse, grid, event);
+            if(grid.gameState === 1){
+                cnvRect = cnv.getBoundingClientRect();
+                placeFlag(cnvRect, mouse, grid, event);
+            }
 
         }
 
     } else if (!showMenu) {
 
-        showMenu = true;
+        if (event.button === 0) showMenu = true;
 
     } else if (showMenu) {
 
-        mainMenu.forEach(element => {
-            if(element.hover && !element.active){
-                element.active = true;
-            } else if(!element.hover || element.active){
-                element.active = false;
-            }
-        });
-        
+        if (event.button === 0){
+            mainMenu.forEach(element => {
+                if (element.hover && !element.active) {
+                    element.active = true;
+                } else if (!element.hover || element.active) {
+                    element.active = false;
+                    element.children.forEach(child => {
+                        if (child.hover) {
+                            child.click();
+                        }
+                    });
+                }
+            });
+        }
+
     }
 
 });
@@ -219,3 +268,16 @@ cnv.oncontextmenu = function (event) {
 // - Event Functions -
 
 // - Functions -
+
+function startGame(parameters) {
+    showMenu = false;
+    game = {
+        mines: parameters[1],
+        size: parameters[0],
+        mineCounter: 0,
+        decorationRotation: 0
+    }
+    grid = new mineGrid(game.size);
+    size = cnv.height / grid.size / 1.1;
+
+}
