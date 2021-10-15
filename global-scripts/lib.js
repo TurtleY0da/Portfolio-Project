@@ -28,12 +28,6 @@ function dropdownToggle(toggle, array) {
     return toggle;
 }
 
-// - Replace ID & innerHTML -
-function replaceHTML(searchID, resultHTML) {
-    docGetID(searchID).innerHTML = resultHTML;
-    return docGetID(searchID);
-}
-
 // - Add button -
 function addDropdownButton(string) {
     let menuEl = docGetID("dropdownList");
@@ -930,7 +924,10 @@ function checkMineVictoryConditions(gameSetup, mineGrid) {
 //#endregion
 
 //#region - To Do List -
-    
+    class toDoItem{
+        name = new String();
+        
+    }
 //#endregion
 
 //#endregion

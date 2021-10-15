@@ -34,12 +34,29 @@
     <!-- Color Palette: #E4F9F5 #30E3CA #11999E #40514E -->
     <div id="toDoContainer">
         <h2>Add new item</h2>
-        <p>
-            <input type="text" class="vertCenter largeInput" maxlength="20" placeholder="Title" id="Title">
+        <div id="toDoAddContainer">
+            <input type="text" class="vertCenter largeInput" maxlength="20" placeholder="Title" id="titleIn" value="">
             <input type="text" class="vertCenter  largeInput" maxlength="100" placeholder="Description"
-                id="Description">
-        </p>
+                id="descriptionIn" value="">
+            <div id="toDoAddBtn" unselectable="on" onselectstart="return false;" onmousedown="return false;">
+                +
+            </div>
+        </div>
+        <br>
+
         <hr>
+
+        <br>
+
+        <div id="sortListContainer">
+            <label for="sortList">Sort By</label>
+            <select name="sortList" id="sortList">
+                <option value="date">Date</option>
+                <option value="importance">Importance</option>
+            </select>
+        </div>
+
+        <ul id="outputList"></ul>
     </div>
 
     <!-- Background Image -->

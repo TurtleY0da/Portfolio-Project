@@ -26,7 +26,7 @@ p {
     z-index: 20;
 }
 
-button{
+button {
     margin-top: 6px;
     margin-bottom: 4px;
     padding: 5px 10px;
@@ -51,7 +51,7 @@ button{
     -o-user-select: none;
 }
 
-button:hover{
+button:hover {
     margin-top: 4px;
     margin-bottom: 6px;
 
@@ -62,7 +62,7 @@ button:hover{
     color: #009199;
 }
 
-button:active{
+button:active {
     transition: 55ms;
 
     margin-top: 8px;
@@ -75,18 +75,19 @@ button:active{
     color: #EEEEEE;
 }
 
-input[type="color"]:disabled{
+input[type="color"]:disabled {
     border: 2px solid #ca0000;
 }
 
-select{
+select {
     border: 2px solid #7e7e7e;
 }
-select:disabled{
+
+select:disabled {
     border: 2px solid #ca0000;
 }
 
-hr{
+hr {
     height: 2px;
     background: #11999E;
     border: 1px solid #11999E;
@@ -153,41 +154,88 @@ hr{
     text-align: center;
 }
 
-#test{
+#test {
     height: 5000px;
 }
 
-#gridCanvas{
+#gridCanvas {
     cursor: crosshair;
 }
 
-#launchBtn{
+#launchBtn {
     background: #ca0000;
     padding: 2px 7px;
     border: 3px solid #ff5353;
 }
 
-#launchBtn:hover{
+#launchBtn:hover {
     background: #ff5353;
     color: grey;
     border: 3px solid #ca0000;
 }
 
-#launchBtn:active{
+#launchBtn:active {
     background: #8d0000;
     border: 3px solid #eeeeee;
 }
 
-#toDoContainer{
+#toDoContainer {
     position: relative;
     z-index: 7;
-    
+
     background: #E4F9F5;
     margin-top: 200px;
     padding: 10px 0px;
     text-align: center;
 
     color: #40514E;
+}
+
+#toDoAddContainer {
+    margin: 0px 100px;
+    display: grid;
+    grid-template-columns: 10% 1fr 10%;
+    grid-column-gap: 2%;
+    height: 1em;
+}
+
+#toDoAddBtn {
+    background: #11999E;
+    transition: 800ms;
+    border-radius: 5px;
+    color: #E4F9F5;
+    font-weight: 800;
+
+    font-size: 27px;
+    overflow: hidden;
+
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    flex-direction: column;
+}
+
+#toDoAddBtn:hover {
+    background: #30E3CA;
+    transition: 400ms;
+    box-shadow: 0px 0px 5px #40514E;
+    cursor: pointer;
+}
+
+#toDoAddBtn:active {
+    transition: 50ms;
+    background: #40514E;
+    color: #E4F9F5;
+    box-shadow: 0px 0px 0px;
+}
+
+#sortListContainer {
+    display: flex;
+    justify-self: left;
+}
+
+#sortListContainer label, #sortListContainer select{
+    margin-left: 10px;
 }
 
 /* Class Selectors */
@@ -280,11 +328,11 @@ hr{
     bottom: 0;
 }
 
-.largeInput{
+.largeInput {
     font-size: 18px;
 }
 
-.displayNone{
+.displayNone {
     display: none;
 }
 
@@ -297,7 +345,7 @@ hr{
     animation: slide 180s linear infinite;
 }
 
-.vertCenter{
+.vertCenter {
     position: relative;
     vertical-align: middle;
 }
