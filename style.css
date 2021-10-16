@@ -194,13 +194,14 @@ hr {
 #toDoAddContainer {
     margin: 0px 100px;
     display: grid;
-    grid-template-columns: 10% 1fr 10%;
+    grid-template-columns: 10% 1fr 8% 13% 10%;
     grid-column-gap: 2%;
     height: 1em;
 }
 
 #toDoAddBtn {
     background: #11999E;
+    border: 3px solid #11999E;
     transition: 800ms;
     border-radius: 5px;
     color: #E4F9F5;
@@ -218,13 +219,14 @@ hr {
 #toDoAddBtn:hover {
     background: #30E3CA;
     transition: 400ms;
-    box-shadow: 0px 0px 5px #40514E;
+    border: 3px solid #30E3CA;
     cursor: pointer;
 }
 
 #toDoAddBtn:active {
     transition: 50ms;
     background: #40514E;
+    border: 3px solid #11999E;
     color: #E4F9F5;
     box-shadow: 0px 0px 0px;
 }
@@ -236,6 +238,10 @@ hr {
 
 #sortListContainer label, #sortListContainer select{
     margin-left: 10px;
+}
+
+#outputList{
+    margin: 40px;
 }
 
 /* Class Selectors */

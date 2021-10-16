@@ -38,6 +38,12 @@
             <input type="text" class="vertCenter largeInput" maxlength="20" placeholder="Title" id="titleIn" value="">
             <input type="text" class="vertCenter  largeInput" maxlength="100" placeholder="Description"
                 id="descriptionIn" value="">
+            <select name="priority" id="priorityList">
+                <option value="1">High Priority</option>
+                <option value="2">Standard Priority</option>
+                <option value="3">Low Priority</option>
+            </select>
+                <input type="date" class="vertCenter  largeInput" id="dateIn" >
             <div id="toDoAddBtn" unselectable="on" onselectstart="return false;" onmousedown="return false;">
                 +
             </div>
@@ -56,7 +62,7 @@
             </select>
         </div>
 
-        <ul id="outputList"></ul>
+        <div id="outputList"></div>
     </div>
 
     <!-- Background Image -->

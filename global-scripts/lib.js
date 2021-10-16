@@ -701,10 +701,10 @@ class parentMenu extends menu {
         super(name, posX, posY, width, height);
         this.trueWidth = width;
 
-        if (Array.isArray(childNames) && Array.isArray(childCallbacks) && Array.isArray(childParameters)){
-            if(childNames.length === childCallbacks.length && childNames.length === childParameters.length){
-                for(let n = 0; n < childNames.length; n++){
-                    this.children.push(new childMenu(childNames[n], this.transform.posX + this.transform.width/2 + 10, startingY + this.transform.height*n, this.transform.width/2-10, this.transform.height, childCallbacks[n], childParameters[n]));
+        if (Array.isArray(childNames) && Array.isArray(childCallbacks) && Array.isArray(childParameters)) {
+            if (childNames.length === childCallbacks.length && childNames.length === childParameters.length) {
+                for (let n = 0; n < childNames.length; n++) {
+                    this.children.push(new childMenu(childNames[n], this.transform.posX + this.transform.width / 2 + 10, startingY + this.transform.height * n, this.transform.width / 2 - 10, this.transform.height, childCallbacks[n], childParameters[n]));
                 }
             }
         }
@@ -761,7 +761,7 @@ class childMenu extends menu {
         this.callback = callback;
         this.callbackParams = parameters;
     }
-    click(){
+    click() {
         this.callback(this.callbackParams);
         this.hover = false;
     }
@@ -924,10 +924,65 @@ function checkMineVictoryConditions(gameSetup, mineGrid) {
 //#endregion
 
 //#region - To Do List -
-    class toDoItem{
-        name = new String();
+
+// Create a new item
+function createToDoItem(description, date) {
+    results = new Array();
+    results.push(description, date)
+    return results;
+}
+
+function refreshArray(itemsArray){
+    let storageKeys = new Array();
+
+    let repeat = (localStorage.length > itemsArray.length) ? localStorage.length : itemsArray.length
+
+    for(let n = 0; n < repeat; n++){
+
+        storageKeys.push(localStorage.key(n));
+
+        if(localStorage[`${storageKeys[n]}`] === undefined){
+            itemsArray.splice(n,1);
+            continue;
+        }
+
+        if(typeof itemsArray[n] === 'object'){
+
+            if(itemsArray[n].name !== storageKeys[n] || itemsArray[n].desc !== JSON.parse(localStorage[`${storageKeys[n]}`])[0] || itemsArray[n].date !== JSON.parse(localStorage[`${storageKeys[n]}`])[1]){
+
+                itemsArray[n] = (new Object({
+                    name: storageKeys[n],
+                    desc: JSON.parse(localStorage[`${storageKeys[n]}`])[0],
+                    date: JSON.parse(localStorage[`${storageKeys[n]}`])[1],
+                    priority: JSON.parse(localStorage[`${storageKeys[n]}`])[2]
+                }));
+            }
+
+        } else {
+
+            itemsArray[n] = (new Object({
+                name: storageKeys[n],
+                desc: JSON.parse(localStorage[`${storageKeys[n]}`])[0],
+                date: JSON.parse(localStorage[`${storageKeys[n]}`])[1],
+                priority: +JSON.parse(localStorage[`${storageKeys[n]}`])[2]
+            }));
+        }
         
     }
+}
+
+function orderArray(itemsArrayOrdered, sortList) {
+    let tempArray = JSON.parse(JSON.stringify(itemsArrayOrdered));
+    
+    if(sortList.value === 'date'){
+        tempArray.sort((a, b) => new Date(a.date) - new Date(b.date));
+    }
+    if(sortList.value === 'importance'){
+        tempArray.sort((a, b) => a.priority - b.priority);
+    }
+
+    return tempArray;
+}
 //#endregion
 
 //#endregion
