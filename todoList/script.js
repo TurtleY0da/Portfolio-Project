@@ -20,12 +20,9 @@ let orderedItems = new Array();
 
 let prevLocalStore = new String;
 
-// let currentDate = new Date();
-// inputs.dateEl.value = `${currentDate.getFullYear()}-${currentDate.getMonth()+1}-${currentDate.getDate()}`;
-
 // Glbl Variables
 
-// let interval = setInterval(outputList, 100);
+let interval = setInterval(outputList, 100);
 
 // -- Add Event Listeners
 inputs.addBtn.addEventListener('mousedown', addNewItem)
@@ -54,14 +51,15 @@ function outputList() {
         });
         createElements(inputs.sortListEl.value, orderedItems, outputListEl);
         
-        // let index = 0;
-        // for (const element of docGetClass('toDoRemoveBtn')){
-        //     element.addEventListener('mousedown', function() {
-        //         localStorage.removeItem(`${orderedItems[index].name}`);
-        //         outputList();
-        //     })
-        //     index++;
-        // }
+        let index = 0;
+        for (const element of docGetClass('toDoRemoveBtn')){
+            element.addEventListener('mousedown', function(event) {
+                localStorage.removeItem(event.path[1].children[0].innerText);
+                // console.log(event.path[1].children[0].innerText)
+                outputList();
+            })
+            index++;
+        }
     }
     
 }
