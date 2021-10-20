@@ -25,7 +25,7 @@ let prevLocalStore = new String;
 
 // Glbl Variables
 
-let interval = setInterval(outputList, 100);
+// let interval = setInterval(outputList, 100);
 
 // -- Add Event Listeners
 inputs.addBtn.addEventListener('mousedown', addNewItem)
@@ -52,6 +52,16 @@ function outputList() {
         example.forEach(element => {
             element.remove();
         });
+        createElements(inputs.sortListEl.value, orderedItems, outputListEl);
+        
+        // let index = 0;
+        // for (const element of docGetClass('toDoRemoveBtn')){
+        //     element.addEventListener('mousedown', function() {
+        //         localStorage.removeItem(`${orderedItems[index].name}`);
+        //         outputList();
+        //     })
+        //     index++;
+        // }
     }
     
 }

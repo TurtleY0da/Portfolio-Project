@@ -932,23 +932,23 @@ function createToDoItem(description, date) {
     return results;
 }
 
-function refreshArray(itemsArray){
+function refreshArray(itemsArray) {
     let storageKeys = new Array();
 
     let repeat = (localStorage.length > itemsArray.length) ? localStorage.length : itemsArray.length
 
-    for(let n = 0; n < repeat; n++){
+    for (let n = 0; n < repeat; n++) {
 
         storageKeys.push(localStorage.key(n));
 
-        if(localStorage[`${storageKeys[n]}`] === undefined){
-            itemsArray.splice(n,1);
+        if (localStorage[`${storageKeys[n]}`] === undefined) {
+            itemsArray.splice(n, 1);
             continue;
         }
 
-        if(typeof itemsArray[n] === 'object'){
+        if (typeof itemsArray[n] === 'object') {
 
-            if(itemsArray[n].name !== storageKeys[n] || itemsArray[n].desc !== JSON.parse(localStorage[`${storageKeys[n]}`])[0] || itemsArray[n].date !== JSON.parse(localStorage[`${storageKeys[n]}`])[1]){
+            if (itemsArray[n].name !== storageKeys[n] || itemsArray[n].desc !== JSON.parse(localStorage[`${storageKeys[n]}`])[0] || itemsArray[n].date !== JSON.parse(localStorage[`${storageKeys[n]}`])[1]) {
 
                 itemsArray[n] = (new Object({
                     name: storageKeys[n],
@@ -967,21 +967,68 @@ function refreshArray(itemsArray){
                 priority: +JSON.parse(localStorage[`${storageKeys[n]}`])[2]
             }));
         }
-        
+
     }
 }
 
 function orderArray(itemsArrayOrdered, sortList) {
     let tempArray = JSON.parse(JSON.stringify(itemsArrayOrdered));
-    
-    if(sortList.value === 'date'){
+
+    if (sortList.value === 'date') {
         tempArray.sort((a, b) => new Date(a.date) - new Date(b.date));
     }
-    if(sortList.value === 'importance'){
+    if (sortList.value === 'importance') {
         tempArray.sort((a, b) => a.priority - b.priority);
     }
 
     return tempArray;
+}
+
+function createElements(sorter, orderedItemsArray, outputEl) {
+    switch (sorter) {
+        case 'date':
+            let currentDate = new Date();
+
+            let headers = [['Late', `${currentDate.getFullYear()}-${currentDate.getMonth()+1}-${currentDate.getDate()}`], ['Today', `${currentDate.getFullYear()}-${currentDate.getMonth()+1}-${currentDate.getDate()+1}`], ['Tomorrow', `${currentDate.getFullYear()}-${currentDate.getMonth()+1}-${currentDate.getDate()+2}`], ['This Week', `${currentDate.getFullYear()}-${currentDate.getMonth()+1}-${currentDate.getDate()+8}`], ['Later', `3000-01-01`]]
+
+            headers.forEach(text => {
+                console.log(null);
+
+                const parentEl = document.createElement('div');
+                let divEl = document.createElement('div');
+                let headerEl = document.createElement('h2');
+
+                headerEl.innerText = text[0];
+
+                divEl.classList.add("toDoHeaderElement");
+                divEl.setAttribute("unselectable", 'on');
+                divEl.setAttribute("onselectstart", 'return false;');
+                divEl.setAttribute("onmousedown", 'return false;');
+
+                divEl.append(headerEl);
+
+                parentEl.append(divEl);
+
+                for(let n = 0; n < orderedItemsArray.length; n++){
+                    if(isNaN(new Date(orderedItems[n].date).getDate())){
+                        if(text[0] === 'Later') console.log('invalid');
+                    } else {
+                        if(new Date(orderedItemsArray[n].date) < new Date(`${text[1]}`)){
+                            console.log(true);
+                        } else {
+                            console.log(false);
+                        }
+                    }
+                    
+                }
+
+                outputEl.append(parentEl);
+            });
+
+            break;
+        case 'importance':
+            break;
+    }
 }
 //#endregion
 
