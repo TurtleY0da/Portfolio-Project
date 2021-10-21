@@ -19,6 +19,7 @@ let allItems = new Array();
 let orderedItems = new Array();
 
 let prevLocalStore = new String;
+let prevListChoice = 'date';
 
 // Glbl Variables
 
@@ -41,7 +42,7 @@ function outputList() {
 
     orderedItems = orderArray(orderedItems, inputs.sortListEl);
 
-    if(prevLocalStore !== JSON.stringify(localStorage)){
+    if(prevLocalStore !== JSON.stringify(localStorage) || prevListChoice !== inputs.sortListEl.value){
         let example = new Array()
         for (const child of docGetID('outputList').children) {
             example.push(child);
@@ -61,6 +62,9 @@ function outputList() {
             index++;
         }
     }
+
+    prevLocalStore = JSON.stringify(localStorage);
+    prevListChoice = inputs.sortListEl.value;
     
 }
 

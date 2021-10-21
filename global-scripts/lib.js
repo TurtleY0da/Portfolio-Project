@@ -954,8 +954,9 @@ function refreshArray(itemsArray) {
                     name: storageKeys[n],
                     desc: JSON.parse(localStorage[`${storageKeys[n]}`])[0],
                     date: JSON.parse(localStorage[`${storageKeys[n]}`])[1],
-                    priority: JSON.parse(localStorage[`${storageKeys[n]}`])[2]
-                }));
+                    priority: parseInt(JSON.parse(localStorage[`${storageKeys[n]}`])[2])
+                })); 
+
             }
 
         } else {
@@ -964,7 +965,7 @@ function refreshArray(itemsArray) {
                 name: storageKeys[n],
                 desc: JSON.parse(localStorage[`${storageKeys[n]}`])[0],
                 date: JSON.parse(localStorage[`${storageKeys[n]}`])[1],
-                priority: +JSON.parse(localStorage[`${storageKeys[n]}`])[2]
+                priority: parseInt(JSON.parse(localStorage[`${storageKeys[n]}`])[2])
             }));
         }
 
@@ -997,15 +998,29 @@ function createElements(sorter, orderedItemsArray, outputEl) {
         case 'date':
             let currentDate = new Date();
 
-            let headers = [
-                ['Late', `${currentDate.getFullYear()}-${currentDate.getMonth()+1}-${currentDate.getDate()}`],
-                ['Today', `${currentDate.getFullYear()}-${currentDate.getMonth()+1}-${currentDate.getDate()+1}`],
-                ['Tomorrow', `${currentDate.getFullYear()}-${currentDate.getMonth()+1}-${currentDate.getDate()+2}`],
-                ['This Week', `${currentDate.getFullYear()}-${currentDate.getMonth()+1}-${currentDate.getDate()+7}`],
-                ['Later']
+            let dateHeaders = [
+                [
+                    'Late',
+                    `${currentDate.getFullYear()}-${currentDate.getMonth()+1}-${currentDate.getDate()}`
+                ],
+                [
+                    'Today',
+                    `${currentDate.getFullYear()}-${currentDate.getMonth()+1}-${currentDate.getDate()+1}`
+                ],
+                [
+                    'Tomorrow',
+                    `${currentDate.getFullYear()}-${currentDate.getMonth()+1}-${currentDate.getDate()+2}`
+                ],
+                [
+                    'This Week',
+                    `${currentDate.getFullYear()}-${currentDate.getMonth()+1}-${currentDate.getDate()+7}`
+                ],
+                [
+                    'Later'
+                ]
             ]
 
-            headers.forEach(text => {
+            dateHeaders.forEach(text => {
 
                 const parentEl = document.createElement('div');
                 let divEl = document.createElement('div');
@@ -1031,10 +1046,10 @@ function createElements(sorter, orderedItemsArray, outputEl) {
 
                 parentDivEl.classList.add('toDoListElement');
 
-                if(orderedItemsArray[x].priority === 1){
+                if (orderedItemsArray[x].priority === 1) {
                     parentDivEl.classList.add('priority1');
 
-                } else if(orderedItemsArray[x].priority === 2) {
+                } else if (orderedItemsArray[x].priority === 2) {
                     parentDivEl.classList.add('priority2');
 
                 } else {
@@ -1068,19 +1083,107 @@ function createElements(sorter, orderedItemsArray, outputEl) {
                 parentDivEl.append(titleSpanEl, descSpanEl, dateSpanEl, rmvBtnEl);
 
                 forElse01: {
-                    for (let y = 0; y < headers.length - 1; y++) {
-                        if (new Date(orderedItemsArray[x].date) < new Date(headers[y][1])) {
+                    for (let y = 0; y < dateHeaders.length - 1; y++) {
+                        if (new Date(orderedItemsArray[x].date) < new Date(dateHeaders[y][1])) {
                             outputEl.children[y].append(parentDivEl);
                             break forElse01;
                         }
                     }
-                    outputEl.children[headers.length - 1].append(parentDivEl);
+                    outputEl.children[dateHeaders.length - 1].append(parentDivEl);
                 }
             }
 
 
             break;
         case 'importance':
+            let priorityHeaders = [
+                [
+                    'High Priority',
+                    1
+                ],
+                [
+                    'Standard Priority',
+                    2
+                ],
+                [
+                    'Low Priority'
+                ]
+            ]
+
+            priorityHeaders.forEach(text => {
+
+                const parentEl = document.createElement('div');
+                let divEl = document.createElement('div');
+                let headerEl = document.createElement('h2');
+
+                headerEl.innerText = text[0];
+
+                divEl.classList.add("toDoHeaderElement");
+                divEl.setAttribute("unselectable", 'on');
+                divEl.setAttribute("onselectstart", 'return false;');
+                divEl.setAttribute("onmousedown", 'return false;');
+
+                divEl.append(headerEl);
+
+                parentEl.append(divEl);
+
+                outputEl.append(parentEl);
+            });
+
+            for (let x = 0; x < orderedItemsArray.length; x++) {
+
+                let parentDivEl = document.createElement('div');
+
+                parentDivEl.classList.add('toDoListElement');
+
+                if (orderedItemsArray[x].priority === 1) {
+                    parentDivEl.classList.add('priority1');
+
+                } else if (orderedItemsArray[x].priority === 2) {
+                    parentDivEl.classList.add('priority2');
+
+                } else {
+                    parentDivEl.classList.add('priority3');
+
+                }
+
+                let titleSpanEl = document.createElement('span');
+
+                titleSpanEl.innerText = orderedItemsArray[x].name;
+                titleSpanEl.classList.add('titleText');
+
+                let descSpanEl = document.createElement('span');
+
+                descSpanEl.innerText = orderedItemsArray[x].desc;
+                descSpanEl.classList.add('descriptionText');
+
+                let dateSpanEl = document.createElement('span');
+
+                dateSpanEl.innerText = orderedItemsArray[x].date;
+                dateSpanEl.classList.add('titleText');
+
+                let rmvBtnEl = document.createElement('div');
+
+                rmvBtnEl.innerText = '-';
+                rmvBtnEl.classList.add('toDoRemoveBtn');
+                rmvBtnEl.setAttribute('unselectable', 'on');
+                rmvBtnEl.setAttribute('onselectstart', 'return false;');
+                rmvBtnEl.setAttribute('onmousedown', 'return false;');
+
+                parentDivEl.append(titleSpanEl, descSpanEl, dateSpanEl, rmvBtnEl);
+
+                switch (orderedItemsArray[x].priority) {
+                    case 1:
+                        outputEl.children[0].append(parentDivEl);
+                        break;
+                    case 2:
+                        outputEl.children[1].append(parentDivEl);
+                        break;
+                    case 3:
+                        outputEl.children[2].append(parentDivEl);
+                        break;
+                }
+            }
             break;
     }
 }
