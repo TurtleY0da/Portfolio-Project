@@ -94,6 +94,55 @@ function createImage(source, canvas2dContext, canvas) {
 
     canvas2dContext.drawImage(source.url, coords.x, coords.y, width, height);
 }
+
+// - Insertion Sort -
+function insertionSort(array) {
+    let result = [...array];
+
+    for (let a = 1; a < result.length; a++) {
+
+        let key = result[a];
+
+        let b = a - 1;
+
+        while (b >= 0 && key < result[b]) {
+            result[b+1] = result[b];
+            b--;
+        }
+        result[b+1] = key;
+    }
+    return result;
+}
+
+// - Merge Two Arrays -
+function mergeArrays(leftArray, rightArray) {
+    let result = new Array();
+
+    while(leftArray.length && rightArray.length){
+
+        if(leftArray[0] < rightArray[0]){
+            result.push(leftArray.shift());
+        } else {
+            result.push(rightArray.shift());
+        }
+    }
+
+    return [...result, ...leftArray, ...rightArray];
+}
+
+// - Merge Sort -
+function mergeSort(array) {
+    // console.log(array);
+
+    if(array.length < 2) return array;
+
+    let split = Math.floor(array.length/2);
+
+    const leftArray = array.splice(0, split);
+
+    return mergeArrays(mergeSort(leftArray), mergeSort(array));
+}
+
 //#endregion
 
 //#region -- Local Functions --
@@ -1189,5 +1238,21 @@ function createElements(sorter, orderedItemsArray, outputEl) {
 }
 
 //#endregion
+
+//#endregion
+
+//#region -- Debugging --
+
+// - Test a sorter -
+function testSorter(callback, arraySize) {
+    let inputArray = new Array()
+    for (let n = 0; n < arraySize; n++) {
+        inputArray.push(Math.round(Math.random() * 499));
+    }
+    let now = Date.now();
+
+    console.log(callback(inputArray));
+    console.log(Date.now() - now);
+}
 
 //#endregion
