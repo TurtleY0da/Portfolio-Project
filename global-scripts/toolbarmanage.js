@@ -36,6 +36,10 @@ addDropdownButton('To Do List').addEventListener('click', function() {
     location.replace('../todoList/');
 });
 
+addDropdownButton('Sorting Algorithm Experiment').addEventListener('click', function() {
+    location.replace('../sortingAlgorithms/');
+});
+
 // - HTML Element References -
 // Button array on dropdown menu
 let buttonsArrayEl = docGetClass("dropdownButton");

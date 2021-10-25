@@ -106,10 +106,10 @@ function insertionSort(array) {
         let b = a - 1;
 
         while (b >= 0 && key < result[b]) {
-            result[b+1] = result[b];
+            result[b + 1] = result[b];
             b--;
         }
-        result[b+1] = key;
+        result[b + 1] = key;
     }
     return result;
 }
@@ -118,9 +118,9 @@ function insertionSort(array) {
 function mergeArrays(leftArray, rightArray) {
     let result = new Array();
 
-    while(leftArray.length && rightArray.length){
+    while (leftArray.length && rightArray.length) {
 
-        if(leftArray[0] < rightArray[0]){
+        if (leftArray[0] < rightArray[0]) {
             result.push(leftArray.shift());
         } else {
             result.push(rightArray.shift());
@@ -132,15 +132,64 @@ function mergeArrays(leftArray, rightArray) {
 
 // - Merge Sort -
 function mergeSort(array) {
-    // console.log(array);
 
-    if(array.length < 2) return array;
+    if (array.length < 2) return array;
 
-    let split = Math.floor(array.length/2);
+    let split = Math.floor(array.length / 2);
 
     const leftArray = array.splice(0, split);
 
     return mergeArrays(mergeSort(leftArray), mergeSort(array));
+}
+
+// - Swap Array Items In Place -
+function swapItems(array, indexA, indexB) {
+    let temp = array[indexA];
+    array[indexA] = array[indexB];
+    array[indexB] = temp;
+}
+
+// - Quick Sort Partition Sort -
+function quickSortPartition(array, left, right) {
+    let pivot = array[Math.floor((left + right) / 2)];
+    let leftCursor = left;
+    let rightCursor = right;
+
+    while(leftCursor <= rightCursor){
+
+        while(array[leftCursor] < pivot){
+            leftCursor++;
+        }
+        while(array[rightCursor] > pivot){
+            rightCursor--;
+        }
+
+        if(leftCursor <= rightCursor){
+            swapItems(array, leftCursor, rightCursor);
+            leftCursor++;
+            rightCursor--;
+        }
+
+    }
+    return leftCursor;
+}
+
+// - Quick Sort -
+function quickSort(array, left, right) {
+
+    if(array.length < 2) return array;
+
+    let index = quickSortPartition(array, left, right);
+
+    if(left < index - 1) {
+        quickSort(array, left, index - 1);
+    }
+
+    if(right > index) {
+        quickSort(array, index, right);
+    }
+
+    return array;
 }
 
 //#endregion
@@ -1004,7 +1053,7 @@ function refreshArray(itemsArray) {
                     desc: JSON.parse(localStorage[`${storageKeys[n]}`])[0],
                     date: JSON.parse(localStorage[`${storageKeys[n]}`])[1],
                     priority: parseInt(JSON.parse(localStorage[`${storageKeys[n]}`])[2])
-                })); 
+                }));
 
             }
 
@@ -1239,20 +1288,27 @@ function createElements(sorter, orderedItemsArray, outputEl) {
 
 //#endregion
 
+//#region - Sorting Algorithms -
+
 //#endregion
 
-//#region -- Debugging --
+//#endregion
+
+//#region -- Debugging & Benchmarking --
 
 // - Test a sorter -
 function testSorter(callback, arraySize) {
-    let inputArray = new Array()
-    for (let n = 0; n < arraySize; n++) {
-        inputArray.push(Math.round(Math.random() * 499));
+    let additionalParams = new Array();
+    for(let n = 2; n < arguments.length; n++){
+        additionalParams.push(arguments[n]);
     }
-    let now = Date.now();
 
-    console.log(callback(inputArray));
-    console.log(Date.now() - now);
+    let inputArray = new Array();
+    for (let n = 0; n < arraySize; n++) {
+        inputArray.push(Math.round(Math.random() * (arraySize-1)));
+    }
+    console.time('test')
+    console.log(callback(inputArray, ...additionalParams));
+    console.timeEnd('test');
 }
-
 //#endregion

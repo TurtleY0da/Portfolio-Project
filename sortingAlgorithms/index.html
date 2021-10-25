@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <title>Name</title>
+    <link rel="stylesheet" href="../style.css" type="text/css" id="stylesheet">
+
+</head>
+
+<body>
+    <!-- Top Panel Region -->
+    <div id="topPanel">
+
+        <div id="buttonContainer">
+
+            <div class="button" id="homeBtn" unselectable="on" onselectstart="return false;"
+                onmousedown="return false;">
+                Home
+            </div>
+
+            <div class="button" id="projectsBtn" unselectable="on" onselectstart="return false;"
+                onmousedown="return false;">
+                Projects
+            </div>
+
+        </div>
+
+
+    </div>
+    <!-- Dropdown Menu -->
+    <ul id="dropdownList"></ul>
+
+    <!-- Add Canvas Element -->
+    <div id="canvasContainer">
+        <canvas id="myCanvas"></canvas>
+    </div>
+
+    <!-- Background Image -->
+    <div class="background">
+        <div class="slidingBackground"></div>
+    </div>
+
+    <!-- Load JS -->
+    <script src="../global-scripts/lib.js"></script>
+    <script src="script.js"></script>
+    <script src="../global-scripts/toolbarmanage.js"></script>
+</body>
+
+</html>
