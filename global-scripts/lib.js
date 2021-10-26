@@ -1354,23 +1354,140 @@ class sortingChart {
             this.chartsArray[index].array[b + 1] = key;
         }
 
-        for(let n = 0; n < this.chartsArray[index].array.length; n++){
+        for (let n = 0; n < this.chartsArray[index].array.length; n++) {
             await timer(10);
             this.chartsArray[index].activeItem = n;
         }
     }
 
+    async mergeArrays(leftArray, rightArray) {
+        let result = new Array();
+
+        while (leftArray.length && rightArray.length) {
+            await timer(1);
+
+            if (leftArray[0] < rightArray[0]) {
+                result.push(leftArray.shift());
+            } else {
+                result.push(rightArray.shift());
+            }
+        }
+
+        return [...result, ...leftArray, ...rightArray];
+    }
+
+    async asyncMergeSort(index) {
+        let array = new Array();
+        this.chartsArray[index].array.forEach(element => {
+            array.push(element);
+        });
+
+        await this.mergeSort(array, index);
+
+        for (let n = 0; n < this.chartsArray[index].array.length; n++) {
+            await timer(1);
+            this.chartsArray[index].activeItem = n;
+        }
+    }
+
+    async mergeSort(array, actItemIndex) {
+        if (array.length < 2) return array;
+
+        let split = Math.floor(array.length / 2);
+
+        const leftArray = array.splice(0, split);
+
+        await timer(1);
+
+        let result = await this.mergeArrays(await this.mergeSort(leftArray, actItemIndex), await this.mergeSort(array, actItemIndex));
+
+        this.chartsArray[actItemIndex].activeItem = result.length-1;
+
+        this.chartsArray[actItemIndex].array = result;
+
+        return result;
+    }
+
+    async asyncQuickSort(index) {
+        let array = new Array();
+        this.chartsArray[index].array.forEach(element => {
+            array.push(element);
+        });
+
+        await this.quickSort(array, 0, array.length-1, index);
+
+        this.chartsArray[index].secondaryItems = [];
+
+        for (let n = 0; n < this.chartsArray[index].array.length; n++) {
+            await timer(1);
+            this.chartsArray[index].activeItem = n;
+        }
+    }
+
+    async quickSort(array, left, right, actItemIndex) {
+
+        if (array.length < 2) return array;
+    
+        let index = await this.quickSortPartition(array, left, right, actItemIndex);
+    
+        if (left < index - 1) {
+            await this.quickSort(array, left, index - 1, actItemIndex);
+        }
+    
+        if (right > index) {
+            await this.quickSort(array, index, right, actItemIndex);
+        }
+
+        this.chartsArray[actItemIndex].array = array;
+    
+        return array;
+    }
+
+    async quickSortPartition(array, left, right, actItemIndex) {
+        this.chartsArray[actItemIndex].activeItem = array[Math.floor((left + right) / 2)]
+        let pivot = array[Math.floor((left + right) / 2)];
+        let leftCursor = left;
+        let rightCursor = right;
+    
+        while (leftCursor <= rightCursor) {
+    
+            while (array[leftCursor] < pivot) {
+                await timer(0.1);
+                this.chartsArray[actItemIndex].secondaryItems[0] = leftCursor;
+                leftCursor++;
+            }
+            while (array[rightCursor] > pivot) {
+                await timer(0.1);
+                this.chartsArray[actItemIndex].secondaryItems[1] = rightCursor;
+                rightCursor--;
+            }
+    
+            if (leftCursor <= rightCursor) {
+                swapItems(array, leftCursor, rightCursor);
+                leftCursor++;
+                rightCursor--;
+            }
+    
+        }
+        return leftCursor;
+    }
+
     draw(canvas2dContext) {
         for (let i = 0; i < this.chartsArray.length; i++) {
-            for (let n = 0; n < this.chartsArray[i].array.length; n++) {
+            for (let n = 0; n < this.randomArray.length; n++) {
 
                 canvas2dContext.beginPath();
-                canvas2dContext.moveTo((1000 / this.chartsArray[i].array.length) * n + 20, 575 - this.height * i);
+                canvas2dContext.moveTo((1000 / this.randomArray.length) * n + (20 + (1000 / sorterChart.randomArray.length) / 2), 575 - this.height * i - (10 * (this.chartsArray.length - 1) * i)); 
 
                 canvas2dContext.strokeStyle = 'black';
+                if(Array.isArray(this.chartsArray[i].secondaryItems)){
+                    this.chartsArray[i].secondaryItems.forEach(element => {
+                        if(element === n) canvas2dContext.strokeStyle = 'blue';
+                    });
+                }
                 if (this.chartsArray[i].activeItem === n) canvas2dContext.strokeStyle = 'red';
 
-                canvas2dContext.lineTo((1000 / this.chartsArray[i].array.length) * n + 20, (575 - ((this.chartsArray[i].array[n] / this.chartsArray[i].array.length) * this.height)) - this.height * i);
+                canvas2dContext.lineTo((1000 / this.randomArray.length) * n + (20 + (1000 / sorterChart.randomArray.length) / 2), (575 - ((this.chartsArray[i].array[n] / this.randomArray.length) * this.height)) - this.height * i - (10 * (this.chartsArray.length - 1) * i));
                 canvas2dContext.stroke();
             }
         }

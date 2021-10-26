@@ -7,7 +7,7 @@ let cnv = docGetID("myCanvas");
 
 // Glbl Variables
 // Item: {array:[], activeItem: 0}
-let sorterChart = new sortingChart(100, [{array:[], activeItem: 0}]);
+let sorterChart = new sortingChart(100, [{array:[], activeItem: 0}, {array:[], activeItem: 0}, {array:[], activeItem: 0, secondaryItems: [0,0]}]);
 
 // -- Canvas & Context setup
 /** @type {CanvasRenderingContext2D} */
