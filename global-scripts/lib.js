@@ -155,16 +155,16 @@ function quickSortPartition(array, left, right) {
     let leftCursor = left;
     let rightCursor = right;
 
-    while(leftCursor <= rightCursor){
+    while (leftCursor <= rightCursor) {
 
-        while(array[leftCursor] < pivot){
+        while (array[leftCursor] < pivot) {
             leftCursor++;
         }
-        while(array[rightCursor] > pivot){
+        while (array[rightCursor] > pivot) {
             rightCursor--;
         }
 
-        if(leftCursor <= rightCursor){
+        if (leftCursor <= rightCursor) {
             swapItems(array, leftCursor, rightCursor);
             leftCursor++;
             rightCursor--;
@@ -177,15 +177,15 @@ function quickSortPartition(array, left, right) {
 // - Quick Sort -
 function quickSort(array, left, right) {
 
-    if(array.length < 2) return array;
+    if (array.length < 2) return array;
 
     let index = quickSortPartition(array, left, right);
 
-    if(left < index - 1) {
+    if (left < index - 1) {
         quickSort(array, left, index - 1);
     }
 
-    if(right > index) {
+    if (right > index) {
         quickSort(array, index, right);
     }
 
@@ -1290,6 +1290,94 @@ function createElements(sorter, orderedItemsArray, outputEl) {
 
 //#region - Sorting Algorithms -
 
+// - Chart Class -
+class sortingChart {
+    width;
+    height;
+    chartsArray;
+    randomArray = new Array();
+
+    constructor(itemNum, chartTypes) {
+        this.createChart(itemNum, chartTypes);
+    }
+    async createChart(itemNum, chartTypes) {
+        this.height = 565 / chartTypes.length - (10 * (chartTypes.length - 1));
+
+        this.chartsArray = chartTypes;
+
+        this.randomArray.length = itemNum;
+        // Create Ordered Items
+        for (let n = 0; n < this.randomArray.length; n++) {
+            await timer(5);
+            this.randomArray[n] = n;
+
+            this.chartsArray.forEach(item => {
+                item.array = this.randomArray;
+                item.activeItem = n;
+            });
+        }
+
+        // Randomize Positions
+        for (let i = 0; i < this.randomArray.length; i++) {
+            await timer(15);
+            swapItems(this.randomArray, i, Math.floor(Math.random() * (this.randomArray.length - 1)));
+
+            this.chartsArray.forEach(item => {
+                item.array = this.randomArray;
+                item.activeItem = i;
+            });
+        }
+
+        this.chartsArray.forEach(item => {
+            let tempArray = new Array();
+            item.array.forEach(element => {
+                tempArray.push(element);
+            });
+            item.array = tempArray;
+        });
+    }
+
+    async asyncInsertionSort(index) {
+
+        for (let a = 1; a < this.chartsArray[index].array.length; a++) {
+
+            let key = this.chartsArray[index].array[a];
+
+            let b = a - 1;
+
+            while (b >= 0 && key < this.chartsArray[index].array[b]) {
+                this.chartsArray[index].array[b + 1] = this.chartsArray[index].array[b];
+                this.chartsArray[index].activeItem = b;
+                await timer(1);
+                b--;
+            }
+            this.chartsArray[index].array[b + 1] = key;
+        }
+
+        for(let n = 0; n < this.chartsArray[index].array.length; n++){
+            await timer(10);
+            this.chartsArray[index].activeItem = n;
+        }
+    }
+
+    draw(canvas2dContext) {
+        for (let i = 0; i < this.chartsArray.length; i++) {
+            for (let n = 0; n < this.chartsArray[i].array.length; n++) {
+
+                canvas2dContext.beginPath();
+                canvas2dContext.moveTo((1000 / this.chartsArray[i].array.length) * n + 20, 575 - this.height * i);
+
+                canvas2dContext.strokeStyle = 'black';
+                if (this.chartsArray[i].activeItem === n) canvas2dContext.strokeStyle = 'red';
+
+                canvas2dContext.lineTo((1000 / this.chartsArray[i].array.length) * n + 20, (575 - ((this.chartsArray[i].array[n] / this.chartsArray[i].array.length) * this.height)) - this.height * i);
+                canvas2dContext.stroke();
+            }
+        }
+    }
+
+}
+
 //#endregion
 
 //#endregion
@@ -1299,13 +1387,13 @@ function createElements(sorter, orderedItemsArray, outputEl) {
 // - Test a sorter -
 function testSorter(callback, arraySize) {
     let additionalParams = new Array();
-    for(let n = 2; n < arguments.length; n++){
+    for (let n = 2; n < arguments.length; n++) {
         additionalParams.push(arguments[n]);
     }
 
     let inputArray = new Array();
     for (let n = 0; n < arraySize; n++) {
-        inputArray.push(Math.round(Math.random() * (arraySize-1)));
+        inputArray.push(Math.round(Math.random() * (arraySize - 1)));
     }
     console.time('test')
     console.log(callback(inputArray, ...additionalParams));
