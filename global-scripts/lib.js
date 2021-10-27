@@ -1401,7 +1401,7 @@ class sortingChart {
 
         let result = await this.mergeArrays(await this.mergeSort(leftArray, actItemIndex), await this.mergeSort(array, actItemIndex));
 
-        this.chartsArray[actItemIndex].activeItem = result.length-1;
+        this.chartsArray[actItemIndex].activeItem = result.length - 1;
 
         this.chartsArray[actItemIndex].array = result;
 
@@ -1414,7 +1414,7 @@ class sortingChart {
             array.push(element);
         });
 
-        await this.quickSort(array, 0, array.length-1, index);
+        await this.quickSort(array, 0, array.length - 1, index);
 
         this.chartsArray[index].secondaryItems = [];
 
@@ -1427,19 +1427,19 @@ class sortingChart {
     async quickSort(array, left, right, actItemIndex) {
 
         if (array.length < 2) return array;
-    
+
         let index = await this.quickSortPartition(array, left, right, actItemIndex);
-    
+
         if (left < index - 1) {
             await this.quickSort(array, left, index - 1, actItemIndex);
         }
-    
+
         if (right > index) {
             await this.quickSort(array, index, right, actItemIndex);
         }
 
         this.chartsArray[actItemIndex].array = array;
-    
+
         return array;
     }
 
@@ -1448,9 +1448,9 @@ class sortingChart {
         let pivot = array[Math.floor((left + right) / 2)];
         let leftCursor = left;
         let rightCursor = right;
-    
+
         while (leftCursor <= rightCursor) {
-    
+
             while (array[leftCursor] < pivot) {
                 await timer(0.1);
                 this.chartsArray[actItemIndex].secondaryItems[0] = leftCursor;
@@ -1461,13 +1461,13 @@ class sortingChart {
                 this.chartsArray[actItemIndex].secondaryItems[1] = rightCursor;
                 rightCursor--;
             }
-    
+
             if (leftCursor <= rightCursor) {
                 swapItems(array, leftCursor, rightCursor);
                 leftCursor++;
                 rightCursor--;
             }
-    
+
         }
         return leftCursor;
     }
@@ -1477,12 +1477,12 @@ class sortingChart {
             for (let n = 0; n < this.randomArray.length; n++) {
 
                 canvas2dContext.beginPath();
-                canvas2dContext.moveTo((1000 / this.randomArray.length) * n + (20 + (1000 / sorterChart.randomArray.length) / 2), 575 - this.height * i - (10 * (this.chartsArray.length - 1) * i)); 
+                canvas2dContext.moveTo((1000 / this.randomArray.length) * n + (20 + (1000 / sorterChart.randomArray.length) / 2), 575 - this.height * i - (10 * (this.chartsArray.length - 1) * i));
 
                 canvas2dContext.strokeStyle = 'black';
-                if(Array.isArray(this.chartsArray[i].secondaryItems)){
+                if (Array.isArray(this.chartsArray[i].secondaryItems)) {
                     this.chartsArray[i].secondaryItems.forEach(element => {
-                        if(element === n) canvas2dContext.strokeStyle = 'blue';
+                        if (element === n) canvas2dContext.strokeStyle = 'blue';
                     });
                 }
                 if (this.chartsArray[i].activeItem === n) canvas2dContext.strokeStyle = 'red';

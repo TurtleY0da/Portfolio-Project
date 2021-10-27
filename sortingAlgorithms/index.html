@@ -33,6 +33,22 @@
 
     <!-- Add Canvas Element -->
     <div id="canvasContainer">
+        <p>
+            Columns
+            <select name="columnNumIn" id="columnNumIn">
+                <option value="50">50</option>
+                <option value="100" selected>100</option>
+                <option value="200">200</option>
+                <option value="300">300</option>
+            </select> 
+            <input type="checkbox" id="insSortCheckbox" class="vertCenter" checked>Insertion Sort 
+            <input type="checkbox" id="mrgSortCheckbox" class="vertCenter" checked>Merge Sort 
+            <input type="checkbox" id="qukSortCheckbox" class="vertCenter" checked>Quick Sort 
+            <input type="checkbox" id="waitCheckbox" class="vertCenter">Wait 
+            <br>
+            <button id="sortBtn">Sort</button>
+        </p>
+
         <canvas id="myCanvas"></canvas>
     </div>
 
