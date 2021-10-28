@@ -471,7 +471,7 @@ hr {
     }
 
     100% {
-        transform: translate3d(-4096px, -3072px, 0);
+        transform: translate3d(-2048px, -1024px, 0);
         /* The image width */
     }
 }

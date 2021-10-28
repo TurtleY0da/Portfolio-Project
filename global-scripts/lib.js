@@ -1292,15 +1292,15 @@ function createElements(sorter, orderedItemsArray, outputEl) {
 
 // - Chart Class -
 class sortingChart {
-    width;
     height;
     chartsArray;
     randomArray = new Array();
 
-    constructor(itemNum, chartTypes) {
-        this.createChart(itemNum, chartTypes);
+    constructor(itemNum, chartTypes, callback) {
+        this.createChart(itemNum, chartTypes, callback);
     }
-    async createChart(itemNum, chartTypes) {
+
+    async createChart(itemNum, chartTypes, callback) {
         this.height = 565 / chartTypes.length - (10 * (chartTypes.length - 1));
 
         this.chartsArray = chartTypes;
@@ -1335,6 +1335,8 @@ class sortingChart {
             });
             item.array = tempArray;
         });
+
+        if (typeof callback === 'function') callback();
     }
 
     async asyncInsertionSort(index) {
