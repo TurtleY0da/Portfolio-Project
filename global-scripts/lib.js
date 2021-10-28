@@ -1466,6 +1466,7 @@ class sortingChart {
 
             if (leftCursor <= rightCursor) {
                 swapItems(array, leftCursor, rightCursor);
+                this.chartsArray[actItemIndex].array = array;
                 leftCursor++;
                 rightCursor--;
             }

@@ -79,9 +79,11 @@ async function genAndSort(){
 
     running = true;
     activeSorts.wait = inputs.waitEl.checked;
-    activeSorts.insert = inputs.insertionSortEl.checked;
-    activeSorts.merge = inputs.mergeSortEl.checked;
-    activeSorts.quick = inputs.quickSortEl.checked;
+    if(sorted){
+        activeSorts.insert = inputs.insertionSortEl.checked;
+        activeSorts.merge = inputs.mergeSortEl.checked;
+        activeSorts.quick = inputs.quickSortEl.checked;
+    }
 
     activeSorts.string = [];
     let array = new Array();
