@@ -1362,7 +1362,7 @@ class sortingChart {
         }
     }
 
-    async mergeArrays(leftArray, rightArray) {
+    async mergeArrays(leftArray, rightArray, actItemIndex) {
         let result = new Array();
 
         while (leftArray.length && rightArray.length) {
@@ -1370,9 +1370,12 @@ class sortingChart {
 
             if (leftArray[0] < rightArray[0]) {
                 result.push(leftArray.shift());
+                this.chartsArray[actItemIndex].activeItem = result.length-1;
             } else {
                 result.push(rightArray.shift());
             }
+
+            this.chartsArray[actItemIndex].array = [...result, ...leftArray, ...rightArray];
         }
 
         return [...result, ...leftArray, ...rightArray];
@@ -1401,11 +1404,7 @@ class sortingChart {
 
         await timer(1);
 
-        let result = await this.mergeArrays(await this.mergeSort(leftArray, actItemIndex), await this.mergeSort(array, actItemIndex));
-
-        this.chartsArray[actItemIndex].activeItem = result.length - 1;
-
-        this.chartsArray[actItemIndex].array = result;
+        let result = await this.mergeArrays(await this.mergeSort(leftArray, actItemIndex), await this.mergeSort(array, actItemIndex), actItemIndex);
 
         return result;
     }
