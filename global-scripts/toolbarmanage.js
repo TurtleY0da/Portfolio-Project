@@ -40,6 +40,10 @@ addDropdownButton('Sorting Algorithm Experiment').addEventListener('click', func
     location.replace('../sortingAlgorithms/');
 });
 
+addDropdownButton('Platformer').addEventListener('click', function() {
+    location.replace('../platformer/');
+});
+
 // - HTML Element References -
 // Button array on dropdown menu
 let buttonsArrayEl = docGetClass("dropdownButton");
