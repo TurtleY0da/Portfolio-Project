@@ -3,7 +3,7 @@
 // -- Initialize Variables --
 
 // HTML Elements
-let cnv = docGetID("myCanvas");
+let cnv = docGetID("sortingCanvas");
 
 let inputs = {
     columnNumListEl: docGetID("columnNumIn"),

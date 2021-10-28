@@ -56,7 +56,6 @@ function outputList() {
         for (const element of docGetClass('toDoRemoveBtn')){
             element.addEventListener('mousedown', function(event) {
                 localStorage.removeItem(event.path[1].children[0].innerText);
-                // console.log(event.path[1].children[0].innerText)
                 outputList();
             })
             index++;

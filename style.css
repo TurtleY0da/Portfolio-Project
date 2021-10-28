@@ -244,6 +244,29 @@ hr {
     margin: 40px 0px;
 }
 
+#errorText{
+    display: none;
+
+    position: relative;
+    z-index: 20;
+
+    background: #EEEEEE;
+    margin: 100px 0px;
+    padding: 10px;
+
+    color: #40514E;
+}
+
+#errorText h1{
+    color: #AA0000;
+}
+
+#errorText p{
+    color: #40514E;
+    letter-spacing: initial;
+    padding-bottom: 10px;
+}
+
 /* Class Selectors */
 
 .button {
