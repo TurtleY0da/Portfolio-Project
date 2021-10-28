@@ -1370,10 +1370,12 @@ class sortingChart {
 
             if (leftArray[0] < rightArray[0]) {
                 result.push(leftArray.shift());
-                this.chartsArray[actItemIndex].activeItem = result.length-1;
             } else {
                 result.push(rightArray.shift());
             }
+            this.chartsArray[actItemIndex].activeItem = result.length-1;
+            this.chartsArray[actItemIndex].secondaryItems[0] = result.length;
+            this.chartsArray[actItemIndex].secondaryItems[1] = result.length+leftArray.length;
 
             this.chartsArray[actItemIndex].array = [...result, ...leftArray, ...rightArray];
         }
@@ -1388,6 +1390,8 @@ class sortingChart {
         });
 
         await this.mergeSort(array, index);
+
+        this.chartsArray[index].secondaryItems = [];
 
         for (let n = 0; n < this.chartsArray[index].array.length; n++) {
             await timer(1);
