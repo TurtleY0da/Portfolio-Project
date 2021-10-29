@@ -1373,9 +1373,9 @@ class sortingChart {
             } else {
                 result.push(rightArray.shift());
             }
-            this.chartsArray[actItemIndex].activeItem = result.length-1;
+            this.chartsArray[actItemIndex].activeItem = result.length - 1;
             this.chartsArray[actItemIndex].secondaryItems[0] = result.length;
-            this.chartsArray[actItemIndex].secondaryItems[1] = result.length+leftArray.length;
+            this.chartsArray[actItemIndex].secondaryItems[1] = result.length + leftArray.length;
 
             this.chartsArray[actItemIndex].array = [...result, ...leftArray, ...rightArray];
         }
@@ -1504,9 +1504,27 @@ class sortingChart {
 //#endregion
 
 //#region - Platformer -
-    class level{
-        
+class level {
+    background;
+    midground = new Array();
+    objectLayers = new Array();
+    /*
+    Layer 0: Ground
+    Layer 1: Interactables
+    Layer 2: Traps
+    Layer 3: Player
+    */
+    particles = new Array();
+    constructor() {
+
     }
+    update() {
+
+    }
+    draw(canvas2dContext) {
+
+    }
+}
 //#endregion
 
 //#endregion

@@ -66,8 +66,8 @@ if (screen.width >= 1280 && screen.height >= 720) {
         }
 
         ctx.drawImage(leftWalkImg, 512 * Math.floor(i/2), 0, 512, 512, fullscreen*screenCorner.x, fullscreen*screenCorner.y, canvasSize[0] / 60 * 9, canvasSize[1] / 60 * 16);
-        ctx.drawImage(rightWalkImg, 512 * Math.floor(i/2), 0, 512, 512, canvasSize[0] / 60 * 9 + fullscreen*screenCorner.x, fullscreen*screenCorner.y, canvasSize[0] / 60 * 9, canvasSize[1] / 60 * 16);
-        ctx.drawImage(idleImg, 512 * Math.floor(i/2), 0, 512, 512, (canvasSize[0] / 60 * 9) * 2 + fullscreen*screenCorner.x, fullscreen*screenCorner.y, canvasSize[0] / 60 * 9, canvasSize[1] / 60 * 16);
+        // ctx.drawImage(rightWalkImg, 512 * Math.floor(i/2), 0, 512, 512, canvasSize[0] / 60 * 9 + fullscreen*screenCorner.x, fullscreen*screenCorner.y, canvasSize[0] / 60 * 9, canvasSize[1] / 60 * 16);
+        // ctx.drawImage(idleImg, 512 * Math.floor(i/2), 0, 512, 512, (canvasSize[0] / 60 * 9) * 2 + fullscreen*screenCorner.x, fullscreen*screenCorner.y, canvasSize[0] / 60 * 9, canvasSize[1] / 60 * 16);
         i += Math.exp(deltaTime*0.01);
         if (i >= 160) i = 0;
         // - End -
