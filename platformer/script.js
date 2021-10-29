@@ -22,7 +22,10 @@ if (screen.width >= 1280 && screen.height >= 720) {
 
     let fullscreen = false;
 
-    screenSize = Math.min(screen.width / 16, screen.height / 9);
+    let prevTime = Date.now();
+
+    let screenSize = Math.min(screen.width / 16, screen.height / 9);
+    let canvasSize = [cnv.width, cnv.height];
 
     let screenCorner = {
         x: (screen.width - 16 * screenSize) / 2,
@@ -37,14 +40,19 @@ if (screen.width >= 1280 && screen.height >= 720) {
     requestAnimationFrame(loop);
 
     function loop() {
+        const deltaTime = Date.now() - prevTime;
+        prevTime = Date.now();
+
         // - Update Variables -
         if (document.fullscreenElement === cnv) {
             cnv.width = screen.width;
             cnv.height = screen.height;
+            canvasSize = [screenSize*16, screenSize*9];
             fullscreen = true;
         } else {
             cnv.width = 16 * screenSize / 1.5;
             cnv.height = 9 * screenSize / 1.5;
+            canvasSize = [cnv.width, cnv.height];
             fullscreen = false;
         }
 
@@ -57,12 +65,11 @@ if (screen.width >= 1280 && screen.height >= 720) {
             ctx.clearRect(0, 0, cnv.width, cnv.height);
         }
 
-        // ctx.drawImage(leftWalkImg, 512 * Math.floor(i / 4), 0, 512, 512, 0, 0, cnv.width / 60 * 9, cnv.height / 60 * 16);
-        // ctx.drawImage(rightWalkImg, 512 * Math.floor(i / 4), 0, 512, 512, cnv.width / 60 * 9, 0, cnv.width / 60 * 9, cnv.height / 60 * 16);
-        // ctx.drawImage(idleImg, 512 * Math.floor(i / 4), 0, 512, 512, (cnv.width / 60 * 9) * 2, 0, cnv.width / 60 * 9, cnv.height / 60 * 16);
-        // i++;
-        // if (i === 320) i = 0;
-
+        ctx.drawImage(leftWalkImg, 512 * Math.floor(i/2), 0, 512, 512, fullscreen*screenCorner.x, fullscreen*screenCorner.y, canvasSize[0] / 60 * 9, canvasSize[1] / 60 * 16);
+        ctx.drawImage(rightWalkImg, 512 * Math.floor(i/2), 0, 512, 512, canvasSize[0] / 60 * 9 + fullscreen*screenCorner.x, fullscreen*screenCorner.y, canvasSize[0] / 60 * 9, canvasSize[1] / 60 * 16);
+        ctx.drawImage(idleImg, 512 * Math.floor(i/2), 0, 512, 512, (canvasSize[0] / 60 * 9) * 2 + fullscreen*screenCorner.x, fullscreen*screenCorner.y, canvasSize[0] / 60 * 9, canvasSize[1] / 60 * 16);
+        i += Math.exp(deltaTime*0.01);
+        if (i >= 160) i = 0;
         // - End -
         requestAnimationFrame(loop);
     }
@@ -71,7 +78,7 @@ if (screen.width >= 1280 && screen.height >= 720) {
     errorText.style.display = 'block';
 }
 // -- Add Event Listeners
-docGetID("test").addEventListener('mousedown', function () {
+docGetID("tempFullscreenBtn").addEventListener('mousedown', function () {
     cnv.requestFullscreen();
     cnv.focus();
 });

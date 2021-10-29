@@ -1503,6 +1503,12 @@ class sortingChart {
 
 //#endregion
 
+//#region - Platformer -
+    class level{
+        
+    }
+//#endregion
+
 //#endregion
 
 //#region -- Debugging & Benchmarking --
