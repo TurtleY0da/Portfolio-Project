@@ -2,6 +2,10 @@
 @import url('https://fonts.googleapis.com/css?family=Open+Sans&display=swap');
 
 /* Element Selectors */
+html {
+    scroll-behavior: smooth;
+}
+
 body {
     margin: 0px;
     font-family: 'Open Sans', sans-serif;
@@ -154,10 +158,6 @@ hr {
     text-align: center;
 }
 
-#test {
-    height: 5000px;
-}
-
 #gridCanvas {
     cursor: crosshair;
 }
@@ -236,15 +236,16 @@ hr {
     justify-self: left;
 }
 
-#sortListContainer label, #sortListContainer select{
+#sortListContainer label,
+#sortListContainer select {
     margin-left: 10px;
 }
 
-#outputList{
+#outputList {
     margin: 40px 0px;
 }
 
-#errorText{
+#errorText {
     display: none;
 
     position: relative;
@@ -257,15 +258,16 @@ hr {
     color: #40514E;
 }
 
-#errorText h1{
+#errorText h1 {
     color: #AA0000;
 }
 
-#errorText p{
+#errorText p {
     color: #40514E;
     letter-spacing: initial;
     padding-bottom: 10px;
 }
+
 
 /* Class Selectors */
 
@@ -357,7 +359,7 @@ hr {
     bottom: 0;
 }
 
-.toDoListElement{
+.toDoListElement {
     background: #11999E;
     padding: 8px;
     margin: 10px 40px;
@@ -372,17 +374,19 @@ hr {
     grid-column-gap: 2%;
 }
 
-.priority1{
+.priority1 {
     border-left: 20px solid red;
 }
-.priority2{
+
+.priority2 {
     border-left: 20px solid orange;
 }
-.priority3{
+
+.priority3 {
     border-left: 20px solid yellow;
 }
 
-.toDoHeaderElement{
+.toDoHeaderElement {
     padding: 4px;
     margin: 2px 0px;
 
@@ -392,11 +396,11 @@ hr {
     font-size: 20px;
 }
 
-.toDoHeaderElement h2{
+.toDoHeaderElement h2 {
     margin: 2px 0px;
 }
 
-.titleText{
+.titleText {
     font-weight: 800;
     background: #E4F9F5;
     color: #40514E;
@@ -409,7 +413,7 @@ hr {
     flex-direction: column;
 }
 
-.descriptionText{
+.descriptionText {
     background: #E4F9F5;
     color: #40514E;
     word-break: break-word;
