@@ -1515,6 +1515,7 @@ class level {
     Layer 3: Player
     */
     particles = new Array();
+
     constructor() {
 
     }
@@ -1525,6 +1526,70 @@ class level {
 
     }
 }
+
+// Parse an Array
+function parseArray(array) {
+    let result;
+    if (array[0] === '[' && array[array.length - 1] === ']') {
+        result = [array.slice(1, -1)];
+    } else {
+        throw ('Parsing Error: Original JSON is not an Array');
+    }
+
+
+    let objects = {
+        array: new Array(),
+        ranges: new Array()
+    }
+
+    result = result[0].split(',');
+
+    let origLength = result.length;
+
+    for (let i = 0; i < result.length; i++) {
+        if (result[i].trim()[0] === '{') {
+            objectCheck: {
+                for (let n = i; n < result.length; n++) {
+                    if (result[n].trim()[result[n].trim().length - 1] === '}') {
+                        objects.ranges.push({
+                            position:i, 
+                            distance: n - i + 1
+                        });
+                        break objectCheck;
+                    }
+                }
+            }
+        }
+    }
+
+    for(let i = 0; i < objects.ranges.length; i++){
+        let object = new Object();
+        for(let n = objects.ranges[i].position; n < objects.ranges[i].position + objects.ranges[i].distance; n++){
+            let keyPair = result[n].split(':');
+
+            for(let index = 0; index <= 1; index++){
+                keyPair[index] = keyPair[index].trim();
+                if(keyPair[index][0] === '{'){
+                    keyPair[index] = keyPair[index].slice(1);
+                }
+                if(keyPair[index][keyPair[index].length-1] === '}'){
+                    keyPair[index] = keyPair[index].slice(0, -1);
+                }
+                if(keyPair[index][0] === '"'){
+                    keyPair[index] = keyPair[index].slice(1);
+                }
+                if(keyPair[index][keyPair[index].length-1] === '"'){
+                    keyPair[index] = keyPair[index].slice(0, -1);
+                }
+            }
+            object[keyPair[0]] = keyPair[1];
+        }
+        objects.array.push(object);
+    }
+    
+    return [result, objects];
+}
+
 //#endregion
 
 //#endregion
