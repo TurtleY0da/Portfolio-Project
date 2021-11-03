@@ -1,0 +1,10 @@
+{
+    "background": "./img/plains.png",
+    "midground": [],
+    "objectLayers": {
+        "ground": [],
+        "interactables": [],
+        "traps": [],
+        "player": []
+    }
+}

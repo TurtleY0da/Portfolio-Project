@@ -1529,6 +1529,7 @@ class sortingChart {
 
 //#region - Platformer -
 class level {
+    json;
     background;
     midground = new Array();
     objectLayers = new Array();
@@ -1540,7 +1541,7 @@ class level {
     */
     particles = new Array();
 
-    constructor() {
+    constructor(filePath) {
 
     }
     update() {
@@ -1573,107 +1574,4 @@ function testSorter(callback, arraySize) {
 }
 //#endregion
 
-//#region Failed Attempts
-// Parse an Array
-// function parseArray(array) {
-//     if (typeof array !== 'string') throw ('Parsing Error: Input is not a string');
-//     let tempResult;
-//     if (array.trim()[0] === '[' && array.trim()[array.length - 1] === ']') {
-//         tempResult = [array.trim().slice(1, -1)];
-//     } else {
-//         throw ('Parsing Error: Original JSON is not an Array');
-//     }
-
-
-//     let objects = {
-//         array: new Array(),
-//         ranges: new Array()
-//     }
-
-//     tempResult = tempResult[0].split(',');
-
-//     let origLength = tempResult.length;
-
-//     for (let i = 0; i < tempResult.length; i++) {
-//         if (tempResult[i].trim()[0] === '{') {
-//             objectCheck: {
-//                 for (let n = i; n < tempResult.length; n++) {
-//                     if (tempResult[n].trim()[tempResult[n].trim().length - 1] === '}') {
-//                         objects.ranges.push({
-//                             position: i,
-//                             distance: n - i + 1
-//                         });
-//                         break objectCheck;
-//                     }
-//                 }
-//             }
-//         }
-//     }
-
-//     for (let i = 0; i < objects.ranges.length; i++) {
-//         let stringObject = tempResult[objects.ranges[i].position];
-//         for (let n = objects.ranges[i].position + 1; n < objects.ranges[i].position + objects.ranges[i].distance; n++) {
-//             stringObject = stringObject + ', ' + tempResult[n];
-//         }
-//         objects.array.push(parseObject(stringObject));
-//     }
-
-//     return [tempResult, objects];
-// }
-
-// function parseObject(object) {
-//     if (typeof object !== 'string') throw ('Parsing Error: Input is not a string');
-//     let tempResult;
-//     if (object.trim()[0] === '{' && object.trim()[object.trim().length - 1] === '}') {
-//         tempResult = [object.trim().slice(1, -1)];
-//     } else {
-//         throw ('Parsing Error: Original JSON is not an Object');
-//     }
-
-//     tempResult = tempResult[0].split(',');
-
-//     let origLength = tempResult.length;
-
-//     let arrays = {
-//         array: new Array(),
-//         ranges: new Array()
-//     }
-
-//     for (let i = 0; i < tempResult.length; i++) {
-//         let tempString = tempResult[i].split(':')[tempResult[i].split(':').length - 1];
-//         if (tempString.trim()[1] === '[') {
-//             arrayCheck: {
-//                 if (tempString.trim()[tempString.trim().length - 2] === ']') {
-//                     arrays.ranges.push({
-//                         position: i,
-//                         distance: 1
-//                     });
-//                     break arrayCheck;
-//                 }
-//                 for (let n = i + 1; n < tempResult.length; n++) {
-//                     if (tempResult[n].trim()[tempResult[n].trim().length - 2] === ']') {
-//                         arrays.ranges.push({
-//                             position: i,
-//                             distance: n - i + 1
-//                         });
-//                         break arrayCheck;
-//                     }
-//                 }
-//             }
-//         }
-//     }
-
-//     for (let i = 0; i < arrays.ranges.length; i++) {
-//         let stringArray = new Array();
-//         let tempString = tempResult[arrays.ranges[i].position].split(':')[tempResult[arrays.ranges[i].position].split(':').length - 1]
-//         stringArray = tempString;
-//         for (let n = arrays.ranges[i].position + 1; n < arrays.ranges[i].position + arrays.ranges[i].distance; n++) {
-//             stringArray = stringArray + ', ' + tempResult[n];
-//         }
-//         stringArray = stringArray.trim().slice(1, -1);
-//         arrays.array.push(parseArray(stringArray));
-//     }
-
-//     return [tempResult, arrays];
-// }
-//#endregion
+//#region -- Testing & Helpers --
