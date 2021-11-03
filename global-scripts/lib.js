@@ -205,6 +205,17 @@ function readTextFile(file, callback){
     rawFile.send(null);
 }
 
+// Parse JSON
+function parseJSON(text){
+    let result = undefined;
+    try {
+        result = JSON.parse(text);
+    } catch (error) {
+        console.warn(error);
+    }
+    return result;
+}
+
 //#endregion
 
 //#region -- Local Functions --
