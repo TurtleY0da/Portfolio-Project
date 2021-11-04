@@ -81,6 +81,14 @@ CanvasRenderingContext2D.prototype.roundRect = function (x, y, width, height, ra
     return this;
 }
 
+// Parellelogram
+CanvasRenderingContext2D.prototype.parallelogram = function(x, y, width, height, angle, rotated){
+    if(typeof rotated !== 'boolean' && rotated !== undefined) throw `ReferenceError: ${rotated} is not a Boolean`
+    let offset = 
+    this.beginPath();
+    this.moveTo
+}
+
 // - Create an Image -
 function createImage(source, canvas2dContext, canvas) {
 
@@ -193,20 +201,33 @@ function quickSort(array, left, right) {
 }
 
 // File Reading
-function readTextFile(file, callback){
-    let rawFile = new XMLHttpRequest();
-    rawFile.overrideMimeType("application/json");
-    rawFile.open("GET", file, true);
-    rawFile.onreadystatechange = function() {
-        if (rawFile.readyState === 4 && rawFile.status == "200"){
-            callback(rawFile.responseText);
+async function readJSONFile(file) {
+    return new Promise(function (resolve, reject) {
+        let rawFile = new XMLHttpRequest();
+        rawFile.overrideMimeType("application/json");
+        rawFile.open("GET", file, true);
+        rawFile.onload = function () {
+            if (rawFile.readyState === 4 && rawFile.status == "200") {
+                resolve(rawFile.responseText);
+            } else {
+                reject({
+                    status: this.status,
+                    statusText: rawFile.statusText
+                });
+            }
+        };
+        rawFile.onerror = function () {
+            reject({
+                status: this.status,
+                statusText: rawFile.statusText
+            });
         }
-    }
-    rawFile.send(null);
+        rawFile.send(null);
+    });
 }
 
 // Parse JSON
-function parseJSON(text){
+function parseJSON(text) {
     let result = undefined;
     try {
         result = JSON.parse(text);
@@ -1528,11 +1549,11 @@ class sortingChart {
 //#endregion
 
 //#region - Platformer -
-class level {
-    json;
+class platformerLevel {
+    jsonObject;
     background;
-    midground = new Array();
-    objectLayers = new Array();
+    midground;
+    objectLayers;
     /*
     Layer 0: Ground
     Layer 1: Interactables
@@ -1542,7 +1563,15 @@ class level {
     particles = new Array();
 
     constructor(filePath) {
-
+        this.loadFromFile(filePath);
+    }
+    async loadFromFile(filePath) {
+        this.jsonObject = parseJSON(await readJSONFile(filePath));
+        if ('background' in this.jsonObject && 'midground' in this.jsonObject && 'objectLayers' in this.jsonObject) {
+            this.background = this.jsonObject.background;
+            this.midground = this.jsonObject.midground;
+            this.objectLayers = this.jsonObject.objectLayers;
+        }
     }
     update() {
 
