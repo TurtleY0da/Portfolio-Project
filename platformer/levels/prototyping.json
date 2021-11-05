@@ -1,10 +1,13 @@
 {
-    "background": "./img/plains.png",
+    "background": "./img/prototype.jpg",
     "midground": [],
     "objectLayers": {
         "ground": [
             {
-
+                "x":0,
+                "y":-1,
+                "width":40,
+                "height":2
             }
         ],
         "interactables": [

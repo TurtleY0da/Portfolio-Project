@@ -1,6 +1,6 @@
 // Platformer Script by Timothy V 
 
-window.onload = function () {
+window.onload = async function () {
     let cnv = docGetID("platformerCanvas");
     let errorText = docGetID("errorText");
     
@@ -8,16 +8,6 @@ window.onload = function () {
         // -- Initialize Variables --
     
         // HTML Elements
-        let leftWalkImg = new Image();
-        leftWalkImg.src = '../img/leftWalk.png';
-    
-        let rightWalkImg = new Image();
-        rightWalkImg.src = '../img/rightWalk.png';
-    
-        let idleImg = new Image();
-        idleImg.src = '../img/idle.png';
-    
-        let i = 0;
     
         // Glbl Variables
     
@@ -25,7 +15,8 @@ window.onload = function () {
     
         let prevTime = Date.now();
     
-        let level = new platformerLevel('./levels/menu.json');
+        let level = new platformerLevel();
+        await level.loadFromFile('./levels/prototyping.json');
     
         let screenSize = Math.min(screen.width / 16, screen.height / 9);
         let canvasSize = [cnv.width, cnv.height];
@@ -45,6 +36,8 @@ window.onload = function () {
         function loop() {
             const deltaTime = Date.now() - prevTime;
             prevTime = Date.now();
+
+            level.update(deltaTime, canvasSize);
     
             // - Update Variables -
             if (document.fullscreenElement === cnv) {
@@ -67,13 +60,8 @@ window.onload = function () {
             } else {
                 ctx.clearRect(0, 0, cnv.width, cnv.height);
             }
-
-            ctx.fillStyle = '#009000'
-            ctx.fillRect(100,100,10,10)
     
-            // ctx.drawImage(leftWalkImg, 512 * Math.floor(i/2), 0, 512, 512, fullscreen*screenCorner.x, fullscreen*screenCorner.y, canvasSize[0] / 60 * 9, canvasSize[1] / 60 * 16);
-            i += Math.exp(deltaTime*0.01);
-            if (i >= 160) i = 0;
+            level.draw(ctx, fullscreen, screenCorner, canvasSize, screenSize);
             // - End -
             requestAnimationFrame(loop);
         }

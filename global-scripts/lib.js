@@ -82,11 +82,45 @@ CanvasRenderingContext2D.prototype.roundRect = function (x, y, width, height, ra
 }
 
 // Parellelogram
-CanvasRenderingContext2D.prototype.parallelogram = function(x, y, width, height, angle, rotated){
-    if(typeof rotated !== 'boolean' && rotated !== undefined) throw `ReferenceError: ${rotated} is not a Boolean`
-    let offset = 
-    this.beginPath();
-    this.moveTo
+CanvasRenderingContext2D.prototype.parallelogram = function (x, y, width, height, angle, rotated) {
+    if (typeof rotated !== 'boolean' && rotated !== undefined) throw `ReferenceError: ${rotated} is not a Boolean`
+    if (Math.abs(angle) > 44) throw `RangeError: Invalid angle (cannot be greater than 44 or less than -44, given value: ${angle})`;
+
+
+    if (!rotated) {
+        let offset = height * Math.tan(angle * (Math.PI / 180));
+        this.beginPath();
+        if (angle >= 0) {
+            this.moveTo(x + offset, y);
+            this.lineTo(x, y + height);
+            this.lineTo(x + width - offset, y + height);
+            this.lineTo(x + width, y);
+        } else {
+            this.moveTo(x, y);
+            this.lineTo(x - offset, y + height);
+            this.lineTo(x + width, y + height);
+            this.lineTo(x + width + offset, y);
+        }
+        this.closePath();
+        this.fill();
+    } else {
+        let offset = width * Math.tan(angle * (Math.PI / 180));
+        this.beginPath();
+        if (angle >= 0) {
+            this.moveTo(x, y + offset);
+            this.lineTo(x, y + height);
+            this.lineTo(x + width, y + height - offset);
+            this.lineTo(x + width, y);
+        } else {
+            this.moveTo(x, y);
+            this.lineTo(x, y + height + offset);
+            this.lineTo(x + width, y + height);
+            this.lineTo(x + width, y - offset);
+        }
+        this.closePath();
+        this.fill();
+    }
+
 }
 
 // - Create an Image -
@@ -201,7 +235,7 @@ function quickSort(array, left, right) {
 }
 
 // File Reading
-async function readJSONFile(file) {
+function readJSONFile(file) {
     return new Promise(function (resolve, reject) {
         let rawFile = new XMLHttpRequest();
         rawFile.overrideMimeType("application/json");
@@ -1554,6 +1588,11 @@ class platformerLevel {
     background;
     midground;
     objectLayers;
+
+    leftWalkImg = new Image();
+    rightWalkImg = new Image();
+    idleImg = new Image();
+
     /*
     Layer 0: Ground
     Layer 1: Interactables
@@ -1562,21 +1601,65 @@ class platformerLevel {
     */
     particles = new Array();
 
-    constructor(filePath) {
-        this.loadFromFile(filePath);
+    imageIndex = 0;
+
+    camera = {
+        x: 0,
+        y: 0,
+        followPlayer: true
     }
+    unitSize;
+
+    constructor() {
+        this.leftWalkImg.src = '../img/leftWalk.png';
+        this.rightWalkImg.src = '../img/rightWalk.png';
+        this.idleImg.src = '../img/idle.png';
+    }
+
     async loadFromFile(filePath) {
         this.jsonObject = parseJSON(await readJSONFile(filePath));
         if ('background' in this.jsonObject && 'midground' in this.jsonObject && 'objectLayers' in this.jsonObject) {
-            this.background = this.jsonObject.background;
+            this.background = new Image();
+            this.background.src = this.jsonObject.background;
             this.midground = this.jsonObject.midground;
             this.objectLayers = this.jsonObject.objectLayers;
         }
     }
-    update() {
-
+    update(deltaTime, canvasSize) {
+        this.imageIndex += deltaTime * 0.06;
+        if (this.imageIndex >= 160) this.imageIndex -= 160;
+        this.unitSize = canvasSize[0] / 160;
     }
-    draw(canvas2dContext) {
+    draw(canvas2dContext, fullscreen, screenCorner, canvasSize, screenSize) {
+        // - Draw Background Layer -
+        canvas2dContext.save();
+        canvas2dContext.filter = 'blur(2px)';
+        canvas2dContext.globalAlpha = 0.8;
+        canvas2dContext.drawImage(this.background, fullscreen * screenCorner.x, fullscreen * screenCorner.y, canvasSize[0], canvasSize[1]);
+        canvas2dContext.restore();
+
+        // canvas2dContext.fillStyle = 'green';
+        // canvas2dContext.fillRect(fullscreen*screenCorner.x, fullscreen*screenCorner.y, this.unitSize, this.unitSize)
+        // canvas2dContext.fillRect(fullscreen*screenCorner.x+this.unitSize*159, fullscreen*screenCorner.y, this.unitSize, this.unitSize)
+        // canvas2dContext.fillRect(fullscreen*screenCorner.x, fullscreen*screenCorner.y+this.unitSize*89, this.unitSize, this.unitSize)
+
+        // - Draw Midground Layer -
+
+        // -- Draw Object Layers --
+
+        // - Ground Layer -
+        this.objectLayers.ground.forEach(element => {
+
+        });
+
+        // - Interactable Layer -
+        
+
+        // - Traps Layer -
+
+
+        // - Player Layer -
+        canvas2dContext.drawImage(this.idleImg, 512 * Math.floor(this.imageIndex / 2), 0, 512, 512, fullscreen * screenCorner.x, fullscreen * screenCorner.y, this.unitSize * 16, this.unitSize * 16);
 
     }
 }
