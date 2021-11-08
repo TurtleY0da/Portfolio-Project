@@ -1628,7 +1628,15 @@ class platformerLevel {
     update(deltaTime, canvasSize) {
         this.imageIndex += deltaTime * 0.06;
         if (this.imageIndex >= 160) this.imageIndex -= 160;
+
         this.unitSize = canvasSize[0] / 160;
+
+        this.objectLayers.player.x += this.objectLayers.player.movement*0.5;
+
+        if (this.camera.followPlayer) {
+            this.camera.x = this.objectLayers.player.x;
+            this.camera.y = this.objectLayers.player.y;
+        }
     }
     draw(canvas2dContext, fullscreen, screenCorner, canvasSize, screenSize) {
         // - Draw Background Layer -
@@ -1638,30 +1646,46 @@ class platformerLevel {
         canvas2dContext.drawImage(this.background, fullscreen * screenCorner.x, fullscreen * screenCorner.y, canvasSize[0], canvasSize[1]);
         canvas2dContext.restore();
 
-        // canvas2dContext.fillStyle = 'green';
-        // canvas2dContext.fillRect(fullscreen*screenCorner.x, fullscreen*screenCorner.y, this.unitSize, this.unitSize)
-        // canvas2dContext.fillRect(fullscreen*screenCorner.x+this.unitSize*159, fullscreen*screenCorner.y, this.unitSize, this.unitSize)
-        // canvas2dContext.fillRect(fullscreen*screenCorner.x, fullscreen*screenCorner.y+this.unitSize*89, this.unitSize, this.unitSize)
-
         // - Draw Midground Layer -
 
         // -- Draw Object Layers --
 
         // - Ground Layer -
         this.objectLayers.ground.forEach(element => {
-
+            if (element.type === 'rect') {
+                if(
+                    element.x+element.width/2 > this.camera.x-80 &&
+                    element.x-element.width/2 < this.camera.x+80 &&
+                    element.y+element.height/2 > this.camera.y-45 &&
+                    element.y-element.height/2 < this.camera.y+45
+                ){
+                    canvas2dContext.fillStyle = element.color;
+                    canvas2dContext.fillRect(getCanvasCoord(element.x-element.width/2, this.unitSize, false)+fullscreen*screenCorner.x-this.camera.x*this.unitSize, getCanvasCoord(element.y-element.height/2, this.unitSize, true)+fullscreen*screenCorner.y+this.camera.y*this.unitSize, element.width*this.unitSize, 0-(element.height*this.unitSize));
+                }
+                
+            }
         });
 
         // - Interactable Layer -
-        
+
 
         // - Traps Layer -
 
 
         // - Player Layer -
-        canvas2dContext.drawImage(this.idleImg, 512 * Math.floor(this.imageIndex / 2), 0, 512, 512, fullscreen * screenCorner.x, fullscreen * screenCorner.y, this.unitSize * 16, this.unitSize * 16);
+        // canvas2dContext.drawImage(this.idleImg, 512 * Math.floor(this.imageIndex / 2), 0, 512, 512, fullscreen * screenCorner.x, fullscreen * screenCorner.y, this.unitSize * 16, this.unitSize * 16);
 
     }
+}
+
+function getCanvasCoord(coord, unitSize, upDown) {
+    let result;
+    if (upDown) {
+        result = (unitSize * (0-coord) + unitSize * 45);
+    } else {
+        result = (unitSize * coord + unitSize * 80);
+    }
+    return result;
 }
 //#endregion
 
