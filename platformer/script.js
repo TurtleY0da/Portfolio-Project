@@ -98,6 +98,9 @@ window.onload = async function () {
                         case 'ArrowUp':
                             console.log('jump');
                             break;
+                        case 'KeyT':
+                            level.camera.followPlayer = !level.camera.followPlayer;
+                            break;
                     }
                 }
             } else if (event.type === 'keyup') {

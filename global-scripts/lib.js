@@ -1585,23 +1585,27 @@ class sortingChart {
 //#region - Platformer -
 class platformerLevel {
     jsonObject;
+    gravity;
     background;
     midground;
     objectLayers;
-
-    leftWalkImg = new Image();
-    rightWalkImg = new Image();
-    idleImg = new Image();
-
     /*
     Layer 0: Ground
     Layer 1: Interactables
     Layer 2: Traps
     Layer 3: Player
     */
+
+    leftWalkImg = new Image();
+    rightWalkImg = new Image();
+    idleImg = new Image();
+    imgStateList = [this.leftWalkImg, this.idleImg, this.rightWalkImg];
+
     particles = new Array();
 
     imageIndex = 0;
+
+    startup = 0;
 
     camera = {
         x: 0,
@@ -1619,6 +1623,7 @@ class platformerLevel {
     async loadFromFile(filePath) {
         this.jsonObject = parseJSON(await readJSONFile(filePath));
         if ('background' in this.jsonObject && 'midground' in this.jsonObject && 'objectLayers' in this.jsonObject) {
+            this.gravity = this.jsonObject.gravity;
             this.background = new Image();
             this.background.src = this.jsonObject.background;
             this.midground = this.jsonObject.midground;
@@ -1631,12 +1636,32 @@ class platformerLevel {
 
         this.unitSize = canvasSize[0] / 160;
 
-        this.objectLayers.player.x += this.objectLayers.player.movement*0.5;
+        // Gravity
+        // this.objectLayers.player.yVel += -this.gravity
+
+        this.objectLayers.player.x += this.objectLayers.player.movement * 0.03 * deltaTime;
+        this.objectLayers.player.y += this.objectLayers.player.yVel * 0.03 * deltaTime;
 
         if (this.camera.followPlayer) {
             this.camera.x = this.objectLayers.player.x;
             this.camera.y = this.objectLayers.player.y;
         }
+
+        if (this.startup <= 3) {
+            if (this.startup < 3) this.objectLayers.player.movement = this.startup - 1;
+            else this.objectLayers.player.movement = 0;
+            this.startup++;
+        }
+
+        if(this.objectLayers.player.y < -400){
+            console.log()
+            this.objectLayers.player.x = 0;
+            this.objectLayers.player.y = 0;
+            this.objectLayers.player.yVel = 0;
+            this.objectLayers.player.movement = 0;
+        }
+
+        // Vertical Colliders
     }
     draw(canvas2dContext, fullscreen, screenCorner, canvasSize, screenSize) {
         // - Draw Background Layer -
@@ -1653,16 +1678,16 @@ class platformerLevel {
         // - Ground Layer -
         this.objectLayers.ground.forEach(element => {
             if (element.type === 'rect') {
-                if(
-                    element.x+element.width/2 > this.camera.x-80 &&
-                    element.x-element.width/2 < this.camera.x+80 &&
-                    element.y+element.height/2 > this.camera.y-45 &&
-                    element.y-element.height/2 < this.camera.y+45
-                ){
+                if (
+                    element.x + element.width / 2 > this.camera.x - 80 &&
+                    element.x - element.width / 2 < this.camera.x + 80 &&
+                    element.y + element.height / 2 > this.camera.y - 45 &&
+                    element.y - element.height / 2 < this.camera.y + 45
+                ) {
                     canvas2dContext.fillStyle = element.color;
-                    canvas2dContext.fillRect(getCanvasCoord(element.x-element.width/2, this.unitSize, false)+fullscreen*screenCorner.x-this.camera.x*this.unitSize, getCanvasCoord(element.y-element.height/2, this.unitSize, true)+fullscreen*screenCorner.y+this.camera.y*this.unitSize, element.width*this.unitSize, 0-(element.height*this.unitSize));
+                    canvas2dContext.fillRect(getCanvasCoord(element.x - element.width / 2, this.unitSize, false) + fullscreen * screenCorner.x - this.camera.x * this.unitSize, getCanvasCoord(element.y - element.height / 2, this.unitSize, true) + fullscreen * screenCorner.y + this.camera.y * this.unitSize, element.width * this.unitSize, 0 - (element.height * this.unitSize));
                 }
-                
+
             }
         });
 
@@ -1673,8 +1698,39 @@ class platformerLevel {
 
 
         // - Player Layer -
-        // canvas2dContext.drawImage(this.idleImg, 512 * Math.floor(this.imageIndex / 2), 0, 512, 512, fullscreen * screenCorner.x, fullscreen * screenCorner.y, this.unitSize * 16, this.unitSize * 16);
+        canvas2dContext.drawImage(
+            this.imgStateList[this.objectLayers.player.movement + 1],
+            512 * Math.floor(this.imageIndex / 2),
+            0,
+            512,
+            512,
+            getCanvasCoord(this.objectLayers.player.x - 8, this.unitSize, false) + fullscreen * screenCorner.x - this.camera.x * this.unitSize,
+            getCanvasCoord(this.objectLayers.player.y + 8, this.unitSize, true) + fullscreen * screenCorner.y + this.camera.y * this.unitSize,
+            this.unitSize * 16,
+            this.unitSize * 16
+        );
 
+        // Draw Colliders
+        canvas2dContext.save();
+        canvas2dContext.globalAlpha = 0.5;
+
+        canvas2dContext.fillStyle = 'yellow';
+        canvas2dContext.fillRect(
+            getCanvasCoord(this.objectLayers.player.x - this.objectLayers.player.horzCollider.x - this.objectLayers.player.horzCollider.width / 2, this.unitSize, false) + fullscreen * screenCorner.x - this.camera.x * this.unitSize,
+            getCanvasCoord(this.objectLayers.player.y - this.objectLayers.player.horzCollider.y - this.objectLayers.player.horzCollider.height / 2, this.unitSize, true) + fullscreen * screenCorner.y + this.camera.y * this.unitSize,
+            this.unitSize * this.objectLayers.player.horzCollider.width,
+            this.unitSize * this.objectLayers.player.horzCollider.height
+        );
+
+        canvas2dContext.fillStyle = 'red';
+        canvas2dContext.fillRect(
+            getCanvasCoord(this.objectLayers.player.x - this.objectLayers.player.vertCollider.x - this.objectLayers.player.vertCollider.width / 2, this.unitSize, false) + fullscreen * screenCorner.x - this.camera.x * this.unitSize,
+            getCanvasCoord(this.objectLayers.player.y - this.objectLayers.player.vertCollider.y - this.objectLayers.player.vertCollider.height / 2, this.unitSize, true) + fullscreen * screenCorner.y + this.camera.y * this.unitSize,
+            this.unitSize * this.objectLayers.player.vertCollider.width,
+            this.unitSize * this.objectLayers.player.vertCollider.height
+        );
+
+        canvas2dContext.restore();
     }
 }
 
