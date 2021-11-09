@@ -1596,6 +1596,8 @@ class platformerLevel {
     Layer 3: Player
     */
 
+    closeObjects = new Array();
+
     leftWalkImg = new Image();
     rightWalkImg = new Image();
     idleImg = new Image();
@@ -1631,6 +1633,7 @@ class platformerLevel {
         }
     }
     update(deltaTime, canvasSize) {
+        console.log(this.jsonObject.objectLayers.ground);
         this.imageIndex += deltaTime * 0.06;
         if (this.imageIndex >= 160) this.imageIndex -= 160;
 
@@ -1639,7 +1642,28 @@ class platformerLevel {
         // Gravity
         // this.objectLayers.player.yVel += -this.gravity
 
-        this.objectLayers.player.x += this.objectLayers.player.movement * 0.03 * deltaTime;
+        this.objectLayers.player.xVel = this.objectLayers.player.movement;
+
+        // Collision Checks
+        let index = 0;
+        this.closeObjects = [];
+        this.objectLayers.ground.forEach(element => {
+            if (element.type === 'rect') {
+                if (
+                    element.x + element.width / 2 > this.camera.x - 80 &&
+                    element.x - element.width / 2 < this.camera.x + 80 &&
+                    element.y + element.height / 2 > this.camera.y - 45 &&
+                    element.y - element.height / 2 < this.camera.y + 45
+                ) {
+                    let distance =
+                        Math.abs(Math.sqrt((Math.max(this.objectLayers.player.x, element.x) - Math.min(this.objectLayers.player.x, element.x)) ** 2 + (Math.max(this.objectLayers.player.y, element.y) - Math.min(this.objectLayers.player.y, element.y)) ** 2));
+                    if (distance < Math.max(element.width,element.height)*2) this.closeObjects.push(element);
+                }
+            }
+            index++;
+        });
+
+        this.objectLayers.player.x += this.objectLayers.player.xVel * 0.03 * deltaTime;
         this.objectLayers.player.y += this.objectLayers.player.yVel * 0.03 * deltaTime;
 
         if (this.camera.followPlayer) {
@@ -1653,7 +1677,7 @@ class platformerLevel {
             this.startup++;
         }
 
-        if(this.objectLayers.player.y < -400){
+        if (this.objectLayers.player.y < -400) {
             console.log()
             this.objectLayers.player.x = 0;
             this.objectLayers.player.y = 0;
@@ -1685,10 +1709,12 @@ class platformerLevel {
                     element.y - element.height / 2 < this.camera.y + 45
                 ) {
                     canvas2dContext.fillStyle = element.color;
+                    
                     canvas2dContext.fillRect(getCanvasCoord(element.x - element.width / 2, this.unitSize, false) + fullscreen * screenCorner.x - this.camera.x * this.unitSize, getCanvasCoord(element.y - element.height / 2, this.unitSize, true) + fullscreen * screenCorner.y + this.camera.y * this.unitSize, element.width * this.unitSize, 0 - (element.height * this.unitSize));
                 }
 
             }
+
         });
 
         // - Interactable Layer -
@@ -1714,21 +1740,43 @@ class platformerLevel {
         canvas2dContext.save();
         canvas2dContext.globalAlpha = 0.5;
 
-        canvas2dContext.fillStyle = 'yellow';
-        canvas2dContext.fillRect(
-            getCanvasCoord(this.objectLayers.player.x - this.objectLayers.player.horzCollider.x - this.objectLayers.player.horzCollider.width / 2, this.unitSize, false) + fullscreen * screenCorner.x - this.camera.x * this.unitSize,
-            getCanvasCoord(this.objectLayers.player.y - this.objectLayers.player.horzCollider.y - this.objectLayers.player.horzCollider.height / 2, this.unitSize, true) + fullscreen * screenCorner.y + this.camera.y * this.unitSize,
-            this.unitSize * this.objectLayers.player.horzCollider.width,
-            this.unitSize * this.objectLayers.player.horzCollider.height
-        );
+        for (let i = 0; i < 4; i++) {
+            let hitbox = {
+                x: getCanvasCoord(0 - (-this.objectLayers.player.x - -this.objectLayers.player.colliders[i].x) - this.objectLayers.player.colliders[i].width / 2, this.unitSize, false) + fullscreen * screenCorner.x - this.camera.x * this.unitSize,
+                y: getCanvasCoord(0 - (-this.objectLayers.player.y - -this.objectLayers.player.colliders[i].y) - this.objectLayers.player.colliders[i].height / 2, this.unitSize, true) + fullscreen * screenCorner.y + this.camera.y * this.unitSize,
+                width: this.unitSize * this.objectLayers.player.colliders[i].width,
+                height: 0-this.unitSize * this.objectLayers.player.colliders[i].height
+            }
+            // getCanvasCoord(element.x - element.width / 2, this.unitSize, false) + fullscreen * screenCorner.x - this.camera.x * this.unitSize, getCanvasCoord(element.y - element.height / 2, this.unitSize, true) + fullscreen * screenCorner.y + this.camera.y * this.unitSize, element.width * this.unitSize, 0 - (element.height * this.unitSize)
 
-        canvas2dContext.fillStyle = 'red';
-        canvas2dContext.fillRect(
-            getCanvasCoord(this.objectLayers.player.x - this.objectLayers.player.vertCollider.x - this.objectLayers.player.vertCollider.width / 2, this.unitSize, false) + fullscreen * screenCorner.x - this.camera.x * this.unitSize,
-            getCanvasCoord(this.objectLayers.player.y - this.objectLayers.player.vertCollider.y - this.objectLayers.player.vertCollider.height / 2, this.unitSize, true) + fullscreen * screenCorner.y + this.camera.y * this.unitSize,
-            this.unitSize * this.objectLayers.player.vertCollider.width,
-            this.unitSize * this.objectLayers.player.vertCollider.height
-        );
+            this.closeObjects.forEach(element => {
+                canvas2dContext.fillRect(200, (getCanvasCoord(element.y - element.height / 2, this.unitSize, true) + fullscreen * screenCorner.y + this.camera.y * this.unitSize) + (element.height + this.unitSize), 10, -10);
+                if(
+                    hitbox.x + hitbox.width > getCanvasCoord(element.x - element.width / 2, this.unitSize, false) + fullscreen * screenCorner.x - this.camera.x * this.unitSize 
+                    &&
+                    hitbox.x < 
+                    (getCanvasCoord(element.x - element.width / 2, this.unitSize, false) + fullscreen * screenCorner.x - this.camera.x * this.unitSize) + (element.width * this.unitSize)
+                    &&
+                    hitbox.y + hitbox.height < 
+                    getCanvasCoord(element.y - element.height / 2, this.unitSize, true) + fullscreen * screenCorner.y + this.camera.y * this.unitSize
+                    // &&
+                    // hitbox.y <
+                    // (getCanvasCoord(element.y - element.height / 2, this.unitSize, true) + fullscreen * screenCorner.y + this.camera.y * this.unitSize) + (element.height + this.unitSize)
+                ) {
+                    if (i % 2 === 1) canvas2dContext.fillStyle = 'yellow';
+                    else canvas2dContext.fillStyle = 'red';
+                    
+                    canvas2dContext.fillRect(
+                        hitbox.x,
+                        hitbox.y,
+                        hitbox.width,
+                        hitbox.height
+                    );
+                }
+            });
+
+            
+        }
 
         canvas2dContext.restore();
     }
@@ -1737,7 +1785,7 @@ class platformerLevel {
 function getCanvasCoord(coord, unitSize, upDown) {
     let result;
     if (upDown) {
-        result = (unitSize * (0-coord) + unitSize * 45);
+        result = (unitSize * (0 - coord) + unitSize * 45);
     } else {
         result = (unitSize * coord + unitSize * 80);
     }
