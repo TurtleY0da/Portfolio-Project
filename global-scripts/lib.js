@@ -1750,7 +1750,7 @@ class platformerLevel {
             // getCanvasCoord(element.x - element.width / 2, this.unitSize, false) + fullscreen * screenCorner.x - this.camera.x * this.unitSize, getCanvasCoord(element.y - element.height / 2, this.unitSize, true) + fullscreen * screenCorner.y + this.camera.y * this.unitSize, element.width * this.unitSize, 0 - (element.height * this.unitSize)
 
             this.closeObjects.forEach(element => {
-                canvas2dContext.fillRect(200, (getCanvasCoord(element.y - element.height / 2, this.unitSize, true) + fullscreen * screenCorner.y + this.camera.y * this.unitSize) + (element.height + this.unitSize), 10, -10);
+                canvas2dContext.fillRect(200, (getCanvasCoord(element.y - element.height / 2, this.unitSize, true) + fullscreen * screenCorner.y + this.camera.y * this.unitSize) - element.height * this.unitSize, 10, 2);
                 if(
                     hitbox.x + hitbox.width > getCanvasCoord(element.x - element.width / 2, this.unitSize, false) + fullscreen * screenCorner.x - this.camera.x * this.unitSize 
                     &&
@@ -1759,9 +1759,9 @@ class platformerLevel {
                     &&
                     hitbox.y + hitbox.height < 
                     getCanvasCoord(element.y - element.height / 2, this.unitSize, true) + fullscreen * screenCorner.y + this.camera.y * this.unitSize
-                    // &&
-                    // hitbox.y <
-                    // (getCanvasCoord(element.y - element.height / 2, this.unitSize, true) + fullscreen * screenCorner.y + this.camera.y * this.unitSize) + (element.height + this.unitSize)
+                    &&
+                    hitbox.y >
+                    (getCanvasCoord(element.y - element.height / 2, this.unitSize, true) + fullscreen * screenCorner.y + this.camera.y * this.unitSize) - element.height * this.unitSize
                 ) {
                     if (i % 2 === 1) canvas2dContext.fillStyle = 'yellow';
                     else canvas2dContext.fillStyle = 'red';
