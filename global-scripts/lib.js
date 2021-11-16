@@ -1630,17 +1630,17 @@ class platformerLevel {
             this.background.src = this.jsonObject.background;
             this.midground = this.jsonObject.midground;
             this.objectLayers = this.jsonObject.objectLayers;
+            this.startup = 0;
         }
     }
-    update(deltaTime, canvasSize) {
-        console.log(this.jsonObject.objectLayers.ground);
+    update(deltaTime, canvasSize, fullscreen, screenCorner) {
         this.imageIndex += deltaTime * 0.06;
         if (this.imageIndex >= 160) this.imageIndex -= 160;
 
         this.unitSize = canvasSize[0] / 160;
 
         // Gravity
-        // this.objectLayers.player.yVel += -this.gravity
+        this.objectLayers.player.yVel += -this.gravity
 
         this.objectLayers.player.xVel = this.objectLayers.player.movement;
 
@@ -1657,23 +1657,16 @@ class platformerLevel {
                 ) {
                     let distance =
                         Math.abs(Math.sqrt((Math.max(this.objectLayers.player.x, element.x) - Math.min(this.objectLayers.player.x, element.x)) ** 2 + (Math.max(this.objectLayers.player.y, element.y) - Math.min(this.objectLayers.player.y, element.y)) ** 2));
-                    if (distance < Math.max(element.width,element.height)*2) this.closeObjects.push(element);
+                    if (distance < Math.max(element.width / 2, element.height / 2) + 16) this.closeObjects.push(element);
                 }
             }
             index++;
         });
 
-        this.objectLayers.player.x += this.objectLayers.player.xVel * 0.03 * deltaTime;
-        this.objectLayers.player.y += this.objectLayers.player.yVel * 0.03 * deltaTime;
-
-        if (this.camera.followPlayer) {
-            this.camera.x = this.objectLayers.player.x;
-            this.camera.y = this.objectLayers.player.y;
-        }
-
-        if (this.startup <= 3) {
-            if (this.startup < 3) this.objectLayers.player.movement = this.startup - 1;
+        if (this.startup <= 12) {
+            if (this.startup < 12) this.objectLayers.player.movement = Math.floor(this.startup / 4) - 1;
             else this.objectLayers.player.movement = 0;
+            this.objectLayers.player.xVel = 0;
             this.startup++;
         }
 
@@ -1685,7 +1678,85 @@ class platformerLevel {
             this.objectLayers.player.movement = 0;
         }
 
-        // Vertical Colliders
+        // Colliders
+        this.objectLayers.player.collisions.top = false;
+        this.objectLayers.player.collisions.right = false;
+        this.objectLayers.player.collisions.bottom = false;
+        this.objectLayers.player.collisions.left = false;
+
+        this.objectLayers.player.collidingObjects.bottom = [];
+        for (let i = 0; i < 4; i++) {
+            let hitbox = {
+                x: getCanvasCoord(0 - (-this.objectLayers.player.x - -this.objectLayers.player.colliders[i].x) - this.objectLayers.player.colliders[i].width / 2, this.unitSize, false) + fullscreen * screenCorner.x - this.camera.x * this.unitSize,
+                y: getCanvasCoord(0 - (-this.objectLayers.player.y - -this.objectLayers.player.colliders[i].y) - this.objectLayers.player.colliders[i].height / 2, this.unitSize, true) + fullscreen * screenCorner.y + this.camera.y * this.unitSize,
+                width: this.unitSize * this.objectLayers.player.colliders[i].width,
+                height: 0 - this.unitSize * this.objectLayers.player.colliders[i].height
+            }
+
+            this.closeObjects.forEach(element => {
+                if (
+                    hitbox.x + hitbox.width > getCanvasCoord(element.x - element.width / 2, this.unitSize, false) + fullscreen * screenCorner.x - this.camera.x * this.unitSize &&
+                    hitbox.x <
+                    (getCanvasCoord(element.x - element.width / 2, this.unitSize, false) + fullscreen * screenCorner.x - this.camera.x * this.unitSize) + (element.width * this.unitSize) &&
+                    hitbox.y + hitbox.height <
+                    getCanvasCoord(element.y - element.height / 2, this.unitSize, true) + fullscreen * screenCorner.y + this.camera.y * this.unitSize &&
+                    hitbox.y >
+                    (getCanvasCoord(element.y - element.height / 2, this.unitSize, true) + fullscreen * screenCorner.y + this.camera.y * this.unitSize) - element.height * this.unitSize
+                ) {
+                    switch (i) {
+                        case 0:
+                            this.objectLayers.player.collisions.top = true;
+                            this.objectLayers.player.collidingObjects.top.push(element);
+                            break;
+                        case 1:
+                            this.objectLayers.player.collisions.right = true;
+                            this.objectLayers.player.collidingObjects.right.push(element);
+                            break;
+                        case 2:
+                            this.objectLayers.player.collisions.bottom = true;
+                            this.objectLayers.player.collidingObjects.bottom.push(element);
+                            break;
+                        case 3:
+                            this.objectLayers.player.collisions.left = true;
+                            this.objectLayers.player.collidingObjects.left.push(element);
+                            break;
+                    }
+                }
+            });
+        }
+        // console.log(this.objectLayers.player.collidingObjects.bottom);
+
+        // Bottom Collider
+        if(this.objectLayers.player.collisions.bottom){
+            let highestY = -Number.MAX_SAFE_INTEGER;
+            this.objectLayers.player.collidingObjects.bottom.forEach(element => {
+                if(element.y + element.height/2 > highestY){
+                    highestY = element.y + element.height/2;
+                }
+            });
+            this.objectLayers.player.yVel = 0;
+            this.objectLayers.player.y = highestY + 7.99;
+        }
+
+        // Top Collider
+        if(this.objectLayers.player.collisions.top){
+            let lowestY = Number.MAX_SAFE_INTEGER;
+            this.objectLayers.player.collidingObjects.top.forEach(element => {
+                if(element.y - element.height/2 < lowestY){
+                    lowestY = element.y - element.height/2;
+                }
+            });
+            this.objectLayers.player.yVel = 0;
+            this.objectLayers.player.y = lowestY - 8.01;
+        }
+
+        this.objectLayers.player.x += this.objectLayers.player.xVel * 0.03 * deltaTime;
+        this.objectLayers.player.y += this.objectLayers.player.yVel * 0.03 * deltaTime;
+
+        if (this.camera.followPlayer) {
+            this.camera.x = this.objectLayers.player.x;
+            this.camera.y = this.objectLayers.player.y;
+        }
     }
     draw(canvas2dContext, fullscreen, screenCorner, canvasSize, screenSize) {
         // - Draw Background Layer -
@@ -1709,7 +1780,7 @@ class platformerLevel {
                     element.y - element.height / 2 < this.camera.y + 45
                 ) {
                     canvas2dContext.fillStyle = element.color;
-                    
+
                     canvas2dContext.fillRect(getCanvasCoord(element.x - element.width / 2, this.unitSize, false) + fullscreen * screenCorner.x - this.camera.x * this.unitSize, getCanvasCoord(element.y - element.height / 2, this.unitSize, true) + fullscreen * screenCorner.y + this.camera.y * this.unitSize, element.width * this.unitSize, 0 - (element.height * this.unitSize));
                 }
 
@@ -1745,37 +1816,68 @@ class platformerLevel {
                 x: getCanvasCoord(0 - (-this.objectLayers.player.x - -this.objectLayers.player.colliders[i].x) - this.objectLayers.player.colliders[i].width / 2, this.unitSize, false) + fullscreen * screenCorner.x - this.camera.x * this.unitSize,
                 y: getCanvasCoord(0 - (-this.objectLayers.player.y - -this.objectLayers.player.colliders[i].y) - this.objectLayers.player.colliders[i].height / 2, this.unitSize, true) + fullscreen * screenCorner.y + this.camera.y * this.unitSize,
                 width: this.unitSize * this.objectLayers.player.colliders[i].width,
-                height: 0-this.unitSize * this.objectLayers.player.colliders[i].height
+                height: 0 - this.unitSize * this.objectLayers.player.colliders[i].height
             }
-            // getCanvasCoord(element.x - element.width / 2, this.unitSize, false) + fullscreen * screenCorner.x - this.camera.x * this.unitSize, getCanvasCoord(element.y - element.height / 2, this.unitSize, true) + fullscreen * screenCorner.y + this.camera.y * this.unitSize, element.width * this.unitSize, 0 - (element.height * this.unitSize)
-
-            this.closeObjects.forEach(element => {
-                canvas2dContext.fillRect(200, (getCanvasCoord(element.y - element.height / 2, this.unitSize, true) + fullscreen * screenCorner.y + this.camera.y * this.unitSize) - element.height * this.unitSize, 10, 2);
-                if(
-                    hitbox.x + hitbox.width > getCanvasCoord(element.x - element.width / 2, this.unitSize, false) + fullscreen * screenCorner.x - this.camera.x * this.unitSize 
-                    &&
-                    hitbox.x < 
-                    (getCanvasCoord(element.x - element.width / 2, this.unitSize, false) + fullscreen * screenCorner.x - this.camera.x * this.unitSize) + (element.width * this.unitSize)
-                    &&
-                    hitbox.y + hitbox.height < 
-                    getCanvasCoord(element.y - element.height / 2, this.unitSize, true) + fullscreen * screenCorner.y + this.camera.y * this.unitSize
-                    &&
-                    hitbox.y >
-                    (getCanvasCoord(element.y - element.height / 2, this.unitSize, true) + fullscreen * screenCorner.y + this.camera.y * this.unitSize) - element.height * this.unitSize
-                ) {
-                    if (i % 2 === 1) canvas2dContext.fillStyle = 'yellow';
-                    else canvas2dContext.fillStyle = 'red';
-                    
-                    canvas2dContext.fillRect(
-                        hitbox.x,
-                        hitbox.y,
-                        hitbox.width,
-                        hitbox.height
-                    );
-                }
-            });
-
             
+            switch (i) {
+                case 0:
+                    if (
+                        this.objectLayers.player.collisions.top
+                        ) {
+                            if (i % 2 === 1) canvas2dContext.fillStyle = 'yellow';
+                            else canvas2dContext.fillStyle = 'red';
+                            canvas2dContext.fillRect(
+                                hitbox.x,
+                                hitbox.y,
+                                hitbox.width,
+                                hitbox.height
+                            );
+                        }
+                    break;
+                case 1:
+                    if (
+                        this.objectLayers.player.collisions.right
+                        ) {
+                            if (i % 2 === 1) canvas2dContext.fillStyle = 'yellow';
+                            else canvas2dContext.fillStyle = 'red';
+                            canvas2dContext.fillRect(
+                                hitbox.x,
+                                hitbox.y,
+                                hitbox.width,
+                                hitbox.height
+                            );
+                        }
+                    break;
+                case 2:
+                    if (
+                        this.objectLayers.player.collisions.bottom
+                        ) {
+                            if (i % 2 === 1) canvas2dContext.fillStyle = 'yellow';
+                            else canvas2dContext.fillStyle = 'red';
+                            canvas2dContext.fillRect(
+                                hitbox.x,
+                                hitbox.y,
+                                hitbox.width,
+                                hitbox.height
+                            );
+                        }
+                    break;
+                case 3:
+                    if (
+                        this.objectLayers.player.collisions.left
+                        ) {
+                            if (i % 2 === 1) canvas2dContext.fillStyle = 'yellow';
+                            else canvas2dContext.fillStyle = 'red';
+                            canvas2dContext.fillRect(
+                                hitbox.x,
+                                hitbox.y,
+                                hitbox.width,
+                                hitbox.height
+                            );
+                        }
+                    break;
+            }
+
         }
 
         canvas2dContext.restore();

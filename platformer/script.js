@@ -37,7 +37,7 @@ window.onload = async function () {
             const deltaTime = Date.now() - prevTime;
             prevTime = Date.now();
 
-            level.update(deltaTime, canvasSize);
+            level.update(deltaTime, canvasSize, fullscreen, screenCorner);
 
             // - Update Variables -
             if (document.fullscreenElement === cnv) {
