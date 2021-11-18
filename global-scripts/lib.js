@@ -271,6 +271,152 @@ function parseJSON(text) {
     return result;
 }
 
+class PVector {
+    x;
+    y;
+
+    constructor(x, y) {
+        if (arguments.length < 2) throw new TypeError(`Failed to create new 'PVector' : 2 arguments required, but only ${arguments.length} present.`);
+
+        if (typeof x !== 'number') throw new ReferenceError(`x is not of type Number`);
+        if (typeof y !== 'number') throw new ReferenceError(`y is not of type Number`);
+
+        this.x = x;
+        this.y = y;
+    }
+    sub(vector1, vector2) {
+        if (arguments.length < 1) throw new TypeError(`Failed to execute 'sub' on 'PVector' : 1 arguments required, but only ${arguments.length} present.`);
+
+        if (vector1 instanceof PVector !== true) throw new ReferenceError(`vector1 is not of type PVector`);
+
+        this.x -= vector1.x;
+        this.y -= vector1.y;
+    }
+}
+
+function polyPoly(vectorArray1, vectorArray2) {
+    if (arguments.length < 2) throw new TypeError(`Failed to execute 'polyPoly' : 2 arguments required, but only ${arguments.length} present.`);
+
+    if (vectorArray1 instanceof Array === true) {
+        let index = 0;
+        vectorArray1.forEach(element => {
+            if (element instanceof PVector === false) throw new ReferenceError(`Failed to execute 'polyPoly' : element ${index} of vectorArray1 is not of type PVector`);
+            index++;
+        });
+        if (vectorArray1.length < 3) throw new TypeError(`Failed to execute 'polyPoly' : at least 3 PVectors required in vectorArray1, but only ${vectorArray1.length} present.`);
+    } else throw new ReferenceError(`Failed to execute 'polyPoly' : vectorArray1 is not of type Array`);
+
+    if (vectorArray2 instanceof Array === true) {
+        let index = 0;
+        vectorArray2.forEach(element => {
+            if (element instanceof PVector === false) throw new ReferenceError(`Failed to execute 'polyPoly' : element ${index} of vectorArray2 is not of type PVector`);
+            index++;
+        });
+        if (vectorArray2.length < 3) throw new TypeError(`Failed to execute 'polyPoly' : at least 3 PVectors required in vectorArray2, but only ${vectorArray2.length} present.`);
+    } else throw new ReferenceError(`Failed to execute 'polyPoly' : vectorArray2 is not of type Array`);
+
+    let next = 0;
+    for (let current = 0; current < vectorArray1.length; current++) {
+        next = current + 1;
+        if (next === vectorArray1.length) next = 0;
+
+        let currentVert = vectorArray1[current];
+        let nextVert = vectorArray1[next];
+
+        let collision = polyLine(vectorArray2, currentVert.x, currentVert.y, nextVert.x, nextVert.y);
+        if (collision) return true;
+
+        collision = polyPoint(vectorArray1, vectorArray2[0].x, vectorArray2[0].y);
+        if (collision) return true;
+    }
+
+    return false;
+}
+
+function polyLine(vertices, x1, y1, x2, y2) {
+    if (arguments.length < 5) throw new TypeError(`Failed to execute 'polyLine' : 5 arguments required, but only ${arguments.length} present.`);
+
+    if (vertices instanceof Array === true) {
+        let index = 0;
+        vertices.forEach(element => {
+            if (element instanceof PVector === false) throw new ReferenceError(`Failed to execute 'polyLine' : element ${index} of vertices is not of type PVector`);
+            index++;
+        });
+        if (vertices.length < 2) throw new TypeError(`Failed to execute 'polyLine' : at least 2 PVectors required in vertices, but only ${vertices.length} present.`);
+    } else throw new ReferenceError(`Failed to execute 'polyLine' : vertices is not of type Array`);
+
+    for (let i = 1; i < 5; i++) {
+        if (typeof arguments[i] !== 'number') {
+            switch (i) {
+                case 1:
+                    throw new ReferenceError(`x1 is not of type Number`);
+                case 2:
+                    throw new ReferenceError(`y1 is not of type Number`);
+                case 3:
+                    throw new ReferenceError(`x2 is not of type Number`);
+                case 4:
+                    throw new ReferenceError(`y2 is not of type Number`);
+            }
+        }
+    }
+
+    let next = 0;
+    for (let current = 0; current < vertices.length; current++) {
+        next = current + 1;
+        if (next = vertices.length) next = 0;
+
+        let
+            x3 = vertices[current].x,
+            y3 = vertices[current].y,
+            x4 = vertices[next].x,
+            y4 = vertices[next].y;
+
+        let hit = lineLine(x1, y1, x2, y2, x3, y3, x4, y4);
+        if (hit) return true;
+    }
+
+    return false;
+}
+
+function polyPoint() {
+
+}
+
+function lineLine(x1, y1, x2, y2, x3, y3, x4, y4) {
+    if (arguments.length < 8) throw new TypeError(`Failed to execute 'polyLine' : 8 arguments required, but only ${arguments.length} present.`);
+
+    for (let i = 0; i < 8; i++) {
+        if (typeof arguments[i] !== 'number') {
+            switch (i) {
+                case 0:
+                    throw new ReferenceError(`x1 is not of type Number`);
+                case 1:
+                    throw new ReferenceError(`y1 is not of type Number`);
+                case 2:
+                    throw new ReferenceError(`x2 is not of type Number`);
+                case 3:
+                    throw new ReferenceError(`y2 is not of type Number`);
+                case 4:
+                    throw new ReferenceError(`x3 is not of type Number`);
+                case 5:
+                    throw new ReferenceError(`y3 is not of type Number`);
+                case 6:
+                    throw new ReferenceError(`x4 is not of type Number`);
+                case 7:
+                    throw new ReferenceError(`y4 is not of type Number`);
+            }
+        }
+    }
+
+    let uA = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / ((y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1));
+    let uB = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)) / ((y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1));
+
+    if (uA >= 0 && uA <= 1 && uB >= 0 && uB <= 1) {
+        return true;
+    }
+    return false;
+}
+
 //#endregion
 
 //#region -- Local Functions --
@@ -1676,7 +1822,7 @@ class platformerLevel {
                 getCanvasCoord(element.x - element.width / 2, this.unitSize, false) + fullscreen * screenCorner.x - this.camera.x * this.unitSize + element.width * this.unitSize > this.playerSize.get('x1') + this.objectLayers.player.xVel * 0.03 * deltaTime &&
                 getCanvasCoord(element.y - element.height / 2, this.unitSize, true) + fullscreen * screenCorner.y + this.camera.y * this.unitSize > this.playerSize.get('y2')
             ) {
-                
+
             }
         });
 
@@ -1789,9 +1935,9 @@ function testSorter(callback, arraySize) {
     for (let n = 0; n < arraySize; n++) {
         inputArray.push(Math.round(Math.random() * (arraySize - 1)));
     }
-    // console.time('test')
-    // console.log(callback(inputArray, ...additionalParams));
-    // console.timeEnd('test');
+    console.time('test')
+    console.log(callback(inputArray, ...additionalParams));
+    console.timeEnd('test');
 }
 //#endregion
 
