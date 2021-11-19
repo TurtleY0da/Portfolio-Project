@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
+    <link rel="manifest" href="/favicon/site.webmanifest">
+    <link rel="mask-icon" href="/favicon/safari-pinned-tab.svg" color="#172a7d">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#172a7d">
+
+    <title>Name</title>
+    <link rel="stylesheet" href="../style.css" type="text/css" id="stylesheet">
+
+</head>
+
+<body>
+    <!-- Top Panel Region -->
+    <div id="topPanel">
+
+        <div id="buttonContainer">
+
+            <div class="button" id="homeBtn" unselectable="on" onselectstart="return false;"
+                onmousedown="return false;">
+                Home
+            </div>
+
+            <div class="button" id="projectsBtn" unselectable="on" onselectstart="return false;"
+                onmousedown="return false;">
+                Projects
+            </div>
+
+        </div>
+
+
+    </div>
+    <!-- Dropdown Menu -->
+    <ul id="dropdownList"></ul>
+
+    <!-- Add Canvas Element -->
+    <div id="canvasContainer">
+        <canvas id="myCanvas"></canvas>
+    </div>
+
+    <!-- Background Image -->
+    <div class="background">
+        <div class="slidingBackground"></div>
+    </div>
+
+    <!-- Load JS -->
+    <script src="../global-scripts/lib.js"></script>
+    <script src="script.js"></script>
+    <script src="../global-scripts/toolbarmanage.js"></script>
+</body>
+
+</html>

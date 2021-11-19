@@ -284,13 +284,21 @@ class PVector {
         this.x = x;
         this.y = y;
     }
-    sub(vector1, vector2) {
+    sub(vector) {
         if (arguments.length < 1) throw new TypeError(`Failed to execute 'sub' on 'PVector' : 1 arguments required, but only ${arguments.length} present.`);
 
-        if (vector1 instanceof PVector !== true) throw new ReferenceError(`vector1 is not of type PVector`);
+        if (vector instanceof PVector !== true) throw new ReferenceError(`Failed to execute 'sub' on 'PVector' : vector is not of type PVector`);
 
-        this.x -= vector1.x;
-        this.y -= vector1.y;
+        this.x -= vector.x;
+        this.y -= vector.y;
+    }
+    add(vector) {
+        if (arguments.length < 1) throw new TypeError(`Failed to execute 'add' on 'PVector' : 1 arguments required, but only ${arguments.length} present.`);
+
+        if (vector instanceof PVector !== true) throw new ReferenceError(`Failed to execute 'add' on 'PVector' : vector is not of type PVector`);
+
+        this.x += vector.x;
+        this.y += vector.y;
     }
 }
 
@@ -349,13 +357,13 @@ function polyLine(vertices, x1, y1, x2, y2) {
         if (typeof arguments[i] !== 'number') {
             switch (i) {
                 case 1:
-                    throw new ReferenceError(`x1 is not of type Number`);
+                    throw new ReferenceError(`Failed to execute 'polyLine' : x1 is not of type Number`);
                 case 2:
-                    throw new ReferenceError(`y1 is not of type Number`);
+                    throw new ReferenceError(`Failed to execute 'polyLine' : y1 is not of type Number`);
                 case 3:
-                    throw new ReferenceError(`x2 is not of type Number`);
+                    throw new ReferenceError(`Failed to execute 'polyLine' : x2 is not of type Number`);
                 case 4:
-                    throw new ReferenceError(`y2 is not of type Number`);
+                    throw new ReferenceError(`Failed to execute 'polyLine' : y2 is not of type Number`);
             }
         }
     }
@@ -363,7 +371,7 @@ function polyLine(vertices, x1, y1, x2, y2) {
     let next = 0;
     for (let current = 0; current < vertices.length; current++) {
         next = current + 1;
-        if (next = vertices.length) next = 0;
+        if (next === vertices.length) next = 0;
 
         let
             x3 = vertices[current].x,
@@ -378,32 +386,60 @@ function polyLine(vertices, x1, y1, x2, y2) {
     return false;
 }
 
-function polyPoint() {
+function polyPoint(vertices, pointX, pointY) {
+    if (arguments.length < 3) throw new TypeError(`Failed to execute 'polyPoint' : 3 arguments required, but only ${arguments.length} present.`);
 
+    if (typeof pointX !== 'number') throw new ReferenceError(`Failed to execute 'polyPoint' : pointX is not of type Number`);
+    if (typeof pointY !== 'number') throw new ReferenceError(`Failed to execute 'polyPoint' : pointY is not of type Number`);
+
+    if (vertices instanceof Array === true) {
+        let index = 0;
+        vertices.forEach(element => {
+            if (element instanceof PVector === false) throw new ReferenceError(`Failed to execute 'polyPoint' : element ${index} of vertices is not of type PVector`);
+            index++;
+        });
+        if (vertices.length < 3) throw new TypeError(`Failed to execute 'polyPoint' : at least 3 PVectors required in vertices, but only ${vertices.length} present.`);
+    } else throw new ReferenceError(`Failed to execute 'polyPoint' : vertices is not of type Array`);
+
+    let collision = false;
+
+    let next = 0;
+    for (let current = 0; current < vertices.length; current++) {
+        next = current + 1;
+        if (next === vertices.length) next = 0;
+
+        let currentVert = vertices[current];
+        let nextVert = vertices[next];
+
+        if (((currentVert.y > pointY && nextVert.y < pointY) || (currentVert.y < pointY && nextVert.y > pointY)) && (pointX < (nextVert.x - currentVert.x) * (pointY - currentVert.y) / (nextVert.y - currentVert.y) + currentVert.x)) {
+            collision = !collision;
+        }
+    }
+    return collision;
 }
 
 function lineLine(x1, y1, x2, y2, x3, y3, x4, y4) {
-    if (arguments.length < 8) throw new TypeError(`Failed to execute 'polyLine' : 8 arguments required, but only ${arguments.length} present.`);
+    if (arguments.length < 8) throw new TypeError(`Failed to execute 'lineLine' : 8 arguments required, but only ${arguments.length} present.`);
 
     for (let i = 0; i < 8; i++) {
         if (typeof arguments[i] !== 'number') {
             switch (i) {
                 case 0:
-                    throw new ReferenceError(`x1 is not of type Number`);
+                    throw new ReferenceError(`Failed to execute 'lineLine' : x1 is not of type Number`);
                 case 1:
-                    throw new ReferenceError(`y1 is not of type Number`);
+                    throw new ReferenceError(`Failed to execute 'lineLine' : y1 is not of type Number`);
                 case 2:
-                    throw new ReferenceError(`x2 is not of type Number`);
+                    throw new ReferenceError(`Failed to execute 'lineLine' : x2 is not of type Number`);
                 case 3:
-                    throw new ReferenceError(`y2 is not of type Number`);
+                    throw new ReferenceError(`Failed to execute 'lineLine' : y2 is not of type Number`);
                 case 4:
-                    throw new ReferenceError(`x3 is not of type Number`);
+                    throw new ReferenceError(`Failed to execute 'lineLine' : x3 is not of type Number`);
                 case 5:
-                    throw new ReferenceError(`y3 is not of type Number`);
+                    throw new ReferenceError(`Failed to execute 'lineLine' : y3 is not of type Number`);
                 case 6:
-                    throw new ReferenceError(`x4 is not of type Number`);
+                    throw new ReferenceError(`Failed to execute 'lineLine' : x4 is not of type Number`);
                 case 7:
-                    throw new ReferenceError(`y4 is not of type Number`);
+                    throw new ReferenceError(`Failed to execute 'lineLine' : y4 is not of type Number`);
             }
         }
     }
