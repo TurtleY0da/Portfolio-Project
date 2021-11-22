@@ -8,6 +8,7 @@ Pong |Probably|
 
 -- Complex games:
 Robo Rally |Maybe|
+Rythm Game |Maybe|
 
 -- Unkown/general ideas:
 Scrolling platformer |Maybe|

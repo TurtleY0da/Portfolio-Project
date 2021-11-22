@@ -40,6 +40,10 @@ addDropdownButton('Sorting Algorithm Experiment').addEventListener('click', func
     location.replace('../sortingAlgorithms/');
 });
 
+addDropdownButton('Tech Tree Planner').addEventListener('click', function() {
+    location.replace('../techTree/');
+});
+
 // addDropdownButton('Platformer').addEventListener('click', function() {
 //     location.replace('../platformer/');
 // });
