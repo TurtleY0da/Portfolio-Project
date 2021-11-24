@@ -30,6 +30,10 @@ p {
     z-index: 20;
 }
 
+dialog{
+    z-index: 100;
+}
+
 button {
     margin-top: 6px;
     margin-bottom: 4px;

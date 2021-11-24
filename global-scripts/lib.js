@@ -1773,8 +1773,9 @@ class treeItem{
 
     width;
     height;
-    x;
-    y;
+    position = new PVector(0, 0);
+
+    margin = 16;
 
     totalHeight;
 
@@ -1790,12 +1791,30 @@ class treeItem{
         this.description = description;
         this.parent = parent;
 
-        this.x = this.parent.x + 100;
         this.width = 100;
+        this.height = 30;
+
+        this.totalHeight = this.height + this.margin * 2;
+    }
+
+    updateChain(){
+        this.totalHeight = Math.max((this.children.length > 1) ? this.children.reduce((a, b) => a.totalHeight + b.totalHeight) : this.children[0].height, this.height + this.margin * 2);
+
+        if(this.parent instanceof treeItem) this.parent.updateChain();
+        else if(this.parent === null) this.updatePositions();
+    }
+
+    updatePositions(){
+        if(this.parent instanceof treeItem) this.x = this.parent.x + 100;
+        else this.x = 100;
+        for(const child of this.children){
+            child.updatePositions();
+        }
     }
 
     createChild(title, description){
         this.children.push(new treeItem(this, title, description));
+        this.updateChain();
     }
 }
 
