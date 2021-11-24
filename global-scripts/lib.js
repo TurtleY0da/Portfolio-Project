@@ -1783,7 +1783,7 @@ class treeItem{
     title;
     description;
 
-    // totalHeight = Math.max(children.reduce((a, b) => a.totalHeight + b.totalHeight, 0) + margin * children.length * 2, this.height + margin * 2);
+    // totalHeight = Math.max(children.reduce((a, b) => a.totalHeight + b.totalHeight, 0), this.height + margin * 2);
 
     constructor(parent, title, description){
         this.title = title;
