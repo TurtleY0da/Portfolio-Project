@@ -5,6 +5,8 @@
 // HTML Elements
 let cnv = docGetID("treeCanvas");
 
+let dBoxEl = docGetID('dialogueBox');
+
 // Glbl Variables
 let neededWidth = 0;
 let neededHeight = 0;

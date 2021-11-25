@@ -30,8 +30,76 @@ p {
     z-index: 20;
 }
 
-dialog{
+dialog {
     z-index: 100;
+
+    border: 0px solid #EEEEEE;
+
+    padding: 16px;
+    padding-top: 0px;
+    padding-right: 64px;
+
+    overflow: hidden;
+
+    background: transparent;
+}
+
+dialog p {
+    color: #252A34;
+    letter-spacing: normal;
+    font-size: small;
+}
+
+dialog h2 {
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+
+dialog img {
+    margin-top: 18px;
+    margin-right: 5px;
+    width: 20px;
+    transition: 200ms;
+}
+
+dialog div.imgBtnContainer {
+    height: 47px;
+    width: 29px;
+    text-align: center;
+    display: flexbox;
+    vertical-align: center;
+}
+
+dialog div#divBtnContainer {
+    display: grid;
+    grid-template-columns: 29px 29px 29px;
+}
+
+dialog img:hover{
+    width: 24px;
+}
+
+dialog:after,
+dialog:before {
+    position: absolute;
+    content: '';
+    width: 100%;
+    left: 0px;
+    z-index: -1;
+    background: #EEEEEE;
+}
+
+dialog:before {
+    height: 34px;
+    top: 0px;
+    transform: skew(45deg);
+    transform-origin: right bottom;
+    border-top: 6px solid #FF2E63;
+}
+
+dialog:after {
+    height: calc(100% - 40px);
+    bottom: 0px;
 }
 
 button {
@@ -271,6 +339,7 @@ hr {
     letter-spacing: initial;
     padding-bottom: 10px;
 }
+
 /* #techTreeContainer{
     
 } */

@@ -1814,7 +1814,7 @@ class treeItem{
 
     createChild(title, description){
         this.children.push(new treeItem(this, title, description));
-        this.updateChain();
+        this.children[this.children.length-1].updateChain();
     }
 }
 
