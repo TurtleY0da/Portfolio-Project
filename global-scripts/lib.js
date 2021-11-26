@@ -1816,6 +1816,10 @@ class treeItem{
         this.children.push(new treeItem(this, title, description));
         this.children[this.children.length-1].updateChain();
     }
+
+    inheritChildren(childrenArray){
+        this.children.push(...childrenArray);
+    }
 }
 
 //#endregion
