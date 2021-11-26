@@ -6,6 +6,7 @@
 let cnv = docGetID("treeCanvas");
 
 let dBoxEl = docGetID('dialogueBox');
+dialogPolyfill.registerDialog(dBoxEl);
 
 // Glbl Variables
 let neededWidth = 0;
