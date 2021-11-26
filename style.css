@@ -33,7 +33,8 @@ p {
 dialog {
     z-index: 100;
 
-    border: 0px solid #EEEEEE;
+    border: 0px solid transparent;
+    border-top: 6px solid #FF2E63;
 
     padding: 16px;
     padding-top: 0px;
@@ -41,7 +42,10 @@ dialog {
 
     overflow: hidden;
 
-    background: transparent;
+    background: #EEEEEE;
+
+    -webkit-clip-path: polygon(0 0, calc(100% - 40px) 0, 100% 40px, 100% 100%, 0 100%);
+    clip-path: polygon(0 0, calc(100% - 40px) 0, 100% 40px, 100% 100%, 0 100%);
 }
 
 dialog p {
@@ -56,7 +60,7 @@ dialog h2 {
 }
 
 dialog img {
-    margin-top: 18px;
+    margin-top: 12px;
     margin-right: 5px;
     width: 20px;
     transition: 200ms;
@@ -77,29 +81,6 @@ dialog div#divBtnContainer {
 
 dialog img:hover{
     width: 24px;
-}
-
-dialog:after,
-dialog:before {
-    position: absolute;
-    content: '';
-    width: 100%;
-    left: 0px;
-    z-index: -1;
-    background: #EEEEEE;
-}
-
-dialog:before {
-    height: 34px;
-    top: 0px;
-    transform: skew(45deg);
-    transform-origin: right bottom;
-    border-top: 6px solid #FF2E63;
-}
-
-dialog:after {
-    height: calc(100% - 40px);
-    bottom: 0px;
 }
 
 button {
