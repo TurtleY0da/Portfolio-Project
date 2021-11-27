@@ -94,6 +94,7 @@ function closeModal() {
     dBoxEl.addEventListener('animationend', function (event) {
         if (dBoxEl.classList[0] === 'closing') {
             dBoxEl.close();
+            dBoxEl.classList.remove('closing');
         }
         let removalArray = new Array();
         for (const child of dBoxEl.children) {
@@ -108,8 +109,10 @@ function closeModal() {
 }
 
 function openModal() {
-    dBoxEl.classList.remove('closing');
-    dBoxEl.close();
+    if(dBoxEl.classList[0] === 'closing'){
+        dBoxEl.close();
+        dBoxEl.classList.remove('closing');
+    }
     dBoxEl.classList.add('opening');
     dBoxEl.showModal();
 }
