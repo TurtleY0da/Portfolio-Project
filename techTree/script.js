@@ -11,6 +11,8 @@ dialogPolyfill.registerDialog(dBoxEl);
 let closeModalEl = docGetID('closeModalBtn');
 
 // Glbl Variables
+let cousine = new FontFace('cousine', 'url(../fonts/Cousine-Regular.ttf)');
+
 let neededWidth = 0;
 let neededHeight = 0;
 let margin = 20;
@@ -34,6 +36,8 @@ cnv.height = screenSize.height / 1.5;
 
 // -- Main Loop --
 requestAnimationFrame(loop);
+
+document.fonts.add(cousine);
 
 function loop() {
     // - Update Variables -
@@ -73,6 +77,10 @@ function loop() {
     ctx.fillStyle = horizontalGradient;
     ctx.fillRect(0, 0, cnv.width, cnv.height);
     ctx.restore();
+
+    ctx.font = '24px cousine';
+    ctx.textBaseline = 'top';
+    ctx.fillText('oooooooooooooooooooooooooooooooooo', 0, 0);
 
     // - End -
     requestAnimationFrame(loop);
@@ -118,3 +126,13 @@ function openModal() {
 }
 
 // - Functions -
+function measureWidth(text, size) {
+    ctx.font = `${size}px cousine`;
+    return ctx.measureText(text).width;
+    // Text Height = measureText(text).actualBoundingBoxAscent+measureText(text).actualBoundingBoxDescent
+}
+
+function getWrappedLines(textArray, size, preferedLineSize) {
+    // /\S+/g
+
+}

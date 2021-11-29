@@ -234,7 +234,7 @@ function quickSort(array, left, right) {
     return array;
 }
 
-// File Reading
+// - File Reading -
 function readJSONFile(file) {
     return new Promise(function (resolve, reject) {
         let rawFile = new XMLHttpRequest();
@@ -260,7 +260,7 @@ function readJSONFile(file) {
     });
 }
 
-// Parse JSON
+// - Parse JSON -
 function parseJSON(text) {
     let result = undefined;
     try {
@@ -271,6 +271,7 @@ function parseJSON(text) {
     return result;
 }
 
+// - PVector Class -
 class PVector {
     x;
     y;
@@ -302,6 +303,7 @@ class PVector {
     }
 }
 
+// - Poly vs Poly Intersection -
 function polyPoly(vectorArray1, vectorArray2) {
     if (arguments.length < 2) throw new TypeError(`Failed to execute 'polyPoly' : 2 arguments required, but only ${arguments.length} present.`);
 
@@ -341,6 +343,7 @@ function polyPoly(vectorArray1, vectorArray2) {
     return false;
 }
 
+// - Poly vs Line Intersection -
 function polyLine(vertices, x1, y1, x2, y2) {
     if (arguments.length < 5) throw new TypeError(`Failed to execute 'polyLine' : 5 arguments required, but only ${arguments.length} present.`);
 
@@ -386,6 +389,7 @@ function polyLine(vertices, x1, y1, x2, y2) {
     return false;
 }
 
+// - Poly vs Point Collision -
 function polyPoint(vertices, pointX, pointY) {
     if (arguments.length < 3) throw new TypeError(`Failed to execute 'polyPoint' : 3 arguments required, but only ${arguments.length} present.`);
 
@@ -418,6 +422,7 @@ function polyPoint(vertices, pointX, pointY) {
     return collision;
 }
 
+// - Line vs Line Intersection -
 function lineLine(x1, y1, x2, y2, x3, y3, x4, y4) {
     if (arguments.length < 8) throw new TypeError(`Failed to execute 'lineLine' : 8 arguments required, but only ${arguments.length} present.`);
 
@@ -451,6 +456,22 @@ function lineLine(x1, y1, x2, y2, x3, y3, x4, y4) {
         return true;
     }
     return false;
+}
+
+// - Generate UUIDv4 -
+function uuidv4() {
+    return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
+        (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+    );
+}
+
+// - Join Strings in an Array -
+Array.prototype.mergeStrings = function(startIndex, joinCount, splitter){
+    if(startIndex+joinCount > this.length) throw new RangeError('Invalid join count')
+    for(let index = startIndex+1; index < startIndex+joinCount; index++){
+        this[startIndex] = this[startIndex] + splitter + this[index];
+    }
+    this.splice(startIndex+1, Math.max(0, joinCount-1));
 }
 
 //#endregion
@@ -1767,13 +1788,16 @@ class sortingChart {
 //#region - Tech Tree -
 
 // Item Class
-class treeItem{
+class treeItem {
     children = new Array();
-    parent;
+    potentialChildren = new Array();
+    parents;
 
     width;
     height;
     position = new PVector(0, 0);
+
+    uuid;
 
     margin = 16;
 
@@ -1783,42 +1807,82 @@ class treeItem{
 
     title;
     description;
+    cost;
 
-    // totalHeight = Math.max(children.reduce((a, b) => a.totalHeight + b.totalHeight, 0), this.height + margin * 2);
+    constructor(parent, title, description, cost) {
+        // Title 24px, Header 18px, Other Text 13px
+        // Top 6px Left & Bottom 16px Right 64px
+        // Text Width 268px
+        // Title Margin lr0px tb2px
 
-    constructor(parent, title, description){
+        /*
+        Structure:
+            Vertical:
+                6px Border
+                47px Image(s)
+                18px Title
+                
+            Horizontal:
+        */
         this.title = title;
         this.description = description;
+        this.cost = cost;
         this.parent = parent;
 
-        this.width = 100;
-        this.height = 30;
+        this.uuid = uuidv4();
+
+        this.calculateHeightWidth();
 
         this.totalHeight = this.height + this.margin * 2;
     }
 
-    updateChain(){
-        this.totalHeight = Math.max((this.children.length > 1) ? this.children.reduce((a, b) => a.totalHeight + b.totalHeight) : this.children[0].height, this.height + this.margin * 2);
+    updateChain() {
+        this.totalHeight = Math.max((this.children.length > 1) ? this.children.reduce((a, b) => a + b.totalHeight, 0) : this.children[0].height, this.height + this.margin * 2);
 
-        if(this.parent instanceof treeItem) this.parent.updateChain();
-        else if(this.parent === null) this.updatePositions();
+        if (this.parent instanceof treeItem) this.parent.updateChain();
+        else if (this.parent === null) this.updatePositions();
     }
 
-    updatePositions(){
-        if(this.parent instanceof treeItem) this.x = this.parent.x + 100;
-        else this.x = 100;
-        for(const child of this.children){
+    updatePositions() {
+        if (this.parent instanceof treeItem) this.position.x = this.parent.position.x + this.parent.width + 100;
+        else this.position.x = 100;
+        for (const child of this.children) {
             child.updatePositions();
         }
     }
 
-    createChild(title, description){
-        this.children.push(new treeItem(this, title, description));
-        this.children[this.children.length-1].updateChain();
+    calculateHeightWidth(){
+
+        measureWidth(this.title, 24);
+        getWrappedLines(this.description.match(/\S*\s*/g), 13, 268);
     }
 
-    inheritChildren(childrenArray){
+    createChild(title, description) {
+        this.children.push(new treeItem(this, title, description));
+        this.updateChain();
+    }
+
+    inheritParent(newParent) {
+        this.parent = newParent;
+    }
+
+    inheritChildren(childrenArray) {
+        for (const child of childrenArray) {
+            child.inheritParent(this);
+        }
         this.children.push(...childrenArray);
+    }
+
+    newValues(valuesObject) {
+        if(valuesObject.title !== undefined) this.title = valuesObject.title;
+        if(valuesObject.description !== undefined) this.description = valuesObject.description;
+        if(valuesObject.cost !== undefined) this.cost = valuesObject.cost;
+        this.updateChain();
+    }
+
+    delete() {
+        this.parent.inheritChildren(this.children);
+        this.parent.children.splice(this.parent.children.findIndex(element => element.uuid === this.uuid), 1)
     }
 }
 
