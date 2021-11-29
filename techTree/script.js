@@ -80,7 +80,7 @@ function loop() {
 
     ctx.font = '24px cousine';
     ctx.textBaseline = 'top';
-    ctx.fillText('oooooooooooooooooooooooooooooooooo', 0, 0);
+    ctx.fillText('oooooooooooooooooOoooooooooooooooo', 0, 0);
 
     // - End -
     requestAnimationFrame(loop);
@@ -129,10 +129,20 @@ function openModal() {
 function measureWidth(text, size) {
     ctx.font = `${size}px cousine`;
     return ctx.measureText(text).width;
-    // Text Height = measureText(text).actualBoundingBoxAscent+measureText(text).actualBoundingBoxDescent
+}
+
+function measureHeight(text, size) {
+    ctx.font = `${size}px cousine`;
+    let textMetric = ctx.measureText(text)
+    return textMetric.actualBoundingBoxAscent + textMetric.actualBoundingBoxDescent;
 }
 
 function getWrappedLines(textArray, size, preferedLineSize) {
-    // /\S+/g
-
+    let lines = [""]
+    textArray.forEach(element => {
+        let elementWidth = measureWidth(element.match(/\S+/g), size);
+        lines.push(element);
+        if(measureWidth(lines[lines.length-2], size)+elementWidth < preferedLineSize) lines.mergeStrings(lines.length-2, 2, "");
+    });
+    return lines;
 }

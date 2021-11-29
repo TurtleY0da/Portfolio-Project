@@ -1793,6 +1793,8 @@ class treeItem {
     potentialChildren = new Array();
     parents;
 
+    innerWidth;
+    innerHeight;
     width;
     height;
     position = new PVector(0, 0);
@@ -1806,7 +1808,10 @@ class treeItem {
     active = false;
 
     title;
+
     description;
+    wrappedDescription;
+
     cost;
 
     constructor(parent, title, description, cost) {
@@ -1814,23 +1819,33 @@ class treeItem {
         // Top 6px Left & Bottom 16px Right 64px
         // Text Width 268px
         // Title Margin lr0px tb2px
+        // Header Margin lr0px tb2px
+        // Other Text Margin lr0px tb0px
 
         /*
         Structure:
-            Vertical:
+            Vertical T-B:
                 6px Border
                 47px Image(s)
-                18px Title
-                
-            Horizontal:
+                25px Title
+                19px Header : Description
+                >13px description
+                19px Header : Cost
+                >13px cost
+                16px Padding
+            Horizontal L-R:
+                16px Padding
+                >118px Title | Headers | Description | Cost
+                64px
         */
-        this.title = title;
-        this.description = description;
+        this.title = title.toString();
+        this.description = description.toString();
         this.cost = cost;
         this.parent = parent;
 
         this.uuid = uuidv4();
 
+        this.wrappedDescription = getWrappedLines(this.description.match(/\S*\s*/g), 13, 268)
         this.calculateHeightWidth();
 
         this.totalHeight = this.height + this.margin * 2;
@@ -1852,9 +1867,10 @@ class treeItem {
     }
 
     calculateHeightWidth(){
-
-        measureWidth(this.title, 24);
-        getWrappedLines(this.description.match(/\S*\s*/g), 13, 268);
+        innerWidth = Math.max(
+            measureWidth(this.title, 24),
+            this.wrappedDescription.reduce((a, b) => Math.max(a, b), 0)
+        );
     }
 
     createChild(title, description) {
