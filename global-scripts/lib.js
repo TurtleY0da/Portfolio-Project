@@ -474,6 +474,11 @@ Array.prototype.mergeStrings = function(startIndex, joinCount, splitter){
     this.splice(startIndex+1, Math.max(0, joinCount-1));
 }
 
+// - Remap range to other range -
+function mapRange(value, oldMin, oldMax, newMin, newMax) {
+    return (((value - oldMin) * (newMax - newMin)) / (oldMax - oldMin)) + newMin
+}
+
 //#endregion
 
 //#region -- Local Functions --
@@ -1804,6 +1809,7 @@ class treeItem {
     margin = 16;
 
     totalHeight;
+    maxWidth;
 
     active = false;
 
@@ -1902,9 +1908,94 @@ class treeItem {
     }
 }
 
+class contextController{
+    ctx;
+    cnv;
+    camera;
+
+    constructor(canvas, canvasRenderingContext2D) {
+        this.ctx = canvasRenderingContext2D;
+        this.cnv = canvas;
+        this.camera = new camera(canvas, 0, 0);
+    }
+    draw(callback, callbackParams, specifyLocParams){
+        let params = new Array();
+        specifyLocParams.forEach((item, index) => {
+            if(item === true) mapRange(callbackParams[0], this.camera.initialX, this.camera.initialY)
+        });
+    }
+    updateCamera(){
+        this.camera.updateCamera();
+    }
+}
+
+class camera{
+    centerX;
+    centerY;
+
+    zoom = 1;
+
+    initialX;
+    initialY;
+
+    x;
+    y;
+
+    defaultWidth;
+    defaultHeight;
+
+    width;
+    height;
+
+    cnv;
+
+    constructor(canvas, x, y){
+        this.cnv = canvas;
+
+        this.x = x;
+        this.y = y;
+
+        this.defaultWidth = canvas.width;
+        this.defaultHeight = canvas.height;
+
+        this.width = this.defaultWidth;
+        this.height = this.defaultHeight;
+
+        this.centerX = this.x + this.defaultWidth/2;
+        this.centerY = this.y + this.defaultHeight/2;
+    }
+    updateCamera(bounds){
+        this.defaultWidth = this.cnv.width;
+        this.defaultHeight = this.cnv.height;
+
+        this.width = this.defaultWidth/this.zoom;
+        this.height = this.defaultHeight/this.zoom;
+        this.x = this.centerX-this.width/2;
+        this.y = this.centerY-this.height/2;
+        this.x = this.centerX-this.defaultWidth/2;
+        this.y = this.centerY-this.defaultHeight/2;
+
+        // if(this.centerX > bounds.max.x) this.centerX === bounds.max.x;
+        // if(this.centerY > bounds.max.y) this.centerY === bounds.max.y;
+        // if(this.centerX < bounds.min.x) this.centerX === bounds.min.x;
+        // if(this.centerY < bounds.min.y) this.centerY === bounds.min.y;
+    }
+}
+
+class boundingBox{
+    max;
+    min;
+    constructor(minX, minY, maxX, maxY){
+        this.max.x = maxX;
+        this.max.y = maxY;
+        this.min.x = minX;
+        this.min.y = minY;
+    }
+}
+
 //#endregion
 
-//#region - Platformer -
+//#region - Platformer [Unfinished] -
 class platformerLevel {
     jsonObject;
     gravity;

@@ -13,8 +13,6 @@ let closeModalEl = docGetID('closeModalBtn');
 // Glbl Variables
 let cousine = new FontFace('cousine', 'url(../fonts/Cousine-Regular.ttf)');
 
-let neededWidth = 0;
-let neededHeight = 0;
 let margin = 20;
 
 let topTreeElements = new Array();
@@ -25,11 +23,13 @@ let screenSize = {
     width: screen.availWidth,
     height: screen.availHeight
 }
+
 let scroll = 0;
 
 // -- Canvas & Context setup
 /** @type {CanvasRenderingContext2D} */
 let ctx = cnv.getContext("2d");
+let ctxCon = new contextController(cnv, ctx);
 
 cnv.width = screenSize.width / 1.5;
 cnv.height = screenSize.height / 1.5;
@@ -41,8 +41,17 @@ document.fonts.add(cousine);
 
 function loop() {
     // - Update Variables -
+    ctxCon.updateCamera()
+
     const dt = Date.now() - prevtime;
     prevtime = Date.now();
+
+    let canvasView = {
+        x:window.scrollX - cnv.offsetLeft,
+        y:window.scrollY - cnv.offsetTop,
+        width:window.innerWidth,
+        height:window.innerHeight
+    }
 
     if (screen.availWidth !== screenSize.width || screenSize.availHeight !== screenSize.height) {
         screenSize = {
@@ -52,8 +61,8 @@ function loop() {
     }
     scroll = (scroll + dt / 20) % 1600;
 
-    cnv.width = Math.max(screenSize.width / 1.5, neededWidth);
-    cnv.height = Math.max(screenSize.height / 1.5, neededHeight);
+    cnv.width = Math.max(screenSize.width / 1.5);
+    cnv.height = Math.max(screenSize.height / 1.5);
 
     let vertGradDivide = Math.ceil(cnv.height / 1600) + 2;
     let verticalGradient = ctx.createLinearGradient(0, -1600 + scroll, 0, -1600 + vertGradDivide * 1600 + scroll);
@@ -68,9 +77,13 @@ function loop() {
         horizontalGradient.addColorStop((0.5 + i) / horzGradDivide, '#006633');
     }
 
+    // canvasView.x, canvasView.y, canvasView.width, canvasView.height
+    // 0, 0, cnv.width, cnv.height
     // - Draw -
-    ctx.clearRect(0, 0, cnv.width, cnv.height);
     ctx.save();
+    ctx.beginPath();
+    ctx.rect(canvasView.x, canvasView.y, canvasView.width, canvasView.height)
+    ctx.clip();
     ctx.fillStyle = verticalGradient;
     ctx.fillRect(0, 0, cnv.width, cnv.height);
     ctx.globalCompositeOperation = 'screen'
