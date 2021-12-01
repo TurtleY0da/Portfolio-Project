@@ -1795,7 +1795,6 @@ class sortingChart {
 // Item Class
 class treeItem {
     children = new Array();
-    potentialChildren = new Array();
     parents;
 
     innerWidth;
@@ -1918,11 +1917,29 @@ class contextController{
         this.cnv = canvas;
         this.camera = new camera(canvas, 0, 0);
     }
-    draw(callback, callbackParams, specifyLocParams){
+    // Get Accurate Coordinates
+    gac(callbackParams, specifyLocParams){
         let params = new Array();
         specifyLocParams.forEach((item, index) => {
-            if(item === true) mapRange(callbackParams[0], this.camera.initialX, this.camera.initialY)
+            switch(item){
+                case "x":
+                    params.push(mapRange(callbackParams[index], this.camera.x, this.camera.x + this.camera.width, 0, this.camera.defaultWidth));
+                    break;
+                case "y":
+                    params.push(mapRange(callbackParams[index], this.camera.y, this.camera.y + this.camera.height, 0, this.camera.defaultHeight));
+                    break;
+                case "w":
+                    params.push(mapRange(callbackParams[index], 0, this.camera.width, 0, this.camera.defaultWidth))
+                    break;
+                case "h":
+                    params.push(mapRange(callbackParams[index], 0, this.camera.height, 0, this.camera.defaultHeight))
+                    break;
+                default:
+                    params.push(callbackParams[index]);
+                    break;
+            }
         });
+        return params;
     }
     updateCamera(){
         this.camera.updateCamera();
@@ -1968,12 +1985,17 @@ class camera{
         this.defaultWidth = this.cnv.width;
         this.defaultHeight = this.cnv.height;
 
+        this.initialX = this.centerX-this.defaultWidth/2;
+        this.initialY = this.centerY-this.defaultHeight/2;
+
         this.width = this.defaultWidth/this.zoom;
         this.height = this.defaultHeight/this.zoom;
+
         this.x = this.centerX-this.width/2;
         this.y = this.centerY-this.height/2;
-        this.x = this.centerX-this.defaultWidth/2;
-        this.y = this.centerY-this.defaultHeight/2;
+
+        if(this.zoom < 0.25) this.zoom = 0.25;
+        if(this.zoom > 4) this.zoom = 4;
 
         // if(this.centerX > bounds.max.x) this.centerX === bounds.max.x;
         // if(this.centerY > bounds.max.y) this.centerY === bounds.max.y;

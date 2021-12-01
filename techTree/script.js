@@ -11,6 +11,20 @@ dialogPolyfill.registerDialog(dBoxEl);
 let closeModalEl = docGetID('closeModalBtn');
 
 // Glbl Variables
+let screenSize = {
+    width: screen.availWidth,
+    height: screen.availHeight
+}
+
+// -- Canvas & Context setup
+/** @type {CanvasRenderingContext2D} */
+let ctx = cnv.getContext("2d");
+
+cnv.width = screenSize.width / 1.5;
+cnv.height = screenSize.height / 1.5;
+
+let ctxCon = new contextController(cnv, ctx);
+
 let cousine = new FontFace('cousine', 'url(../fonts/Cousine-Regular.ttf)');
 
 let margin = 20;
@@ -19,20 +33,11 @@ let topTreeElements = new Array();
 
 let prevtime = Date.now();
 
-let screenSize = {
-    width: screen.availWidth,
-    height: screen.availHeight
-}
-
 let scroll = 0;
 
-// -- Canvas & Context setup
-/** @type {CanvasRenderingContext2D} */
-let ctx = cnv.getContext("2d");
-let ctxCon = new contextController(cnv, ctx);
+let testVal = 0;
 
-cnv.width = screenSize.width / 1.5;
-cnv.height = screenSize.height / 1.5;
+let scrolling = false;
 
 // -- Main Loop --
 requestAnimationFrame(loop);
@@ -41,6 +46,7 @@ document.fonts.add(cousine);
 
 function loop() {
     // - Update Variables -
+
     ctxCon.updateCamera()
 
     const dt = Date.now() - prevtime;
@@ -91,6 +97,8 @@ function loop() {
     ctx.fillRect(0, 0, cnv.width, cnv.height);
     ctx.restore();
 
+    ctx.fillRect(...ctxCon.gac([100, 50, 80, 40], ['x', 'y', 'w', 'h']))
+
     ctx.font = '24px cousine';
     ctx.textBaseline = 'top';
     ctx.fillText('oooooooooooooooooOoooooooooooooooo', 0, 0);
@@ -105,6 +113,7 @@ cnv.oncontextmenu = function (e) {
 }
 
 closeModalEl.addEventListener('click', closeModal);
+cnv.addEventListener('wheel', scrollHandler);
 
 // -- Functions --
 
@@ -136,6 +145,19 @@ function openModal() {
     }
     dBoxEl.classList.add('opening');
     dBoxEl.showModal();
+}
+
+function scrollHandler(event) {
+    if(scrolling === false){
+        scrolling = true;
+        setTimeout(function() {
+            scrolling = false;
+        }, 50)
+        console.log(ctxCon.camera.zoom);
+        ctxCon.camera.zoom += -Math.sign(event.deltaY)/4
+        if(ctxCon.camera.zoom < 0.25) ctxCon.camera.zoom = 0.25;
+        if(ctxCon.camera.zoom > 4) ctxCon.camera.zoom = 4;
+    }
 }
 
 // - Functions -
