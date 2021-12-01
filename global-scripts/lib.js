@@ -1788,6 +1788,21 @@ class sortingChart {
 
 }
 
+/*
+    {
+    widthArray: [widthofeverythingincolumn]
+    containedObject: {
+        widthArray: [widthofeverythingincolumn]
+        containedObject: {
+            widthArray: [widthofeverythingincolumn]
+            containedObject: {
+                
+            }
+        }
+    }
+    }
+*/
+
 //#endregion
 
 //#region - Tech Tree -
@@ -1808,6 +1823,8 @@ class treeItem {
     margin = 16;
 
     totalHeight;
+    totalWidth;
+
     maxWidth;
 
     active = false;
@@ -1850,37 +1867,61 @@ class treeItem {
 
         this.uuid = uuidv4();
 
+        this.width = Math.random() * 20;
+        this.height = Math.random() * 20;
+
         this.wrappedDescription = getWrappedLines(this.description.match(/\S*\s*/g), 13, 268)
         this.calculateHeightWidth();
 
+        this.maxWidth = this.width;
+        this.totalWidth = this.width + 100;
         this.totalHeight = this.height + this.margin * 2;
     }
 
     updateChain() {
-        this.totalHeight = Math.max((this.children.length > 1) ? this.children.reduce((a, b) => a + b.totalHeight, 0) : this.children[0].height, this.height + this.margin * 2);
+        this.totalHeight = Math.max(this.children.reduce((a, b) => a + b.totalHeight, 0), this.height + this.margin * 2);
+        this.totalWidth = this.width + 100 + this.children.reduce((a, b) => Math.max(a, b.totalWidth), 0);
 
         if (this.parent instanceof treeItem) this.parent.updateChain();
-        else if (this.parent === null) this.updatePositions();
+        else if (this.parent === null) {
+            let widthMap = new Array()
+            this.updatePositions(widthMap, 0);
+            this.updateMaxWidth(widthMap, 0)
+            console.log(widthMap)
+        }
     }
 
-    updatePositions() {
+    updatePositions(widthMap, depth) {
+        if(isNaN(widthMap[depth])) widthMap[depth] = 0;
+        widthMap[depth] = Math.max(this.width, widthMap[depth]);
+        
         if (this.parent instanceof treeItem) this.position.x = this.parent.position.x + this.parent.width + 100;
         else this.position.x = 100;
+
         for (const child of this.children) {
-            child.updatePositions();
+            child.updatePositions(widthMap, depth+1);
         }
+    }
+
+    updateMaxWidth(widthMap, depth){
+        this.maxWidth = widthMap[depth]
+        for (const child of this.children) {
+            child.updateMaxWidth(widthMap, depth+1);
+        }
+        console.log(this.maxWidth, depth)
     }
 
     calculateHeightWidth(){
         innerWidth = Math.max(
             measureWidth(this.title, 24),
-            this.wrappedDescription.reduce((a, b) => Math.max(a, b), 0)
+            this.wrappedDescription.reduce((a, b) => Math.max(a, b), 0),
+            18
         );
     }
 
-    createChild(title, description) {
-        this.children.push(new treeItem(this, title, description));
-        this.updateChain();
+    createChild(title, description, cost) {
+        this.children.push(new treeItem(this, title, description, cost));
+        this.children[this.children.length-1].updateChain([]);
     }
 
     inheritParent(newParent) {
@@ -1907,13 +1948,12 @@ class treeItem {
     }
 }
 
+// Controller of context
 class contextController{
-    ctx;
     cnv;
     camera;
 
-    constructor(canvas, canvasRenderingContext2D) {
-        this.ctx = canvasRenderingContext2D;
+    constructor(canvas) {
         this.cnv = canvas;
         this.camera = new camera(canvas, 0, 0);
     }
@@ -1946,6 +1986,7 @@ class contextController{
     }
 }
 
+// Virtual Camera
 class camera{
     centerX;
     centerY;
@@ -1995,7 +2036,7 @@ class camera{
         this.y = this.centerY-this.height/2;
 
         if(this.zoom < 0.25) this.zoom = 0.25;
-        if(this.zoom > 4) this.zoom = 4;
+        if(this.zoom > 2) this.zoom = 2;
 
         // if(this.centerX > bounds.max.x) this.centerX === bounds.max.x;
         // if(this.centerY > bounds.max.y) this.centerY === bounds.max.y;
@@ -2004,9 +2045,10 @@ class camera{
     }
 }
 
+// Bounding Box for camera
 class boundingBox{
-    max;
-    min;
+    max = new Object();
+    min = new Object();
     constructor(minX, minY, maxX, maxY){
         this.max.x = maxX;
         this.max.y = maxY;

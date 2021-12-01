@@ -27,15 +27,7 @@ let ctxCon = new contextController(cnv, ctx);
 
 let cousine = new FontFace('cousine', 'url(../fonts/Cousine-Regular.ttf)');
 
-let margin = 20;
-
 let topTreeElements = new Array();
-
-let prevtime = Date.now();
-
-let scroll = 0;
-
-let testVal = 0;
 
 let scrolling = false;
 
@@ -46,18 +38,7 @@ document.fonts.add(cousine);
 
 function loop() {
     // - Update Variables -
-
     ctxCon.updateCamera()
-
-    const dt = Date.now() - prevtime;
-    prevtime = Date.now();
-
-    let canvasView = {
-        x:window.scrollX - cnv.offsetLeft,
-        y:window.scrollY - cnv.offsetTop,
-        width:window.innerWidth,
-        height:window.innerHeight
-    }
 
     if (screen.availWidth !== screenSize.width || screenSize.availHeight !== screenSize.height) {
         screenSize = {
@@ -65,43 +46,20 @@ function loop() {
             height: screen.availHeight
         }
     }
-    scroll = (scroll + dt / 20) % 1600;
 
     cnv.width = Math.max(screenSize.width / 1.5);
     cnv.height = Math.max(screenSize.height / 1.5);
 
-    let vertGradDivide = Math.ceil(cnv.height / 1600) + 2;
-    let verticalGradient = ctx.createLinearGradient(0, -1600 + scroll, 0, -1600 + vertGradDivide * 1600 + scroll);
-    for (let i = 0; i < vertGradDivide; i++) {
-        verticalGradient.addColorStop(i / vertGradDivide, '#0033bb');
-        verticalGradient.addColorStop((0.5 + i) / vertGradDivide, '#003366');
-    }
-    let horzGradDivide = Math.ceil(cnv.width / 1600) + 2;
-    let horizontalGradient = ctx.createLinearGradient(-1600 + scroll, 0, -1600 + horzGradDivide * 1600 + scroll, 0);
-    for (let i = 0; i < horzGradDivide; i++) {
-        horizontalGradient.addColorStop(i / horzGradDivide, '#00bb33');
-        horizontalGradient.addColorStop((0.5 + i) / horzGradDivide, '#006633');
-    }
-
-    // canvasView.x, canvasView.y, canvasView.width, canvasView.height
-    // 0, 0, cnv.width, cnv.height
     // - Draw -
-    ctx.save();
-    ctx.beginPath();
-    ctx.rect(canvasView.x, canvasView.y, canvasView.width, canvasView.height)
-    ctx.clip();
-    ctx.fillStyle = verticalGradient;
+    ctx.fillStyle = '#AADDAA';
     ctx.fillRect(0, 0, cnv.width, cnv.height);
-    ctx.globalCompositeOperation = 'screen'
-    ctx.fillStyle = horizontalGradient;
-    ctx.fillRect(0, 0, cnv.width, cnv.height);
-    ctx.restore();
 
+    ctx.fillStyle = 'black'
     ctx.fillRect(...ctxCon.gac([100, 50, 80, 40], ['x', 'y', 'w', 'h']))
 
-    ctx.font = '24px cousine';
-    ctx.textBaseline = 'top';
-    ctx.fillText('oooooooooooooooooOoooooooooooooooo', 0, 0);
+    // ctx.font = '24px cousine';
+    // ctx.textBaseline = 'top';
+    // ctx.fillText('oooooooooooooooooOoooooooooooooooo', 0, 0);
 
     // - End -
     requestAnimationFrame(loop);
@@ -153,10 +111,9 @@ function scrollHandler(event) {
         setTimeout(function() {
             scrolling = false;
         }, 50)
-        console.log(ctxCon.camera.zoom);
         ctxCon.camera.zoom += -Math.sign(event.deltaY)/4
         if(ctxCon.camera.zoom < 0.25) ctxCon.camera.zoom = 0.25;
-        if(ctxCon.camera.zoom > 4) ctxCon.camera.zoom = 4;
+        if(ctxCon.camera.zoom > 2) ctxCon.camera.zoom = 2;
     }
 }
 
