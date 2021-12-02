@@ -1,0 +1,4 @@
+External Libraries:
+    dialog-polyfill(./dist/)
+    LZ-String(./global-scripts/lz-string.js)
+    FileSaver(.global-scripts/FileSaver.js)

@@ -466,12 +466,12 @@ function uuidv4() {
 }
 
 // - Join Strings in an Array -
-Array.prototype.mergeStrings = function(startIndex, joinCount, splitter){
-    if(startIndex+joinCount > this.length) throw new RangeError('Invalid join count')
-    for(let index = startIndex+1; index < startIndex+joinCount; index++){
+Array.prototype.mergeStrings = function (startIndex, joinCount, splitter) {
+    if (startIndex + joinCount > this.length) throw new RangeError('Invalid join count')
+    for (let index = startIndex + 1; index < startIndex + joinCount; index++) {
         this[startIndex] = this[startIndex] + splitter + this[index];
     }
-    this.splice(startIndex+1, Math.max(0, joinCount-1));
+    this.splice(startIndex + 1, Math.max(0, joinCount - 1));
 }
 
 // - Remap range to other range -
@@ -1884,34 +1884,33 @@ class treeItem {
 
         if (this.parent instanceof treeItem) this.parent.updateChain();
         else if (this.parent === null) {
-            let widthMap = new Array()
+            let widthMap = new Array();
+            this.updateMaxWidth(widthMap, 0);
             this.updatePositions(widthMap, 0);
-            this.updateMaxWidth(widthMap, 0)
-            console.log(widthMap)
+            console.log(widthMap);
         }
     }
 
     updatePositions(widthMap, depth) {
-        if(isNaN(widthMap[depth])) widthMap[depth] = 0;
-        widthMap[depth] = Math.max(this.width, widthMap[depth]);
-        
+        this.maxWidth = widthMap[depth];
+
         if (this.parent instanceof treeItem) this.position.x = this.parent.position.x + this.parent.width + 100;
         else this.position.x = 100;
 
         for (const child of this.children) {
-            child.updatePositions(widthMap, depth+1);
+            child.updatePositions(widthMap, depth + 1);
         }
     }
 
-    updateMaxWidth(widthMap, depth){
-        this.maxWidth = widthMap[depth]
+    updateMaxWidth(widthMap, depth) {
+        if (isNaN(widthMap[depth])) widthMap[depth] = 0;
+        widthMap[depth] = Math.max(this.width, widthMap[depth]);
         for (const child of this.children) {
-            child.updateMaxWidth(widthMap, depth+1);
+            child.updateMaxWidth(widthMap, depth + 1);
         }
-        console.log(this.maxWidth, depth)
     }
 
-    calculateHeightWidth(){
+    calculateHeightWidth() {
         innerWidth = Math.max(
             measureWidth(this.title, 24),
             this.wrappedDescription.reduce((a, b) => Math.max(a, b), 0),
@@ -1921,7 +1920,7 @@ class treeItem {
 
     createChild(title, description, cost) {
         this.children.push(new treeItem(this, title, description, cost));
-        this.children[this.children.length-1].updateChain([]);
+        this.children[this.children.length - 1].updateChain([]);
     }
 
     inheritParent(newParent) {
@@ -1936,9 +1935,9 @@ class treeItem {
     }
 
     newValues(valuesObject) {
-        if(valuesObject.title !== undefined) this.title = valuesObject.title;
-        if(valuesObject.description !== undefined) this.description = valuesObject.description;
-        if(valuesObject.cost !== undefined) this.cost = valuesObject.cost;
+        if (valuesObject.title !== undefined) this.title = valuesObject.title;
+        if (valuesObject.description !== undefined) this.description = valuesObject.description;
+        if (valuesObject.cost !== undefined) this.cost = valuesObject.cost;
         this.updateChain();
     }
 
@@ -1949,7 +1948,7 @@ class treeItem {
 }
 
 // Controller of context
-class contextController{
+class contextController {
     cnv;
     camera;
 
@@ -1958,10 +1957,10 @@ class contextController{
         this.camera = new camera(canvas, 0, 0);
     }
     // Get Accurate Coordinates
-    gac(callbackParams, specifyLocParams){
+    gac(callbackParams, specifyLocParams) {
         let params = new Array();
         specifyLocParams.forEach((item, index) => {
-            switch(item){
+            switch (item) {
                 case "x":
                     params.push(mapRange(callbackParams[index], this.camera.x, this.camera.x + this.camera.width, 0, this.camera.defaultWidth));
                     break;
@@ -1981,13 +1980,13 @@ class contextController{
         });
         return params;
     }
-    updateCamera(){
-        this.camera.updateCamera();
+    updateCamera(bounds) {
+        this.camera.updateCamera(bounds);
     }
 }
 
 // Virtual Camera
-class camera{
+class camera {
     centerX;
     centerY;
 
@@ -2007,7 +2006,7 @@ class camera{
 
     cnv;
 
-    constructor(canvas, x, y){
+    constructor(canvas, x, y) {
         this.cnv = canvas;
 
         this.x = x;
@@ -2019,37 +2018,37 @@ class camera{
         this.width = this.defaultWidth;
         this.height = this.defaultHeight;
 
-        this.centerX = this.x + this.defaultWidth/2;
-        this.centerY = this.y + this.defaultHeight/2;
+        this.centerX = this.x + this.defaultWidth / 2;
+        this.centerY = this.y + this.defaultHeight / 2;
     }
-    updateCamera(bounds){
+    updateCamera(bounds) {
+        if(this.centerX > bounds.max.x) this.centerX = bounds.max.x;
+        if(this.centerY > bounds.max.y) this.centerY = bounds.max.y;
+        if(this.centerX < bounds.min.x) this.centerX = bounds.min.x;
+        if(this.centerY < bounds.min.y) this.centerY = bounds.min.y;
+
         this.defaultWidth = this.cnv.width;
         this.defaultHeight = this.cnv.height;
 
-        this.initialX = this.centerX-this.defaultWidth/2;
-        this.initialY = this.centerY-this.defaultHeight/2;
+        this.initialX = this.centerX - this.defaultWidth / 2;
+        this.initialY = this.centerY - this.defaultHeight / 2;
 
-        this.width = this.defaultWidth/this.zoom;
-        this.height = this.defaultHeight/this.zoom;
+        this.width = this.defaultWidth / this.zoom;
+        this.height = this.defaultHeight / this.zoom;
 
-        this.x = this.centerX-this.width/2;
-        this.y = this.centerY-this.height/2;
+        this.x = this.centerX - this.width / 2;
+        this.y = this.centerY - this.height / 2;
 
-        if(this.zoom < 0.25) this.zoom = 0.25;
-        if(this.zoom > 2) this.zoom = 2;
-
-        // if(this.centerX > bounds.max.x) this.centerX === bounds.max.x;
-        // if(this.centerY > bounds.max.y) this.centerY === bounds.max.y;
-        // if(this.centerX < bounds.min.x) this.centerX === bounds.min.x;
-        // if(this.centerY < bounds.min.y) this.centerY === bounds.min.y;
+        if (this.zoom < 0.25) this.zoom = 0.25;
+        if (this.zoom > 2) this.zoom = 2;
     }
 }
 
 // Bounding Box for camera
-class boundingBox{
+class boundingBox {
     max = new Object();
     min = new Object();
-    constructor(minX, minY, maxX, maxY){
+    constructor(minX, minY, maxX, maxY) {
         this.max.x = maxX;
         this.max.y = maxY;
         this.min.x = minX;

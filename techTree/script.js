@@ -25,11 +25,24 @@ cnv.height = screenSize.height / 1.5;
 
 let ctxCon = new contextController(cnv, ctx);
 
+let clickHeld = -1;
+let dragStart = {
+    x:0,
+    y:0,
+    cX:0,
+    cY:0
+}
+let dragOffset = {
+    x:0,
+    y:0
+}
+
 let cousine = new FontFace('cousine', 'url(../fonts/Cousine-Regular.ttf)');
 
 let topTreeElements = new Array();
 
 let scrolling = false;
+let bounds = new boundingBox(-100, -100, 300, 300)
 
 // -- Main Loop --
 requestAnimationFrame(loop);
@@ -38,7 +51,12 @@ document.fonts.add(cousine);
 
 function loop() {
     // - Update Variables -
-    ctxCon.updateCamera()
+    if(clickHeld === 2){
+        ctxCon.camera.centerX = dragStart.cX + dragOffset.x /ctxCon.camera.zoom
+        ctxCon.camera.centerY = dragStart.cY + dragOffset.y /ctxCon.camera.zoom
+    }
+
+    ctxCon.updateCamera(bounds)
 
     if (screen.availWidth !== screenSize.width || screenSize.availHeight !== screenSize.height) {
         screenSize = {
@@ -54,8 +72,11 @@ function loop() {
     ctx.fillStyle = '#AADDAA';
     ctx.fillRect(0, 0, cnv.width, cnv.height);
 
+    ctx.fillStyle = 'white'
+    ctx.fillRect(...ctxCon.gac([bounds.min.x, bounds.min.y, bounds.max.x-bounds.min.x, bounds.max.y-bounds.min.y], ['x', 'y', 'w', 'h']))
     ctx.fillStyle = 'black'
     ctx.fillRect(...ctxCon.gac([100, 50, 80, 40], ['x', 'y', 'w', 'h']))
+    ctx.fillRect(cnv.width/2-1,cnv.height/2-1,2, 2);
 
     // ctx.font = '24px cousine';
     // ctx.textBaseline = 'top';
@@ -72,6 +93,10 @@ cnv.oncontextmenu = function (e) {
 
 closeModalEl.addEventListener('click', closeModal);
 cnv.addEventListener('wheel', scrollHandler);
+cnv.addEventListener('mousedown', clickHandler);
+cnv.addEventListener('mouseup', clickHandler);
+cnv.addEventListener('mouseleave', clickHandler);
+cnv.addEventListener('mousemove', dragHandler);
 
 // -- Functions --
 
@@ -97,7 +122,7 @@ function closeModal() {
 }
 
 function openModal() {
-    if(dBoxEl.classList[0] === 'closing'){
+    if (dBoxEl.classList[0] === 'closing') {
         dBoxEl.close();
         dBoxEl.classList.remove('closing');
     }
@@ -106,14 +131,56 @@ function openModal() {
 }
 
 function scrollHandler(event) {
-    if(scrolling === false){
+    if (scrolling === false) {
         scrolling = true;
-        setTimeout(function() {
+        setTimeout(function () {
             scrolling = false;
         }, 50)
-        ctxCon.camera.zoom += -Math.sign(event.deltaY)/4
-        if(ctxCon.camera.zoom < 0.25) ctxCon.camera.zoom = 0.25;
-        if(ctxCon.camera.zoom > 2) ctxCon.camera.zoom = 2;
+        ctxCon.camera.zoom += -Math.sign(event.deltaY) / 4
+        if (ctxCon.camera.zoom < 0.25) ctxCon.camera.zoom = 0.25;
+        if (ctxCon.camera.zoom > 2) ctxCon.camera.zoom = 2;
+    }
+}
+
+function clickHandler(event) {
+    switch(event.type){
+        case 'mousedown':
+            if(clickHeld !== event.button && clickHeld !== -1 || event.button === 1) break;
+            clickHeld = event.button;
+            beginDrag(event);
+            break;
+        case 'mouseup':
+            if(clickHeld !== event.button) break;
+        case 'mouseleave':
+            clickHeld = -1;
+            break;
+    }
+}
+
+function dragHandler(event) {
+    if(clickHeld > -1){
+        cnvRect = cnv.getBoundingClientRect();
+        switch(clickHeld){
+            case 2:
+                dragOffset.x = dragStart.x - (event.clientX - cnvRect.left)
+                dragOffset.y = dragStart.y - (event.clientY - cnvRect.top)
+                break;
+        }
+    }
+}
+
+function beginDrag(event) {
+    cnvRect = cnv.getBoundingClientRect();
+    switch(event.button){
+        case 2:
+            dragStart.x = event.clientX - cnvRect.left;
+            dragStart.y = event.clientY - cnvRect.top;
+            dragStart.cX = ctxCon.camera.centerX;
+            dragStart.cY = ctxCon.camera.centerY;
+
+            dragOffset.x = 0;
+            dragOffset.y = 0;
+            break;
     }
 }
 
@@ -134,7 +201,7 @@ function getWrappedLines(textArray, size, preferedLineSize) {
     textArray.forEach(element => {
         let elementWidth = measureWidth(element.match(/\S+/g), size);
         lines.push(element);
-        if(measureWidth(lines[lines.length-2], size)+elementWidth < preferedLineSize) lines.mergeStrings(lines.length-2, 2, "");
+        if (measureWidth(lines[lines.length - 2], size) + elementWidth < preferedLineSize) lines.mergeStrings(lines.length - 2, 2, "");
     });
     return lines;
 }
