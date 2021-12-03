@@ -58,7 +58,7 @@ function loop() {
 
     ctxCon.updateCamera(bounds)
 
-    if (screen.availWidth !== screenSize.width || screenSize.availHeight !== screenSize.height) {
+    if (screen.availWidth !== screenSize.width || screen.availHeight !== screenSize.height) {
         screenSize = {
             width: screen.availWidth,
             height: screen.availHeight
@@ -131,12 +131,13 @@ function openModal() {
 }
 
 function scrollHandler(event) {
-    if (scrolling === false) {
+    if (scrolling === false && clickHeld < 2) {
         scrolling = true;
         setTimeout(function () {
             scrolling = false;
         }, 50)
         ctxCon.camera.zoom += -Math.sign(event.deltaY) / 4
+
         if (ctxCon.camera.zoom < 0.25) ctxCon.camera.zoom = 0.25;
         if (ctxCon.camera.zoom > 2) ctxCon.camera.zoom = 2;
     }
@@ -152,6 +153,7 @@ function clickHandler(event) {
         case 'mouseup':
             if(clickHeld !== event.button) break;
         case 'mouseleave':
+            endDrag();
             clickHeld = -1;
             break;
     }
@@ -162,8 +164,8 @@ function dragHandler(event) {
         cnvRect = cnv.getBoundingClientRect();
         switch(clickHeld){
             case 2:
-                dragOffset.x = dragStart.x - (event.clientX - cnvRect.left)
-                dragOffset.y = dragStart.y - (event.clientY - cnvRect.top)
+                dragOffset.x = (dragStart.x - (event.clientX - cnvRect.left))
+                dragOffset.y = (dragStart.y - (event.clientY - cnvRect.top))
                 break;
         }
     }
@@ -181,6 +183,16 @@ function beginDrag(event) {
             dragOffset.x = 0;
             dragOffset.y = 0;
             break;
+    }
+}
+
+function endDrag() {
+    if(clickHeld === 2){
+        ctxCon.centerX = dragStart.cX + dragOffset.x /ctxCon.camera.zoom
+        ctxCon.centerY = dragStart.cY + dragOffset.y /ctxCon.camera.zoom
+
+        dragOffset.x = 0;
+        dragOffset.y = 0;
     }
 }
 
