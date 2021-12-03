@@ -1810,7 +1810,7 @@ class sortingChart {
 // Item Class
 class treeItem {
     children = new Array();
-    parents;
+    parent;
 
     innerWidth;
     innerHeight;
@@ -1849,11 +1849,11 @@ class treeItem {
             Vertical T-B:
                 6px Border
                 47px Image(s)
-                25px Title
-                19px Header : Description
+                28px Title
+                22px Header : Description
                 >13px description
-                19px Header : Cost
-                >13px cost
+                22px Header : Cost
+                13px cost
                 16px Padding
             Horizontal L-R:
                 16px Padding
@@ -1867,15 +1867,14 @@ class treeItem {
 
         this.uuid = uuidv4();
 
-        this.width = Math.random() * 20;
-        this.height = Math.random() * 20;
-
         this.wrappedDescription = getWrappedLines(this.description.match(/\S*\s*/g), 13, 268)
         this.calculateHeightWidth();
 
         this.maxWidth = this.width;
         this.totalWidth = this.width + 100;
         this.totalHeight = this.height + this.margin * 2;
+
+        if(this.parent === null) this.updateChain();
     }
 
     updateChain() {
@@ -1911,11 +1910,14 @@ class treeItem {
     }
 
     calculateHeightWidth() {
-        innerWidth = Math.max(
+        this.innerWidth = Math.max(
             measureWidth(this.title, 24),
-            this.wrappedDescription.reduce((a, b) => Math.max(a, b), 0),
-            18
+            this.wrappedDescription.reduce((a, b) => Math.max(a, measureWidth(b.trim(), 13)), 0),
+            118
         );
+        this.innerHeight = 132 + this.wrappedDescription.length*13;
+        this.width = this.innerWidth+80;
+        this.height = this.innerHeight+22;
     }
 
     createChild(title, description, cost) {
@@ -1941,9 +1943,21 @@ class treeItem {
         this.updateChain();
     }
 
-    delete() {
-        this.parent.inheritChildren(this.children);
-        this.parent.children.splice(this.parent.children.findIndex(element => element.uuid === this.uuid), 1)
+    delete(optionalArray) {
+        if(this.parent !== null){
+            this.parent.inheritChildren(this.children);
+            this.parent.children.splice(this.parent.children.findIndex(element => element.uuid === this.uuid), 1)
+        } else if(this.parent === null){
+            if(optionalArray instanceof Array){
+                optionalArray.splice(optionalArray.findIndex(element => element.uuid === this.uuid), 1);
+                for (const child of this.children){
+                    child.inheritParent(null);
+                }
+                optionalArray.push(...this.children);
+            } else{
+                throw new ReferenceError(`Failed to execute 'delete' on 'treeItem' : optionalArray is not of type Array`)
+            }
+        }
     }
 }
 
@@ -2042,6 +2056,14 @@ class camera {
         if (this.zoom < 0.25) this.zoom = 0.25;
         if (this.zoom > 2) this.zoom = 2;
     }
+}
+
+async function drawTree(num, treeArray, callback) {
+    for(let i = 0; i < num; i++){
+        // console.log(i);
+        await timer(1);
+    }
+    callback();
 }
 
 // Bounding Box for camera
