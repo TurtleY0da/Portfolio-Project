@@ -44,12 +44,7 @@ let topTreeElements = new Array();
 let scrolling = false;
 let bounds = new boundingBox(-100, -100, 300, 300)
 let smallestEdge = Math.min(cnv.width, cnv.height);
-// let buttonVertices = [new PVector(0, 0)]
-
-//     ctx.lineTo(smallestEdge/12, 0);
-//     ctx.lineTo(smallestEdge/12, smallestEdge/12-smallestEdge/12/6);
-//     ctx.lineTo(smallestEdge/12-smallestEdge/12/6, smallestEdge/12);
-//     ctx.lineTo(0, smallestEdge/12);
+let buttonVertices = [new PVector(0, 0), new PVector(smallestEdge/12, 0), new PVector(smallestEdge/12, smallestEdge/12-smallestEdge/12/6), new PVector(smallestEdge/12-smallestEdge/12/6, smallestEdge/12), new PVector(0, smallestEdge/12)];
 
 let drawPromise;
 let drawing = false;
@@ -240,10 +235,13 @@ function endDrag() {
 }
 
 // - Functions -
-function checkHover(event) {
+function checkHover(mouseX, mouseY) {
     // Check for button hover
     // If false, check for hover on 'treeItem's
-    // if (polyPoint())
+    // if (polyPoint(buttonVertices), mouseX, mouseY){
+    //     console.log(true);
+    // }
+    // else console.log(false);
 }
 
 function finishedDraw() {
