@@ -123,6 +123,10 @@ dialog img:hover{
     width: 24px;
 }
 
+textarea{
+    resize: none;
+}
+
 button {
     margin-top: 6px;
     margin-bottom: 4px;
@@ -549,6 +553,42 @@ hr {
     border: 3px solid #E4F9F5;
     color: #E4F9F5;
     box-shadow: 0px 0px 0px;
+}
+
+.techTreeBtn{
+    border-radius: 0;
+    box-shadow: none;
+    text-shadow: none;
+    color: #EEEEEE;
+
+    background: #08D9D6;
+
+    margin: 5px 0px;
+
+    -webkit-clip-path: polygon(5px 0px, 0px 5px, 0px 100%, 0px 100%, calc(100% - 5px) 100%, 100% calc(100% - 5px), 100% 0, 100% 0);
+    clip-path: polygon(5px 0px, 0px 5px, 0px 100%, 0px 100%, calc(100% - 5px) 100%, 100% calc(100% - 5px), 100% 0, 100% 0);
+}
+
+.techTreeBtn:hover{
+    border-radius: 0;
+    box-shadow: none;
+    text-shadow: none;
+    color: #EEEEEE;
+
+    background: #252A34;
+
+    margin: 5px 0px;
+}
+
+.techTreeBtn:active{
+    border-radius: 0;
+    box-shadow: none;
+    text-shadow: none;
+    color: #EEEEEE;
+
+    background: #FF2E63;
+
+    margin: 5px 0px;
 }
 
 .largeInput {
