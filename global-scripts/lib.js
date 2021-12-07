@@ -1893,7 +1893,7 @@ class treeItem {
     updatePositions(widthMap, depth) {
         this.maxWidth = widthMap[depth];
 
-        if (this.parent instanceof treeItem) this.position.x = this.parent.position.x + this.parent.width + 100;
+        if (this.parent instanceof treeItem) this.position.x = this.parent.position.x + this.parent.maxWidth + 100;
         else this.position.x = 100;
 
         for (const child of this.children) {
@@ -1958,6 +1958,12 @@ class treeItem {
                 throw new ReferenceError(`Failed to execute 'delete' on 'treeItem' : optionalArray is not of type Array`)
             }
         }
+    }
+
+    test() {
+        this.children.forEach((child, index) => {
+            child.y = (this.y + this.height/2) - this.totalHeight/2 
+        });
     }
 }
 

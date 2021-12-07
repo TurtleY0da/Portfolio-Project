@@ -51,6 +51,8 @@ let buttonVertices = [new PVector(0, 0), new PVector(smallestEdge / 12, 0), new 
 
 let buttonHover = false;
 
+let dialogResolve;
+
 let drawPromise;
 let drawing = false;
 
@@ -160,13 +162,11 @@ function modalClosed() {
         dBoxEl.close();
         dBoxEl.classList.remove('closing');
     }
-    console.log(event);
     let removalArray = new Array();
     for (const child of dBoxEl.children) {
         removalArray.push(child);
     }
     removalArray.forEach((element, index) => {
-        console.log('ran');
         if (index > 0) {
             element.remove();
         }
@@ -177,6 +177,7 @@ function modalClosed() {
 function openModal() {
     if (dBoxEl.classList[0] === 'closing') {
         dBoxEl.close();
+        modalClosed();
         dBoxEl.classList.remove('closing');
     }
     dBoxEl.classList.add('opening');
@@ -196,12 +197,15 @@ function scrollHandler(event) {
     }
 }
 
-function clickHandler(event) {
+async function clickHandler(event) {
     switch (event.type) {
         case 'mousedown':
             if (clickHeld !== event.button && clickHeld !== -1 || event.button === 1) break; 
             if(buttonHover){
-                createTopLevel();
+                if(event.button !== 0) break;
+                let treeParams = await createTopLevel()
+                if(treeParams === undefined) break;
+                topTreeElements.push(new treeItem(null, ...treeParams));
             } else {
                 clickHeld = event.button;
                 beginDrag(event);
@@ -210,6 +214,7 @@ function clickHandler(event) {
         case 'mouseup':
             if (clickHeld !== event.button) break;
         case 'mouseleave':
+            if(clickHeld === -1) break;
             endDrag();
             clickHeld = -1;
             break;
@@ -306,9 +311,10 @@ async function createTopLevel() {
     let submitButton = document.createElement('button');
 
     titleInput.type = 'text';
-    descriptionInput.rows = '10';
-    descriptionInput.cols = '50';
+    descriptionInput.rows = '6';
+    descriptionInput.cols = '35';
     costInput.type = 'number';
+    costInput.value = 0;
     costInput.min = '0';
     costInput.max = '9999';
     costInput.onkeydown = function () {
@@ -319,12 +325,36 @@ async function createTopLevel() {
     descriptionTitle.innerText = "Item Description";
     costTitle.innerText = "Item Cost";
 
-    dBoxEl.append(titleTitle, titleInput, descriptionTitle, descriptionInput, costTitle, costInput);
+    submitButton.classList.add('techTreeBtn')
+    submitButton.innerText = "Done";
+    submitButton.unselectable = "on";
+    submitButton.onselectstart = function() {
+        return false;
+    }
+    submitButton.onmousedown = function () {
+        return false;
+    }
+
+    dBoxEl.append(titleTitle, titleInput, descriptionTitle, descriptionInput, costTitle, costInput, lb, submitButton);
     openModal();
 
-    // await submitButton();
+    let result = await buttonDetector(submitButton, dialogBtnContainer.children[0].children[0]);
+    if(result){
+        let output = [titleInput.value, descriptionInput.value, parseInt(costInput.value)];
+        closeModal();
+        return output;
+    }
 }
 
-async function submitButton(submitButton) {
-
+async function buttonDetector(submitBtn, closeBtn) {
+    let eventResult;
+    var waitPromise = new Promise((resolve) => { dialogResolve = resolve });
+    submitBtn.addEventListener('mousedown', function(){
+        dialogResolve(true);
+    });
+    closeBtn.addEventListener('mousedown', function(){
+        dialogResolve(false);
+    });
+    await waitPromise.then((result) => { eventResult = result });
+    return eventResult;
 }
