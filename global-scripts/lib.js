@@ -1809,6 +1809,29 @@ class sortingChart {
 
 // Item Class
 class treeItem {
+    // Title 24px, Header 18px, Other Text 13px
+    // Top 6px Left & Bottom 16px Right 64px
+    // Text Width 268px
+    // Title Margin lr0px tb2px
+    // Header Margin lr0px tb2px
+    // Other Text Margin lr0px tb0px
+
+    /*
+    Structure:
+        Vertical T-B:
+            6px Border
+            47px Image(s)
+            28px Title
+            22px Header : Description
+            >13px description
+            22px Header : Cost
+            13px cost
+            16px Padding
+        Horizontal L-R:
+            16px Padding
+            >118px Title | Headers | Description | Cost
+            64px
+    */
     children = new Array();
     parent;
 
@@ -1837,29 +1860,6 @@ class treeItem {
     cost;
 
     constructor(parent, title, description, cost) {
-        // Title 24px, Header 18px, Other Text 13px
-        // Top 6px Left & Bottom 16px Right 64px
-        // Text Width 268px
-        // Title Margin lr0px tb2px
-        // Header Margin lr0px tb2px
-        // Other Text Margin lr0px tb0px
-
-        /*
-        Structure:
-            Vertical T-B:
-                6px Border
-                47px Image(s)
-                28px Title
-                22px Header : Description
-                >13px description
-                22px Header : Cost
-                13px cost
-                16px Padding
-            Horizontal L-R:
-                16px Padding
-                >118px Title | Headers | Description | Cost
-                64px
-        */
         this.title = title.toString();
         this.description = description.toString();
         this.cost = cost;
@@ -1874,7 +1874,7 @@ class treeItem {
         this.totalWidth = this.width + 100;
         this.totalHeight = this.height + this.margin * 2;
 
-        if(this.parent === null) this.updateChain();
+        if (this.parent === null) this.updateChain();
     }
 
     updateChain() {
@@ -1886,15 +1886,23 @@ class treeItem {
             let widthMap = new Array();
             this.updateMaxWidth(widthMap, 0);
             this.updatePositions(widthMap, 0);
-            console.log(widthMap);
         }
     }
 
     updatePositions(widthMap, depth) {
         this.maxWidth = widthMap[depth];
 
-        if (this.parent instanceof treeItem) this.position.x = this.parent.position.x + this.parent.maxWidth + 100;
-        else this.position.x = 100;
+        if (this.parent instanceof treeItem) {
+            this.position.x = this.parent.position.x + this.parent.maxWidth + 100;
+        } else {
+            this.position.x = 100;
+        }
+
+        let currentY = (this.position.y + this.height / 2) - this.totalHeight / 2;
+        this.children.forEach(child => {
+            child.position.y = (currentY + child.totalHeight / 2) - child.height / 2;
+            currentY += child.totalHeight;
+        });
 
         for (const child of this.children) {
             child.updatePositions(widthMap, depth + 1);
@@ -1915,9 +1923,9 @@ class treeItem {
             this.wrappedDescription.reduce((a, b) => Math.max(a, measureWidth(b.trim(), 13)), 0),
             118
         );
-        this.innerHeight = 132 + this.wrappedDescription.length*13;
-        this.width = this.innerWidth+80;
-        this.height = this.innerHeight+22;
+        this.innerHeight = 132 + this.wrappedDescription.length * 13;
+        this.width = this.innerWidth + 80;
+        this.height = this.innerHeight + 22;
     }
 
     createChild(title, description, cost) {
@@ -1944,17 +1952,17 @@ class treeItem {
     }
 
     delete(optionalArray) {
-        if(this.parent !== null){
+        if (this.parent !== null) {
             this.parent.inheritChildren(this.children);
             this.parent.children.splice(this.parent.children.findIndex(element => element.uuid === this.uuid), 1)
-        } else if(this.parent === null){
-            if(optionalArray instanceof Array){
+        } else if (this.parent === null) {
+            if (optionalArray instanceof Array) {
                 optionalArray.splice(optionalArray.findIndex(element => element.uuid === this.uuid), 1);
-                for (const child of this.children){
+                for (const child of this.children) {
                     child.inheritParent(null);
                 }
                 optionalArray.push(...this.children);
-            } else{
+            } else {
                 throw new ReferenceError(`Failed to execute 'delete' on 'treeItem' : optionalArray is not of type Array`)
             }
         }
@@ -1962,7 +1970,7 @@ class treeItem {
 
     test() {
         this.children.forEach((child, index) => {
-            child.y = (this.y + this.height/2) - this.totalHeight/2 
+            child.y = (this.y + this.height / 2) - this.totalHeight / 2
         });
     }
 }
@@ -2042,10 +2050,10 @@ class camera {
         this.centerY = this.y + this.defaultHeight / 2;
     }
     updateCamera(bounds) {
-        if(this.centerX > bounds.max.x) this.centerX = bounds.max.x;
-        if(this.centerY > bounds.max.y) this.centerY = bounds.max.y;
-        if(this.centerX < bounds.min.x) this.centerX = bounds.min.x;
-        if(this.centerY < bounds.min.y) this.centerY = bounds.min.y;
+        if (this.centerX > bounds.max.x) this.centerX = bounds.max.x;
+        if (this.centerY > bounds.max.y) this.centerY = bounds.max.y;
+        if (this.centerX < bounds.min.x) this.centerX = bounds.min.x;
+        if (this.centerY < bounds.min.y) this.centerY = bounds.min.y;
 
         this.defaultWidth = this.cnv.width;
         this.defaultHeight = this.cnv.height;
@@ -2062,14 +2070,6 @@ class camera {
         if (this.zoom < 0.25) this.zoom = 0.25;
         if (this.zoom > 2) this.zoom = 2;
     }
-}
-
-async function drawTree(num, treeArray, callback) {
-    for(let i = 0; i < num; i++){
-        // console.log(i);
-        await timer(1);
-    }
-    callback();
 }
 
 // Bounding Box for camera

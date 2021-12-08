@@ -43,7 +43,7 @@ let topTreeElements = new Array();
 
 let scrolling = false;
 
-let bounds = new boundingBox(-100, -100, 300, 300);
+let bounds = new boundingBox(0, 0, 500, 600);
 
 let smallestEdge = Math.min(cnv.width, cnv.height);
 
@@ -67,7 +67,7 @@ function loop() {
     if (topTreeElements.length > 0) {
         if (!drawing) {
             drawing = true;
-            drawPromise = drawTree(10, '', finishedDraw);
+            drawPromise = drawTree(topTreeElements, finishedDraw);
         }
     }
     // - Update Variables -
@@ -98,9 +98,6 @@ function loop() {
 
     ctx.fillStyle = 'white'
     ctx.fillRect(...ctxCon.gac([bounds.min.x, bounds.min.y, bounds.max.x - bounds.min.x, bounds.max.y - bounds.min.y], ['x', 'y', 'w', 'h']))
-    ctx.fillStyle = 'black'
-    ctx.fillRect(...ctxCon.gac([100, 50, 80, 40], ['x', 'y', 'w', 'h']))
-    ctx.fillRect(cnv.width / 2 - 1, cnv.height / 2 - 1, 2, 2);
 
     ctx.fillStyle = '#FF2E63';
     ctx.strokeStyle = '#EEEEEE';
@@ -126,6 +123,14 @@ function loop() {
     ctx.moveTo(smallestEdge / 12 / 4, smallestEdge / 12 / 2);
     ctx.lineTo(smallestEdge / 12 - smallestEdge / 12 / 4, smallestEdge / 12 / 2);
     ctx.stroke();
+
+    // ctx.fillStyle = 'blue';
+    // topTreeElements.forEach(item => {
+    //     ctx.fillRect(...ctxCon.gac([item.position.x, item.position.y, item.width, item.height], ['x', 'y', 'w', 'h']));
+    //     item.children.forEach(child => {
+    //         ctx.fillRect(...ctxCon.gac([child.position.x, child.position.y, child.width, child.height], ['x', 'y', 'w', 'h']));
+    //     })
+    // });
 
 
     // ctx.font = '24px cousine';
@@ -357,4 +362,28 @@ async function buttonDetector(submitBtn, closeBtn) {
     });
     await waitPromise.then((result) => { eventResult = result });
     return eventResult;
+}
+
+async function drawTree(treeArray, callback) {
+    for(const item of treeArray){
+        console.log(...ctxCon.gac([item.position.x, item.position.y, item.width, item.height], [['x'], ['y'], ['w'], ['h']]))
+        await drawTreeItem(item);
+        await timer(0.3);
+    }
+    callback();
+}
+
+async function drawTreeItem(item){
+    if(
+        item.position.x+item.width >= ctxCon.camera.x &&
+        item.position.x <= ctxCon.camera.x + ctxCon.camera.width &&
+        item.position.y+item.height >= ctxCon.camera.y &&
+        item.position.y <= ctxCon.camera.y + ctxCon.camera.height
+    ){
+        ctx.fillStyle = 'blue';
+        console.log(...ctxCon.gac([item.position.x, item.position.y, item.width, item.height], ['x', 'y', 'w', 'h']))
+        ctx.fillRect(...ctxCon.gac([item.position.x, item.position.y, item.width, item.height], [['x'], 'y', 'w', 'h']))
+    } else {
+        console.log(item.position.x+item.width > ctxCon.camera.x, item.position.x < ctxCon.camera.x + ctxCon.camera.width, item.position.y+item.height >= ctxCon.camera.y, item.position.y <= ctxCon.camera.y + ctxCon.camera.height);
+    }
 }
