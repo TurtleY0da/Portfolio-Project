@@ -1966,12 +1966,18 @@ class treeItem {
                 throw new ReferenceError(`Failed to execute 'delete' on 'treeItem' : optionalArray is not of type Array`)
             }
         }
+        if(this.parent instanceof treeItem) this.parent.updateChain();
+        else this.children.forEach(child => {
+            child.updateChain();
+        });
     }
 
-    test() {
-        this.children.forEach((child, index) => {
-            child.y = (this.y + this.height / 2) - this.totalHeight / 2
-        });
+    moveUp() {
+
+    }
+
+    moveDown() {
+        
     }
 }
 

@@ -53,9 +53,6 @@ let buttonHover = false;
 
 let dialogResolve;
 
-let drawPromise;
-let drawing = false;
-
 // -- Main Loop --
 requestAnimationFrame(loop);
 
@@ -64,17 +61,24 @@ document.fonts.add(cousine);
 measureWidth('abc', 24)
 
 function loop() {
-    if (topTreeElements.length > 0) {
-        if (!drawing) {
-            drawing = true;
-            drawPromise = drawTree(topTreeElements, finishedDraw);
-        }
-    }
     // - Update Variables -
     if (clickHeld === 2) {
         ctxCon.camera.centerX = dragStart.cX + dragOffset.x / ctxCon.camera.zoom
         ctxCon.camera.centerY = dragStart.cY + dragOffset.y / ctxCon.camera.zoom
     }
+
+    let currentY = 0 - topTreeElements.reduce((a, b) => a + b.totalHeight, 0) / 2;
+    topTreeElements.forEach(child => {
+        child.position.y = (currentY + child.totalHeight / 2) - child.height / 2;
+        currentY += child.totalHeight;
+        child.updateChain();
+    });
+
+    let totalHeight = Math.max(topTreeElements.reduce((a, b) => a + b.totalHeight, 0), 512);
+    let totalWidth = Math.max(topTreeElements.reduce((a, b) => Math.max(a, b.totalWidth), 0), 512);
+
+    bounds.min.x = -64;
+    bounds.max.x = bounds.min.x + totalWidth;
 
     ctxCon.updateCamera(bounds)
 
@@ -96,8 +100,10 @@ function loop() {
     ctx.fillStyle = '#AADDAA';
     ctx.fillRect(0, 0, cnv.width, cnv.height);
 
-    ctx.fillStyle = 'white'
+    ctx.fillStyle = '#CCEECC'
     ctx.fillRect(...ctxCon.gac([bounds.min.x, bounds.min.y, bounds.max.x - bounds.min.x, bounds.max.y - bounds.min.y], ['x', 'y', 'w', 'h']))
+
+    drawTree();
 
     ctx.fillStyle = '#FF2E63';
     ctx.strokeStyle = '#EEEEEE';
@@ -129,6 +135,9 @@ function loop() {
     //     ctx.fillRect(...ctxCon.gac([item.position.x, item.position.y, item.width, item.height], ['x', 'y', 'w', 'h']));
     //     item.children.forEach(child => {
     //         ctx.fillRect(...ctxCon.gac([child.position.x, child.position.y, child.width, child.height], ['x', 'y', 'w', 'h']));
+    //         child.children.forEach(subChild => {
+    //             ctx.fillRect(...ctxCon.gac([subChild.position.x, subChild.position.y, subChild.width, subChild.height], ['x', 'y', 'w', 'h']));
+    //         })
     //     })
     // });
 
@@ -205,11 +214,11 @@ function scrollHandler(event) {
 async function clickHandler(event) {
     switch (event.type) {
         case 'mousedown':
-            if (clickHeld !== event.button && clickHeld !== -1 || event.button === 1) break; 
-            if(buttonHover){
-                if(event.button !== 0) break;
+            if (clickHeld !== event.button && clickHeld !== -1 || event.button === 1) break;
+            if (buttonHover) {
+                if (event.button !== 0) break;
                 let treeParams = await createTopLevel()
-                if(treeParams === undefined) break;
+                if (treeParams === undefined) break;
                 topTreeElements.push(new treeItem(null, ...treeParams));
             } else {
                 clickHeld = event.button;
@@ -219,7 +228,7 @@ async function clickHandler(event) {
         case 'mouseup':
             if (clickHeld !== event.button) break;
         case 'mouseleave':
-            if(clickHeld === -1) break;
+            if (clickHeld === -1) break;
             endDrag();
             clickHeld = -1;
             break;
@@ -273,9 +282,6 @@ function checkHover(mouseX, mouseY) {
     else buttonHover = false;
 }
 
-function finishedDraw() {
-    drawing = false;
-}
 
 function measureWidth(text, size) {
     ctx.font = `${size}px cousine`;
@@ -333,7 +339,7 @@ async function createTopLevel() {
     submitButton.classList.add('techTreeBtn')
     submitButton.innerText = "Done";
     submitButton.unselectable = "on";
-    submitButton.onselectstart = function() {
+    submitButton.onselectstart = function () {
         return false;
     }
     submitButton.onmousedown = function () {
@@ -344,7 +350,7 @@ async function createTopLevel() {
     openModal();
 
     let result = await buttonDetector(submitButton, dialogBtnContainer.children[0].children[0]);
-    if(result){
+    if (result) {
         let output = [titleInput.value, descriptionInput.value, parseInt(costInput.value)];
         closeModal();
         return output;
@@ -353,37 +359,71 @@ async function createTopLevel() {
 
 async function buttonDetector(submitBtn, closeBtn) {
     let eventResult;
-    var waitPromise = new Promise((resolve) => { dialogResolve = resolve });
-    submitBtn.addEventListener('mousedown', function(){
+    var waitPromise = new Promise((resolve) => {
+        dialogResolve = resolve
+    });
+    submitBtn.addEventListener('mousedown', function () {
         dialogResolve(true);
     });
-    closeBtn.addEventListener('mousedown', function(){
+    closeBtn.addEventListener('mousedown', function () {
         dialogResolve(false);
     });
-    await waitPromise.then((result) => { eventResult = result });
+    await waitPromise.then((result) => {
+        eventResult = result
+    });
     return eventResult;
 }
 
-async function drawTree(treeArray, callback) {
-    for(const item of treeArray){
-        console.log(...ctxCon.gac([item.position.x, item.position.y, item.width, item.height], [['x'], ['y'], ['w'], ['h']]))
-        await drawTreeItem(item);
-        await timer(0.3);
+function drawTree() {
+    for (const tree of topTreeElements) {
+        drawTreeItem(tree);
     }
-    callback();
 }
 
-async function drawTreeItem(item){
-    if(
-        item.position.x+item.width >= ctxCon.camera.x &&
+function drawTreeItem(item) {
+    item.children.forEach(child => {
+        if (
+            item.position.x + item.width + 100 >= ctxCon.camera.x &&
+            item.position.x + item.width <= ctxCon.camera.x + ctxCon.camera.width &&
+            Math.max(item.position.y + item.height/2, child.position.y + child.height/2) >= ctxCon.camera.y &&
+            Math.min(item.position.y + item.height/2, child.position.y + child.height/2) <= ctxCon.camera.y + ctxCon.camera.height
+        ) {
+            ctx.strokeStyle = 'orange';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(...ctxCon.gac([item.position.x + item.width, item.position.y + item.height/2], ['x', 'y']));
+            ctx.lineTo(...ctxCon.gac([item.position.x + item.width + 50, item.position.y + item.height/2], ['x', 'y']))
+            ctx.lineTo(...ctxCon.gac([item.position.x + item.width + 50, child.position.y + child.height/2], ['x', 'y']));
+            ctx.lineTo(...ctxCon.gac([item.position.x + item.width + 100, child.position.y + child.height/2], ['x', 'y']));
+            ctx.stroke();
+        }
+    });
+    if (
+        item.position.x + item.width >= ctxCon.camera.x &&
         item.position.x <= ctxCon.camera.x + ctxCon.camera.width &&
-        item.position.y+item.height >= ctxCon.camera.y &&
+        item.position.y + item.height >= ctxCon.camera.y &&
         item.position.y <= ctxCon.camera.y + ctxCon.camera.height
-    ){
-        ctx.fillStyle = 'blue';
-        console.log(...ctxCon.gac([item.position.x, item.position.y, item.width, item.height], ['x', 'y', 'w', 'h']))
-        ctx.fillRect(...ctxCon.gac([item.position.x, item.position.y, item.width, item.height], [['x'], 'y', 'w', 'h']))
-    } else {
-        console.log(item.position.x+item.width > ctxCon.camera.x, item.position.x < ctxCon.camera.x + ctxCon.camera.width, item.position.y+item.height >= ctxCon.camera.y, item.position.y <= ctxCon.camera.y + ctxCon.camera.height);
+    ) {
+        ctx.fillStyle = stringToColour(item.uuid);
+        ctx.fillRect(...ctxCon.gac([item.position.x, item.position.y, item.width, item.height], ['x', 'y', 'w', 'h']))
     }
+    item.children.forEach(child => {
+        if (child.position.x <= ctxCon.camera.x + ctxCon.camera.width) {
+            drawTreeItem(child);
+        }
+    });
+}
+
+// TEMPORARY
+var stringToColour = function(str) {
+    var hash = 0;
+    for (var i = 0; i < str.length; i++) {
+        hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    var colour = '#';
+    for (var i = 0; i < 3; i++) {
+        var value = (hash >> (i * 8)) & 0xFF;
+        colour += ('00' + value.toString(16)).substr(-2);
+    }
+    return colour;
 }
