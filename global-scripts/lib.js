@@ -1895,7 +1895,7 @@ class treeItem {
         if (this.parent instanceof treeItem) {
             this.position.x = this.parent.position.x + this.parent.maxWidth + 100;
         } else {
-            this.position.x = 100;
+            this.position.x = 0;
         }
 
         let currentY = (this.position.y + this.height / 2) - this.totalHeight / 2;
@@ -1937,13 +1937,6 @@ class treeItem {
         this.parent = newParent;
     }
 
-    inheritChildren(childrenArray) {
-        for (const child of childrenArray) {
-            child.inheritParent(this);
-        }
-        this.children.push(...childrenArray);
-    }
-
     newValues(valuesObject) {
         if (valuesObject.title !== undefined) this.title = valuesObject.title;
         if (valuesObject.description !== undefined) this.description = valuesObject.description;
@@ -1953,15 +1946,16 @@ class treeItem {
 
     delete(optionalArray) {
         if (this.parent !== null) {
-            this.parent.inheritChildren(this.children);
-            this.parent.children.splice(this.parent.children.findIndex(element => element.uuid === this.uuid), 1)
+            this.parent.children.splice(this.parent.children.findIndex(element => element.uuid === this.uuid), 1, ...this.children)
+            for (const child of this.children) {
+                child.inheritParent(this.parent);
+            }
         } else if (this.parent === null) {
             if (optionalArray instanceof Array) {
-                optionalArray.splice(optionalArray.findIndex(element => element.uuid === this.uuid), 1);
+                optionalArray.splice(optionalArray.findIndex(element => element.uuid === this.uuid), 1, ...this.children);
                 for (const child of this.children) {
                     child.inheritParent(null);
                 }
-                optionalArray.push(...this.children);
             } else {
                 throw new ReferenceError(`Failed to execute 'delete' on 'treeItem' : optionalArray is not of type Array`)
             }
@@ -2043,8 +2037,8 @@ class camera {
     constructor(canvas, x, y) {
         this.cnv = canvas;
 
-        this.x = x;
-        this.y = y;
+        this.centerX = x;
+        this.centerY = y;
 
         this.defaultWidth = canvas.width;
         this.defaultHeight = canvas.height;
@@ -2052,8 +2046,8 @@ class camera {
         this.width = this.defaultWidth;
         this.height = this.defaultHeight;
 
-        this.centerX = this.x + this.defaultWidth / 2;
-        this.centerY = this.y + this.defaultHeight / 2;
+        this.x = this.centerX - this.defaultWidth / 2;
+        this.y = this.centerY - this.defaultHeight / 2;
     }
     updateCamera(bounds) {
         if (this.centerX > bounds.max.x) this.centerX = bounds.max.x;

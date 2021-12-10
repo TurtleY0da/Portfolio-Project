@@ -43,7 +43,7 @@ let topTreeElements = new Array();
 
 let scrolling = false;
 
-let bounds = new boundingBox(0, 0, 500, 600);
+let bounds = new boundingBox(36, -3, 40, 3);
 
 let smallestEdge = Math.min(cnv.width, cnv.height);
 
@@ -74,11 +74,13 @@ function loop() {
         child.updateChain();
     });
 
-    let totalHeight = Math.max(topTreeElements.reduce((a, b) => a + b.totalHeight, 0), 512);
-    let totalWidth = Math.max(topTreeElements.reduce((a, b) => Math.max(a, b.totalWidth), 0), 512);
+    let totalHeight = topTreeElements.reduce((a, b) => a + b.totalHeight, 0);
+    let totalWidth = topTreeElements.reduce((a, b) => Math.max(a, b.totalWidth), 0);
 
     bounds.min.x = -64;
-    bounds.max.x = bounds.min.x + totalWidth;
+    bounds.max.x = Math.max(totalWidth-36, 576);
+    bounds.min.y = Math.min(0-totalHeight/2-48, -320)
+    bounds.max.y = Math.max(totalHeight/2+48, 320)
 
     ctxCon.updateCamera(bounds)
 
@@ -392,9 +394,10 @@ function drawTreeItem(item) {
             ctx.lineWidth = 3;
             ctx.beginPath();
             ctx.moveTo(...ctxCon.gac([item.position.x + item.width, item.position.y + item.height/2], ['x', 'y']));
-            ctx.lineTo(...ctxCon.gac([item.position.x + item.width + 50, item.position.y + item.height/2], ['x', 'y']))
-            ctx.lineTo(...ctxCon.gac([item.position.x + item.width + 50, child.position.y + child.height/2], ['x', 'y']));
-            ctx.lineTo(...ctxCon.gac([item.position.x + item.width + 100, child.position.y + child.height/2], ['x', 'y']));
+            ctx.bezierCurveTo(...ctxCon.gac([item.position.x + item.width + 50, item.position.y + item.height/2, item.position.x + item.width + 50, child.position.y + child.height/2, item.position.x + item.width + 100, child.position.y + child.height/2], ['x', 'y', 'x', 'y', 'x', 'y']))
+            // ctx.lineTo(...ctxCon.gac([item.position.x + item.width + 50, item.position.y + item.height/2], ['x', 'y']))
+            // ctx.lineTo(...ctxCon.gac([item.position.x + item.width + 50, child.position.y + child.height/2], ['x', 'y']));
+            // ctx.lineTo(...ctxCon.gac([item.position.x + item.width + 100, child.position.y + child.height/2], ['x', 'y']));
             ctx.stroke();
         }
     });
