@@ -36,6 +36,17 @@ let dragOffset = {
     x: 0,
     y: 0
 }
+let mouse = {
+    x:0,
+    y:0
+}
+
+let editImg = new Image();
+editImg.src = '../img/edit.png';
+let downImg = new Image();
+downImg.src = '../img/down.png';
+let upImg = new Image();
+upImg.src = '../img/up.png';
 
 let cousine = new FontFace('cousine', 'url(../fonts/Cousine-Regular.ttf)');
 
@@ -74,13 +85,17 @@ function loop() {
         child.updateChain();
     });
 
+    topTreeElements.forEach(child => {
+        child.checkHover(mouse);
+    })
+
     let totalHeight = topTreeElements.reduce((a, b) => a + b.totalHeight, 0);
     let totalWidth = topTreeElements.reduce((a, b) => Math.max(a, b.totalWidth), 0);
 
     bounds.min.x = -64;
-    bounds.max.x = Math.max(totalWidth-36, 576);
-    bounds.min.y = Math.min(0-totalHeight/2-48, -320)
-    bounds.max.y = Math.max(totalHeight/2+48, 320)
+    bounds.max.x = Math.max(totalWidth - 36, 576);
+    bounds.min.y = Math.min(0 - totalHeight / 2 - 48, -320)
+    bounds.max.y = Math.max(totalHeight / 2 + 48, 320)
 
     ctxCon.updateCamera(bounds)
 
@@ -103,7 +118,7 @@ function loop() {
     ctx.fillRect(0, 0, cnv.width, cnv.height);
 
     ctx.fillStyle = '#CCEECC'
-    ctx.fillRect(...ctxCon.gac([bounds.min.x, bounds.min.y, bounds.max.x - bounds.min.x, bounds.max.y - bounds.min.y], ['x', 'y', 'w', 'h']))
+    ctx.fillRect(...ctxCon.gac('xywh', bounds.min.x, bounds.min.y, bounds.max.x - bounds.min.x, bounds.max.y - bounds.min.y))
 
     drawTree();
 
@@ -131,17 +146,7 @@ function loop() {
     ctx.moveTo(smallestEdge / 12 / 4, smallestEdge / 12 / 2);
     ctx.lineTo(smallestEdge / 12 - smallestEdge / 12 / 4, smallestEdge / 12 / 2);
     ctx.stroke();
-
-    // ctx.fillStyle = 'blue';
-    // topTreeElements.forEach(item => {
-    //     ctx.fillRect(...ctxCon.gac([item.position.x, item.position.y, item.width, item.height], ['x', 'y', 'w', 'h']));
-    //     item.children.forEach(child => {
-    //         ctx.fillRect(...ctxCon.gac([child.position.x, child.position.y, child.width, child.height], ['x', 'y', 'w', 'h']));
-    //         child.children.forEach(subChild => {
-    //             ctx.fillRect(...ctxCon.gac([subChild.position.x, subChild.position.y, subChild.width, subChild.height], ['x', 'y', 'w', 'h']));
-    //         })
-    //     })
-    // });
+    console.log(mouse);
 
 
     // ctx.font = '24px cousine';
@@ -214,9 +219,11 @@ function scrollHandler(event) {
 }
 
 async function clickHandler(event) {
+    cnvRect = cnv.getBoundingClientRect();
     switch (event.type) {
         case 'mousedown':
             if (clickHeld !== event.button && clickHeld !== -1 || event.button === 1) break;
+            checkHover(event.clientX - cnvRect.left, event.clientY - cnvRect.top)
             if (buttonHover) {
                 if (event.button !== 0) break;
                 let treeParams = await createTopLevel()
@@ -248,6 +255,8 @@ function moveHandler(event) {
         }
     } else {
         checkHover(event.clientX - cnvRect.left, event.clientY - cnvRect.top);
+        mouse.x = event.clientX - cnvRect.left;
+        mouse.y = event.clientY - cnvRect.top;
     }
 }
 
@@ -387,17 +396,14 @@ function drawTreeItem(item) {
         if (
             item.position.x + item.width + 100 >= ctxCon.camera.x &&
             item.position.x + item.width <= ctxCon.camera.x + ctxCon.camera.width &&
-            Math.max(item.position.y + item.height/2, child.position.y + child.height/2) >= ctxCon.camera.y &&
-            Math.min(item.position.y + item.height/2, child.position.y + child.height/2) <= ctxCon.camera.y + ctxCon.camera.height
+            Math.max(item.position.y + item.height / 2, child.position.y + child.height / 2) >= ctxCon.camera.y &&
+            Math.min(item.position.y + item.height / 2, child.position.y + child.height / 2) <= ctxCon.camera.y + ctxCon.camera.height
         ) {
-            ctx.strokeStyle = 'orange';
+            ctx.strokeStyle = '#252A34';
             ctx.lineWidth = 3;
             ctx.beginPath();
-            ctx.moveTo(...ctxCon.gac([item.position.x + item.width, item.position.y + item.height/2], ['x', 'y']));
-            ctx.bezierCurveTo(...ctxCon.gac([item.position.x + item.width + 50, item.position.y + item.height/2, item.position.x + item.width + 50, child.position.y + child.height/2, item.position.x + item.width + 100, child.position.y + child.height/2], ['x', 'y', 'x', 'y', 'x', 'y']))
-            // ctx.lineTo(...ctxCon.gac([item.position.x + item.width + 50, item.position.y + item.height/2], ['x', 'y']))
-            // ctx.lineTo(...ctxCon.gac([item.position.x + item.width + 50, child.position.y + child.height/2], ['x', 'y']));
-            // ctx.lineTo(...ctxCon.gac([item.position.x + item.width + 100, child.position.y + child.height/2], ['x', 'y']));
+            ctx.moveTo(...ctxCon.gac('xy', item.position.x + item.width, item.position.y + item.height / 2));
+            ctx.bezierCurveTo(...ctxCon.gac('xyxyxy', item.position.x + item.width + 50, item.position.y + item.height / 2, item.position.x + item.width + 50, child.position.y + child.height / 2, item.position.x + item.width + 100, child.position.y + child.height / 2))
             ctx.stroke();
         }
     });
@@ -407,8 +413,39 @@ function drawTreeItem(item) {
         item.position.y + item.height >= ctxCon.camera.y &&
         item.position.y <= ctxCon.camera.y + ctxCon.camera.height
     ) {
-        ctx.fillStyle = stringToColour(item.uuid);
-        ctx.fillRect(...ctxCon.gac([item.position.x, item.position.y, item.width, item.height], ['x', 'y', 'w', 'h']))
+        ctx.fillStyle = '#EEEEEE';
+        ctx.beginPath();
+        ctx.cutCorner(...ctxCon.gac('xywhw', item.position.x, item.position.y, item.width, item.height, 20));
+        ctx.fill();
+
+        ctx.fillStyle = '#FF2E63';
+        ctx.beginPath();
+        ctx.cutCorner(...ctxCon.gac('xywhw', item.position.x, item.position.y, item.width - 14, 6, 6));
+        ctx.fill();
+
+        ctx.textBaseline = 'top';
+
+        ctx.fillStyle = '#08D9D6'
+        ctx.font = `${ctxCon.gac('w', 18)[0]}px cousine`;
+        ctx.fillText('Description', ...ctxCon.gac('xy', item.position.x + 16, item.position.y + 81));
+
+        ctx.fillText('Cost', ...ctxCon.gac('xy', item.position.x + 16, item.position.y + 103 + item.wrappedDescription.length * 13));
+
+        ctx.fillStyle = '#252A34'
+
+        ctx.font = `${ctxCon.gac('w', 24)[0]}px cousine`;
+        ctx.fillText(item.title, ...ctxCon.gac('xy', item.position.x + 16, item.position.y + 53));
+
+        ctx.font = `${ctxCon.gac('w', 13)[0]}px cousine`;
+        item.wrappedDescription.forEach((line, index) => {
+            ctx.fillText(line, ...ctxCon.gac('xy', item.position.x + 16, item.position.y + 103 + index * 13));
+        });
+
+        ctx.fillText(item.cost + ' units', ...ctxCon.gac('xy', item.position.x + 16, item.position.y + 125 + item.wrappedDescription.length * 13));
+
+        ctx.drawImage(editImg, ...ctxCon.gac('xywh', item.position.x + 16, item.position.y + 18, 20, 20));
+        ctx.drawImage(downImg, ...ctxCon.gac('xywh', item.position.x + 45, item.position.y + 18, 20, 20));
+        ctx.drawImage(upImg, ...ctxCon.gac('xywh', item.position.x + 74, item.position.y + 18, 20, 20));
     }
     item.children.forEach(child => {
         if (child.position.x <= ctxCon.camera.x + ctxCon.camera.width) {
@@ -418,7 +455,7 @@ function drawTreeItem(item) {
 }
 
 // TEMPORARY
-var stringToColour = function(str) {
+var stringToColour = function (str) {
     var hash = 0;
     for (var i = 0; i < str.length; i++) {
         hash = str.charCodeAt(i) + ((hash << 5) - hash);

@@ -68,6 +68,15 @@ function gotoHome() {
 }
 
 // - Rounded Rectangle -
+CanvasRenderingContext2D.prototype.cutCorner = function (x, y, width, height, distance) {
+    this.moveTo(x, y);
+    this.lineTo(x+(width-distance), y);
+    this.lineTo(x+width, y+distance);
+    this.lineTo(x+width, y+height);
+    this.lineTo(x, y+height);
+    this.closePath();
+}
+
 CanvasRenderingContext2D.prototype.roundRect = function (x, y, width, height, radius) {
     if (width < 2 * radius) radius = width / 2;
     if (height < 2 * radius) radius = height / 2;
@@ -1859,9 +1868,13 @@ class treeItem {
 
     cost;
 
+    buttonHover = -1;
+
     constructor(parent, title, description, cost) {
         this.title = title.toString();
+        if (this.title === undefined || this.title === '') this.title = 'Missing Title'
         this.description = description.toString();
+        if (this.description === undefined || this.description === '') this.description = 'Missing Description'
         this.cost = cost;
         this.parent = parent;
 
@@ -1966,6 +1979,10 @@ class treeItem {
         });
     }
 
+    checkHover(mouse) {
+
+    }
+
     moveUp() {
 
     }
@@ -1985,9 +2002,10 @@ class contextController {
         this.camera = new camera(canvas, 0, 0);
     }
     // Get Accurate Coordinates
-    gac(callbackParams, specifyLocParams) {
+    gac(specifyLocParams, ...callbackParams) {
+        let specifier = specifyLocParams.match(/[a-z]/g)
         let params = new Array();
-        specifyLocParams.forEach((item, index) => {
+        specifier.forEach((item, index) => {
             switch (item) {
                 case "x":
                     params.push(mapRange(callbackParams[index], this.camera.x, this.camera.x + this.camera.width, 0, this.camera.defaultWidth));
