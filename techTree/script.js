@@ -37,8 +37,8 @@ let dragOffset = {
     y: 0
 }
 let mouse = {
-    x:0,
-    y:0
+    x: 0,
+    y: 0
 }
 
 let editImg = new Image();
@@ -87,7 +87,7 @@ function loop() {
 
     topTreeElements.forEach(child => {
         child.checkHover(mouse);
-    })
+    });
 
     let totalHeight = topTreeElements.reduce((a, b) => a + b.totalHeight, 0);
     let totalWidth = topTreeElements.reduce((a, b) => Math.max(a, b.totalWidth), 0);
@@ -146,7 +146,6 @@ function loop() {
     ctx.moveTo(smallestEdge / 12 / 4, smallestEdge / 12 / 2);
     ctx.lineTo(smallestEdge / 12 - smallestEdge / 12 / 4, smallestEdge / 12 / 2);
     ctx.stroke();
-    console.log(mouse);
 
 
     // ctx.font = '24px cousine';
@@ -272,6 +271,13 @@ function beginDrag(event) {
             dragOffset.x = 0;
             dragOffset.y = 0;
             break;
+        case 0:
+            mouse.x = event.clientX - cnvRect.left;
+            mouse.y = event.clientY - cnvRect.top;
+            topTreeElements.forEach(child => {
+                child.checkHover(mouse);
+                child.checkClick(topTreeElements);
+            });
     }
 }
 
@@ -317,7 +323,6 @@ function getWrappedLines(textArray, size, preferedLineSize) {
 
 async function createTopLevel() {
     dialogBtnContainer.children[1].classList.add('displayNone');
-    dialogBtnContainer.children[2].classList.add('displayNone');
 
     let titleTitle = document.createElement('h2');
     let titleInput = document.createElement('input');
@@ -360,6 +365,23 @@ async function createTopLevel() {
     dBoxEl.append(titleTitle, titleInput, descriptionTitle, descriptionInput, costTitle, costInput, lb, submitButton);
     openModal();
 
+    async function buttonDetector(submitBtn, closeBtn) {
+        let eventResult;
+        var waitPromise = new Promise((resolve) => {
+            dialogResolve = resolve
+        });
+        submitBtn.addEventListener('mousedown', function () {
+            dialogResolve(1);
+        });
+        closeBtn.addEventListener('mousedown', function () {
+            dialogResolve(0);
+        });
+        await waitPromise.then((result) => {
+            eventResult = result
+        });
+        return eventResult;
+    }
+
     let result = await buttonDetector(submitButton, dialogBtnContainer.children[0].children[0]);
     if (result) {
         let output = [titleInput.value, descriptionInput.value, parseInt(costInput.value)];
@@ -368,21 +390,77 @@ async function createTopLevel() {
     }
 }
 
-async function buttonDetector(submitBtn, closeBtn) {
-    let eventResult;
-    var waitPromise = new Promise((resolve) => {
-        dialogResolve = resolve
-    });
-    submitBtn.addEventListener('mousedown', function () {
-        dialogResolve(true);
-    });
-    closeBtn.addEventListener('mousedown', function () {
-        dialogResolve(false);
-    });
-    await waitPromise.then((result) => {
-        eventResult = result
-    });
-    return eventResult;
+async function editTreeItem(treeItem) {
+    dialogBtnContainer.children[1].classList.remove('displayNone');
+
+    let titleInput = document.createElement('input');
+
+    let descriptionInput = document.createElement('textarea');
+
+    let costInput = document.createElement('input');
+
+    let lb, lb1, lb2;
+    lb = document.createElement('br');
+    lb1 = document.createElement('br');
+    lb2 = document.createElement('br');
+
+    let submitButton = document.createElement('button');
+
+    titleInput.type = 'text';
+    titleInput.value = treeItem.title;
+
+    descriptionInput.rows = '6';
+    descriptionInput.cols = '35';
+    descriptionInput.value = treeItem.description;
+
+    costInput.type = 'number';
+    costInput.value = treeItem.cost;
+    costInput.min = '0';
+    costInput.max = '9999';
+    costInput.onkeydown = function () {
+        return false;
+    };
+
+    submitButton.classList.add('techTreeBtn')
+    submitButton.innerText = "Done";
+    submitButton.unselectable = "on";
+    submitButton.onselectstart = function () {
+        return false;
+    }
+    submitButton.onmousedown = function () {
+        return false;
+    }
+
+    dBoxEl.append(titleInput, lb, descriptionInput, lb1, costInput, lb2, submitButton);
+    openModal();
+
+    async function buttonDetector(submitBtn, closeBtn, deleteBtn) {
+        let eventResult;
+        var waitPromise = new Promise((resolve) => {
+            dialogResolve = resolve
+        });
+        submitBtn.addEventListener('mousedown', function () {
+            dialogResolve(1);
+        });
+        closeBtn.addEventListener('mousedown', function () {
+            dialogResolve(0);
+        });
+        deleteBtn.addEventListener('mousedown', function () {
+            dialogResolve(-1);
+        });
+        await waitPromise.then((result) => {
+            eventResult = result
+        });
+        return eventResult;
+    }
+
+    let result = await buttonDetector(submitButton, dialogBtnContainer.children[0].children[0], dialogBtnContainer.children[1].children[0]);
+    if (result === 1) {
+        treeItem.newValues([titleInput.value, descriptionInput.value, parseInt(costInput.value)]);
+    } else if (result === -1) {
+        treeItem.delete(topTreeElements);
+    }
+    if (result) closeModal();
 }
 
 function drawTree() {
@@ -443,9 +521,23 @@ function drawTreeItem(item) {
 
         ctx.fillText(item.cost + ' units', ...ctxCon.gac('xy', item.position.x + 16, item.position.y + 125 + item.wrappedDescription.length * 13));
 
-        ctx.drawImage(editImg, ...ctxCon.gac('xywh', item.position.x + 16, item.position.y + 18, 20, 20));
-        ctx.drawImage(downImg, ...ctxCon.gac('xywh', item.position.x + 45, item.position.y + 18, 20, 20));
-        ctx.drawImage(upImg, ...ctxCon.gac('xywh', item.position.x + 74, item.position.y + 18, 20, 20));
+        if (item.buttonHover === 0) {
+            ctx.drawImage(editImg, ...ctxCon.gac('xywh', item.position.x + 14, item.position.y + 18, 24, 24));
+        } else {
+            ctx.drawImage(editImg, ...ctxCon.gac('xywh', item.position.x + 16, item.position.y + 18, 20, 20));
+        }
+
+        if (item.buttonHover === 1) {
+            ctx.drawImage(downImg, ...ctxCon.gac('xywh', item.position.x + 43, item.position.y + 18, 24, 24));
+        } else {
+            ctx.drawImage(downImg, ...ctxCon.gac('xywh', item.position.x + 45, item.position.y + 18, 20, 20));
+        }
+
+        if (item.buttonHover === 2) {
+            ctx.drawImage(upImg, ...ctxCon.gac('xywh', item.position.x + 72, item.position.y + 18, 24, 24));
+        } else {
+            ctx.drawImage(upImg, ...ctxCon.gac('xywh', item.position.x + 74, item.position.y + 18, 20, 20));
+        }
     }
     item.children.forEach(child => {
         if (child.position.x <= ctxCon.camera.x + ctxCon.camera.width) {

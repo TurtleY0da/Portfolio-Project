@@ -70,10 +70,10 @@ function gotoHome() {
 // - Rounded Rectangle -
 CanvasRenderingContext2D.prototype.cutCorner = function (x, y, width, height, distance) {
     this.moveTo(x, y);
-    this.lineTo(x+(width-distance), y);
-    this.lineTo(x+width, y+distance);
-    this.lineTo(x+width, y+height);
-    this.lineTo(x, y+height);
+    this.lineTo(x + (width - distance), y);
+    this.lineTo(x + width, y + distance);
+    this.lineTo(x + width, y + height);
+    this.lineTo(x, y + height);
     this.closePath();
 }
 
@@ -1950,10 +1950,17 @@ class treeItem {
         this.parent = newParent;
     }
 
-    newValues(valuesObject) {
-        if (valuesObject.title !== undefined) this.title = valuesObject.title;
-        if (valuesObject.description !== undefined) this.description = valuesObject.description;
-        if (valuesObject.cost !== undefined) this.cost = valuesObject.cost;
+    newValues(valuesArray) {
+        this.title = valuesArray[0];
+        this.description = valuesArray[1];
+        this.cost = valuesArray[2];
+
+        this.wrappedDescription = getWrappedLines(this.description.match(/\S*\s*/g), 13, 268)
+        this.calculateHeightWidth();
+
+        this.totalWidth = this.width + 100;
+        this.totalHeight = this.height + this.margin * 2;
+
         this.updateChain();
     }
 
@@ -1973,22 +1980,71 @@ class treeItem {
                 throw new ReferenceError(`Failed to execute 'delete' on 'treeItem' : optionalArray is not of type Array`)
             }
         }
-        if(this.parent instanceof treeItem) this.parent.updateChain();
+        if (this.parent instanceof treeItem) this.parent.updateChain();
         else this.children.forEach(child => {
             child.updateChain();
         });
     }
 
     checkHover(mouse) {
+        let buttonsY = ctxCon.gac('y', this.position.y + 18)[0]
+        let buttonsWH = ctxCon.gac('w', 20)[0]
+        let editButtonX = ctxCon.gac('xywh', this.position.x + 16)[0]
+        let downButtonX = ctxCon.gac('xywh', this.position.x + 45)[0]
+        let upButtonX = ctxCon.gac('xywh', this.position.x + 74)[0]
 
+        if (
+            mouse.y > buttonsY && mouse.y < buttonsY + buttonsWH
+        ) {
+            if (mouse.x > editButtonX && mouse.x < editButtonX + buttonsWH) this.buttonHover = 0;
+            else if (mouse.x > downButtonX && mouse.x < downButtonX + buttonsWH) this.buttonHover = 1;
+            else if (mouse.x > upButtonX && mouse.x < upButtonX + buttonsWH) this.buttonHover = 2;
+            else this.buttonHover = -1;
+        } else {
+            this.buttonHover = -1;
+        }
+        this.children.forEach(child => {
+            if (child.position.x <= mouse.x) {
+                child.checkHover(mouse);
+            }
+        });
     }
 
-    moveUp() {
-
+    checkClick(childArray) {
+        if(this.buttonHover > -1){
+            switch(this.buttonHover){
+                case 0:
+                    editTreeItem(this);
+                    break;
+                case 1:
+                    this.moveDown(childArray)
+                    break;
+                case 2:
+                    this.moveUp(childArray)
+                    break;
+            }
+        } else {
+            this.children.forEach(child => {
+                if (child.position.x <= mouse.x) {
+                    child.checkClick(this.children);
+                }
+            })
+        }
     }
 
-    moveDown() {
-        
+    moveUp(upperArray) {
+        let myIndex = upperArray.findIndex(element => element.uuid === this.uuid);
+        if(myIndex > 0){
+            swapItems(upperArray, myIndex, myIndex -1);
+        }
+    }
+
+    moveDown(upperArray) {
+        // Fix
+        // let myIndex = upperArray.findIndex(element => element.uuid === this.uuid);
+        // if(myIndex < upperArray.length-1){
+        //     swapItems(upperArray, myIndex, myIndex +1);
+        // }
     }
 }
 

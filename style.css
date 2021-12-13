@@ -116,7 +116,7 @@ dialog div.imgBtnContainer {
 
 dialog div#divBtnContainer {
     display: grid;
-    grid-template-columns: 29px 29px 29px;
+    grid-template-columns: 29px 29px;
 }
 
 dialog img:hover{
