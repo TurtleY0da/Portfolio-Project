@@ -1884,7 +1884,7 @@ class treeItem {
         this.calculateHeightWidth();
 
         this.maxWidth = this.width;
-        this.totalWidth = this.width + 100;
+        this.totalWidth = this.maxWidth + 100;
         this.totalHeight = this.height + this.margin * 2;
 
         if (this.parent === null) this.updateChain();
@@ -1892,7 +1892,6 @@ class treeItem {
 
     updateChain() {
         this.totalHeight = Math.max(this.children.reduce((a, b) => a + b.totalHeight, 0), this.height + this.margin * 2);
-        this.totalWidth = this.width + 100 + this.children.reduce((a, b) => Math.max(a, b.totalWidth), 0);
 
         if (this.parent instanceof treeItem) this.parent.updateChain();
         else if (this.parent === null) {
@@ -1904,6 +1903,7 @@ class treeItem {
 
     updatePositions(widthMap, depth) {
         this.maxWidth = widthMap[depth];
+        this.totalWidth = this.maxWidth + 100 + this.children.reduce((a, b) => Math.max(a, b.totalWidth), 0);
 
         if (this.parent instanceof treeItem) {
             this.position.x = this.parent.position.x + this.parent.maxWidth + 100;
@@ -1958,7 +1958,7 @@ class treeItem {
         this.wrappedDescription = getWrappedLines(this.description.match(/\S*\s*/g), 13, 268)
         this.calculateHeightWidth();
 
-        this.totalWidth = this.width + 100;
+        this.totalWidth = this.maxWidth + 100;
         this.totalHeight = this.height + this.margin * 2;
 
         this.updateChain();
@@ -1993,13 +1993,19 @@ class treeItem {
         let downButtonX = ctxCon.gac('xywh', this.position.x + 45)[0]
         let upButtonX = ctxCon.gac('xywh', this.position.x + 74)[0]
 
+        let addButtonPos = ctxCon.gac('xywh', this.position.x + this.width - 20, this.position.y + 24, 20, this.height - 28)
+
         if (
-            mouse.y > buttonsY && mouse.y < buttonsY + buttonsWH
+            mouse.y > buttonsY && mouse.y < buttonsY + buttonsWH && mouse.x > editButtonX && mouse.x < upButtonX + buttonsWH
         ) {
             if (mouse.x > editButtonX && mouse.x < editButtonX + buttonsWH) this.buttonHover = 0;
             else if (mouse.x > downButtonX && mouse.x < downButtonX + buttonsWH) this.buttonHover = 1;
             else if (mouse.x > upButtonX && mouse.x < upButtonX + buttonsWH) this.buttonHover = 2;
             else this.buttonHover = -1;
+        } else if (
+            mouse.x > addButtonPos[0] && mouse.x < addButtonPos[0] + addButtonPos[2] && 
+            mouse.y > addButtonPos[1] && mouse.y < addButtonPos[1] + addButtonPos[3]) {
+            this.buttonHover = 3;
         } else {
             this.buttonHover = -1;
         }
@@ -2010,9 +2016,9 @@ class treeItem {
         });
     }
 
-    checkClick(childArray) {
-        if(this.buttonHover > -1){
-            switch(this.buttonHover){
+    async checkClick(childArray) {
+        if (this.buttonHover > -1) {
+            switch (this.buttonHover) {
                 case 0:
                     editTreeItem(this);
                     break;
@@ -2022,12 +2028,17 @@ class treeItem {
                 case 2:
                     this.moveUp(childArray)
                     break;
+                case 3:
+                    let treeParams = await createTreeItem();
+                    if(treeParams) this.createChild(...treeParams)
+                    this.buttonHover = -1;
+                    break;
             }
             return true;
         } else {
-            for(const child of this.children){
+            for (const child of this.children) {
                 if (child.position.x <= mouse.x) {
-                    if(child.checkClick(this.children) === true) return true;
+                    if (await child.checkClick(this.children) === true) return true;
                 }
             }
         }
@@ -2035,14 +2046,14 @@ class treeItem {
 
     moveUp(upperArray) {
         let myIndex = upperArray.findIndex(element => element.uuid === this.uuid);
-        if(myIndex > 0){
-            swapItems(upperArray, myIndex, myIndex -1);
+        if (myIndex > 0) {
+            swapItems(upperArray, myIndex, myIndex - 1);
         }
     }
 
     moveDown(upperArray) {
         let myIndex = upperArray.findIndex(element => element.uuid === this.uuid);
-        if(myIndex < upperArray.length-1){
+        if (myIndex < upperArray.length - 1) {
             swapItems(upperArray, myIndex + 1, myIndex);
         }
     }

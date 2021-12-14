@@ -225,7 +225,7 @@ async function clickHandler(event) {
             checkHover(event.clientX - cnvRect.left, event.clientY - cnvRect.top)
             if (buttonHover) {
                 if (event.button !== 0) break;
-                let treeParams = await createTopLevel()
+                let treeParams = await createTreeItem()
                 if (treeParams === undefined) break;
                 topTreeElements.push(new treeItem(null, ...treeParams));
             } else {
@@ -259,7 +259,7 @@ function moveHandler(event) {
     }
 }
 
-function beginDrag(event) {
+async function beginDrag(event) {
     cnvRect = cnv.getBoundingClientRect();
     switch (event.button) {
         case 2:
@@ -275,9 +275,8 @@ function beginDrag(event) {
             mouse.x = event.clientX - cnvRect.left;
             mouse.y = event.clientY - cnvRect.top;
             for(const child of topTreeElements){
-                console.log('0', child.title);
                 child.checkHover(mouse);
-                if(child.checkClick(topTreeElements) === true) break;
+                if(await child.checkClick(topTreeElements) === true) break;
             };
     }
 }
@@ -322,7 +321,7 @@ function getWrappedLines(textArray, size, preferedLineSize) {
     return lines;
 }
 
-async function createTopLevel() {
+async function createTreeItem() {
     dialogBtnContainer.children[1].classList.add('displayNone');
 
     let titleTitle = document.createElement('h2');
@@ -473,7 +472,7 @@ function drawTree() {
 function drawTreeItem(item) {
     item.children.forEach(child => {
         if (
-            item.position.x + item.width + 100 >= ctxCon.camera.x &&
+            child.position.x >= ctxCon.camera.x &&
             item.position.x + item.width <= ctxCon.camera.x + ctxCon.camera.width &&
             Math.max(item.position.y + item.height / 2, child.position.y + child.height / 2) >= ctxCon.camera.y &&
             Math.min(item.position.y + item.height / 2, child.position.y + child.height / 2) <= ctxCon.camera.y + ctxCon.camera.height
@@ -482,7 +481,8 @@ function drawTreeItem(item) {
             ctx.lineWidth = 3;
             ctx.beginPath();
             ctx.moveTo(...ctxCon.gac('xy', item.position.x + item.width, item.position.y + item.height / 2));
-            ctx.bezierCurveTo(...ctxCon.gac('xyxyxy', item.position.x + item.width + 50, item.position.y + item.height / 2, item.position.x + item.width + 50, child.position.y + child.height / 2, item.position.x + item.width + 100, child.position.y + child.height / 2))
+            let distance = child.position.x - (item.position.x+item.width);
+            ctx.bezierCurveTo(...ctxCon.gac('xyxyxy', item.position.x + item.width + distance/2, item.position.y + item.height / 2, item.position.x + item.width + distance/2, child.position.y + child.height / 2, item.position.x + item.width + distance, child.position.y + child.height / 2))
             ctx.stroke();
         }
     });
@@ -501,6 +501,51 @@ function drawTreeItem(item) {
         ctx.beginPath();
         ctx.cutCorner(...ctxCon.gac('xywhw', item.position.x, item.position.y, item.width - 14, 6, 6));
         ctx.fill();
+
+        ctx.fillStyle = '#CCCCCC';
+        ctx.beginPath();
+        ctx.fillRect(...ctxCon.gac('xywh', item.position.x+item.width-20, item.position.y+24, 20, item.height-28));
+        ctx.fill();
+
+        ctx.fillStyle = '#AAAAAA';
+        ctx.beginPath();
+        ctx.moveTo(...ctxCon.gac('xy', item.position.x+item.width-20, item.position.y+24));
+        ctx.lineTo(...ctxCon.gac('xy', item.position.x+item.width-17, item.position.y+27));
+        ctx.lineTo(...ctxCon.gac('xy', item.position.x+item.width-3, item.position.y+item.height-7));
+        ctx.lineTo(...ctxCon.gac('xy', item.position.x+item.width, item.position.y+item.height-4));
+        ctx.lineTo(...ctxCon.gac('xy', item.position.x+item.width-20, item.position.y+item.height-4));
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = '#BBBBBB';
+        ctx.beginPath();
+        ctx.fillRect(...ctxCon.gac('xywh', item.position.x+item.width-17, item.position.y+27, 14, item.height-34));
+        ctx.fill();
+
+        let itemCenter = item.position.y+((item.height-20)/2)+20;
+
+
+        ctx.lineWidth = ctxCon.gac('w', 3)[0];
+        ctx.lineCap = 'round';
+
+        ctx.strokeStyle = '#EEEEEE';
+        if(item.buttonHover === 3) ctx.strokeStyle = '#555555';
+        ctx.beginPath();
+        ctx.moveTo(...ctxCon.gac('xy', item.position.x+item.width-10, itemCenter-4));
+        ctx.lineTo(...ctxCon.gac('xy', item.position.x+item.width-10, itemCenter+4));
+        ctx.moveTo(...ctxCon.gac('xy', item.position.x+item.width-6, itemCenter));
+        ctx.lineTo(...ctxCon.gac('xy', item.position.x+item.width-14, itemCenter));
+        ctx.stroke();
+
+        if(item.buttonHover === 3) {
+        ctx.strokeStyle = '#EEEEEE';
+        ctx.beginPath();
+        ctx.moveTo(...ctxCon.gac('xy', item.position.x+item.width-10, itemCenter-5));
+        ctx.lineTo(...ctxCon.gac('xy', item.position.x+item.width-10, itemCenter+3));
+        ctx.moveTo(...ctxCon.gac('xy', item.position.x+item.width-6, itemCenter-1));
+        ctx.lineTo(...ctxCon.gac('xy', item.position.x+item.width-14, itemCenter-1));
+        ctx.stroke();
+        }
 
         ctx.textBaseline = 'top';
 
