@@ -2017,18 +2017,19 @@ class treeItem {
                     editTreeItem(this);
                     break;
                 case 1:
-                    this.moveDown(childArray)
+                    this.moveDown(childArray);
                     break;
                 case 2:
                     this.moveUp(childArray)
                     break;
             }
+            return true;
         } else {
-            this.children.forEach(child => {
+            for(const child of this.children){
                 if (child.position.x <= mouse.x) {
-                    child.checkClick(this.children);
+                    if(child.checkClick(this.children) === true) return true;
                 }
-            })
+            }
         }
     }
 
@@ -2040,11 +2041,10 @@ class treeItem {
     }
 
     moveDown(upperArray) {
-        // Fix
-        // let myIndex = upperArray.findIndex(element => element.uuid === this.uuid);
-        // if(myIndex < upperArray.length-1){
-        //     swapItems(upperArray, myIndex, myIndex +1);
-        // }
+        let myIndex = upperArray.findIndex(element => element.uuid === this.uuid);
+        if(myIndex < upperArray.length-1){
+            swapItems(upperArray, myIndex + 1, myIndex);
+        }
     }
 }
 

@@ -274,10 +274,11 @@ function beginDrag(event) {
         case 0:
             mouse.x = event.clientX - cnvRect.left;
             mouse.y = event.clientY - cnvRect.top;
-            topTreeElements.forEach(child => {
+            for(const child of topTreeElements){
+                console.log('0', child.title);
                 child.checkHover(mouse);
-                child.checkClick(topTreeElements);
-            });
+                if(child.checkClick(topTreeElements) === true) break;
+            };
     }
 }
 
