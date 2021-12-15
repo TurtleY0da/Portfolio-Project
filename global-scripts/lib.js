@@ -2010,7 +2010,7 @@ class treeItem {
             this.buttonHover = -1;
         }
         this.children.forEach(child => {
-            if (child.position.x <= mouse.x) {
+            if (ctxCon.gac('x', child.position.x)[0] <= mouse.x) {
                 child.checkHover(mouse);
             }
         });
@@ -2037,7 +2037,7 @@ class treeItem {
             return true;
         } else {
             for (const child of this.children) {
-                if (child.position.x <= mouse.x) {
+                if (ctxCon.gac('x',child.position.x)[0] <= mouse.x) {
                     if (await child.checkClick(this.children) === true) return true;
                 }
             }
