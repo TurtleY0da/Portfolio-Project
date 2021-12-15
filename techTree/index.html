@@ -41,13 +41,76 @@
 
     <!-- Dialog Boxes -->
     <dialog id="dialogueBox">
-        <div id="divBtnContainer">
+        <div id="divBtnContainerDBox">
             <div class="imgBtnContainer">
                 <img src="../img/close.png" alt="CloseIcon" id="closeModalBtn">
             </div>
             <div class="imgBtnContainer">
                 <img src="../img/delete.png" alt="DeleteIcon" id="discardValuesBtn">
             </div>
+        </div>
+    </dialog>
+
+    <dialog id="helpBox">
+        <div id="divBtnContainerHBox">
+            <div class="imgBtnContainer">
+                <img src="../img/close.png" alt="CloseIcon" id="closeModalBtn">
+            </div>
+        </div>
+        <h2>Tech Tree Planner Help</h2>
+        <br>
+
+        <h3>How to move around the view</h3>
+        <p>
+            You can move around your view by pressing and holding the right click button (or two fingers on a trackpad) while over the viewport, and then drag to move around
+        </p>
+        <br>
+
+        <h3>How to add a new item</h3>
+        <p>
+            There are two options:
+        </p>
+        <ul>
+            <li>
+                <p>A top level item</p>
+            </li>
+            <li>
+                <p>A child item</p>
+            </li>
+        </ul>
+        <p>
+            A top level item is created via the pink button labelled + in the top right corner of the viewport. A popup should appear, allowing you to specify the title, description, and theoretical cost of your item. Upon pressing "Done", a new item will be created in the viewport, with no parent. 
+            <br>
+            <br>
+            It is now possible to add a child item, via the grey button labelled + on the right side of the new top level item. Once again, a popup should appear, permitting you to specify a title, description, and cost. Additional children can be added to either top level items, or any child item.
+        </p>
+        <br>
+
+        <h3>How to modify pre-existing items</h3>
+        <p>
+            You can change the order of items by pressing either the downwards or upwards arrows in the top left of an item.
+            <br>
+            You can also edit the contents of any item by pressing the pencil button in the top left corner of any item, opening a popup to edit the contents. Additionally, if you wish to delete an item entirely, you can press the garbage can button in the edit popup. Note that this process <em>Cannot Be Reversed</em>.
+        </p>
+
+        <h3>How to export/import</h3>
+        <p>
+
+        </p>
+    </dialog>
+
+    <dialog id="saveBox">
+        <div id="divBtnContainerSBox">
+            <div class="imgBtnContainer">
+                <img src="../img/close.png" alt="CloseIcon" id="closeModalBtn">
+            </div>
+        </div>
+        <input type="file" name="fileIn" id="fileIn">
+        <br>
+        <div id="saveBtnContainer">
+            <button class="techTreeBtn">Import</button>
+            <br>
+            <button class="techTreeBtn">Export</button>
         </div>
     </dialog>
 

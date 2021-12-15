@@ -6,9 +6,16 @@
 let cnv = docGetID("treeCanvas");
 
 let dBoxEl = docGetID('dialogueBox');
-dialogPolyfill.registerDialog(dBoxEl);
+let hBoxEl = docGetID('helpBox');
+let sBoxEl = docGetID('saveBox');
 
-let dialogBtnContainer = docGetID('divBtnContainer');
+dialogPolyfill.registerDialog(dBoxEl);
+dialogPolyfill.registerDialog(hBoxEl);
+dialogPolyfill.registerDialog(sBoxEl);
+
+let dialogBtnContainer = docGetID('divBtnContainerDBox');
+let helpBtnContainer = docGetID('divBtnContainerHBox');
+let saveBtnContainer = docGetID('divBtnContainerSBox');
 
 // Glbl Variables
 let screenSize = {
@@ -58,9 +65,35 @@ let bounds = new boundingBox(36, -3, 40, 3);
 
 let smallestEdge = Math.min(cnv.width, cnv.height);
 
-let buttonVertices = [new PVector(0, 0), new PVector(smallestEdge / 12, 0), new PVector(smallestEdge / 12, smallestEdge / 12 - smallestEdge / 12 / 6), new PVector(smallestEdge / 12 - smallestEdge / 12 / 6, smallestEdge / 12), new PVector(0, smallestEdge / 12)];
+let addButtonVertices = [
+    new PVector(0, 0),
+    new PVector(smallestEdge / 12, 0),
+    new PVector(smallestEdge / 12, smallestEdge / 12 - smallestEdge / 12 / 6),
+    new PVector(smallestEdge / 12 - smallestEdge / 12 / 6, smallestEdge / 12),
+    new PVector(0, smallestEdge / 12)
+];
 
-let buttonHover = false;
+let helpButtonVertices = [
+    new PVector(smallestEdge / 12, smallestEdge / 12 - smallestEdge / 12 / 6),
+    new PVector(smallestEdge / 12, smallestEdge / 12 - smallestEdge / 12 / 6 + smallestEdge / 12),
+    new PVector(smallestEdge / 12 - smallestEdge / 12 / 6, smallestEdge / 12 + smallestEdge / 12),
+    new PVector(0, smallestEdge / 12 + smallestEdge / 12),
+    new PVector(0, smallestEdge / 12),
+    new PVector(smallestEdge / 12 - smallestEdge / 12 / 6, smallestEdge / 12)
+];
+
+let saveButtonVertices = [
+    new PVector(smallestEdge / 12, smallestEdge / 12 * 2 - smallestEdge / 12 / 6),
+    new PVector(smallestEdge / 12, smallestEdge / 12 * 2 - smallestEdge / 12 / 6 + smallestEdge / 12),
+    new PVector(smallestEdge / 12 - smallestEdge / 12 / 6, smallestEdge / 12 * 3),
+    new PVector(0, smallestEdge / 12 * 3),
+    new PVector(0, smallestEdge / 12 * 2),
+    new PVector(smallestEdge / 12 - smallestEdge / 12 / 6, smallestEdge / 12 * 2)
+];
+
+let addButtonHover = false;
+let helpButtonHover = false;
+let saveButtonHover = false;
 
 let dialogResolve;
 
@@ -107,7 +140,32 @@ function loop() {
         cnv.width = Math.max(screenSize.width / 1.5);
         cnv.height = Math.max(screenSize.height / 1.5);
         smallestEdge = Math.min(cnv.width, cnv.height);
-        buttonVertices = [new PVector(0, 0), new PVector(smallestEdge / 12, 0), new PVector(smallestEdge / 12, smallestEdge / 12 - smallestEdge / 12 / 6), new PVector(smallestEdge / 12 - smallestEdge / 12 / 6, smallestEdge / 12), new PVector(0, smallestEdge / 12)];
+        addButtonVertices = [
+            new PVector(0, 0),
+            new PVector(smallestEdge / 12, 0),
+            new PVector(smallestEdge / 12, smallestEdge / 12 - smallestEdge / 12 / 6),
+            new PVector(smallestEdge / 12 - smallestEdge / 12 / 6, smallestEdge / 12),
+            new PVector(0, smallestEdge / 12)
+        ];
+
+        helpButtonVertices = [
+            new PVector(smallestEdge / 12, smallestEdge / 12 - smallestEdge / 12 / 6),
+            new PVector(smallestEdge / 12, smallestEdge / 12 - smallestEdge / 12 / 6 + smallestEdge / 12),
+            new PVector(smallestEdge / 12 - smallestEdge / 12 / 6, smallestEdge / 12 + smallestEdge / 12),
+            new PVector(0, smallestEdge / 12 + smallestEdge / 12),
+            new PVector(0, smallestEdge / 12),
+            new PVector(smallestEdge / 12 - smallestEdge / 12 / 6, smallestEdge / 12)
+        ];
+
+        saveButtonVertices = [
+            new PVector(smallestEdge / 12, smallestEdge / 12 * 2 - smallestEdge / 12 / 6),
+            new PVector(smallestEdge / 12, smallestEdge / 12 * 2 - smallestEdge / 12 / 6 + smallestEdge / 12),
+            new PVector(smallestEdge / 12 - smallestEdge / 12 / 6, smallestEdge / 12 * 3),
+            new PVector(0, smallestEdge / 12 * 3),
+            new PVector(0, smallestEdge / 12 * 2),
+            new PVector(smallestEdge / 12 - smallestEdge / 12 / 6, smallestEdge / 12 * 2)
+        ];
+
     }
 
     cnv.width = Math.max(screenSize.width / 1.5);
@@ -122,13 +180,69 @@ function loop() {
 
     drawTree();
 
+    ctx.fillStyle = '#1BCC32';
+    ctx.strokeStyle = '#EEEEEE';
+    if (saveButtonHover) {
+        ctx.fillStyle = '#EEEEEE';
+        ctx.strokeStyle = '#1BCC32';
+    }
+    ctx.lineWidth = smallestEdge / 120;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round'
+
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(smallestEdge / 12, 0);
+    ctx.lineTo(smallestEdge / 12, smallestEdge / 12 - smallestEdge / 12 / 6 + smallestEdge / 12 * 2);
+    ctx.lineTo(smallestEdge / 12 - smallestEdge / 12 / 6, smallestEdge / 12 * 3);
+    ctx.lineTo(0, smallestEdge / 12 * 3);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(smallestEdge / 12 / 5, smallestEdge / 12 * 2 + smallestEdge / 12 / 2);
+    ctx.lineTo(smallestEdge / 12 / 5, smallestEdge / 12 * 2 + smallestEdge / 12 / 4 * 3);
+    ctx.lineTo(smallestEdge / 12 - smallestEdge / 12 / 5, smallestEdge / 12 * 2 + smallestEdge / 12 / 4 * 3);
+    ctx.lineTo(smallestEdge / 12 - smallestEdge / 12 / 5, smallestEdge / 12 * 2 + smallestEdge / 12 / 2);
+    ctx.moveTo(smallestEdge / 12 / 2, smallestEdge / 12 * 2 + smallestEdge / 12 / 6);
+    ctx.lineTo(smallestEdge / 12 / 2, smallestEdge / 12 * 2 + smallestEdge / 12 / 1.9);
+    ctx.lineTo(smallestEdge / 12 / 2 + smallestEdge / 12 / 7, smallestEdge / 12 * 2 + smallestEdge / 12 / 1.9 - smallestEdge / 12 / 7);
+    ctx.moveTo(smallestEdge / 12 / 2, smallestEdge / 12 * 2 + smallestEdge / 12 / 1.9);
+    ctx.lineTo(smallestEdge / 12 / 2 - smallestEdge / 12 / 7, smallestEdge / 12 * 2 + smallestEdge / 12 / 1.9 - smallestEdge / 12 / 7);
+    ctx.stroke();
+
+    ctx.fillStyle = '#3A95EE';
+    ctx.strokeStyle = '#EEEEEE';
+    if (helpButtonHover) {
+        ctx.fillStyle = '#EEEEEE';
+        ctx.strokeStyle = '#3A95EE';
+    }
+    ctx.lineWidth = smallestEdge / 120;
+    ctx.lineCap = 'round';
+
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(smallestEdge / 12, 0);
+    ctx.lineTo(smallestEdge / 12, smallestEdge / 12 - smallestEdge / 12 / 6 + smallestEdge / 12);
+    ctx.lineTo(smallestEdge / 12 - smallestEdge / 12 / 6, smallestEdge / 12 + smallestEdge / 12);
+    ctx.lineTo(0, smallestEdge / 12 + smallestEdge / 12);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.arc(smallestEdge / 24, smallestEdge / 12 + (smallestEdge / 24 - smallestEdge / 24 / 4), smallestEdge / 24 - smallestEdge / 24 / 1.4, Math.PI + 0.5, Math.PI / 2);
+    ctx.lineTo(smallestEdge / 24, smallestEdge / 12 + smallestEdge / 24 + smallestEdge / 24 / 5);
+    ctx.moveTo(smallestEdge / 24, smallestEdge / 12 + smallestEdge / 24 + smallestEdge / 24 / 1.8);
+    ctx.lineTo(smallestEdge / 24, smallestEdge / 12 + smallestEdge / 24 + smallestEdge / 24 / 1.8);
+    ctx.stroke();
+
     ctx.fillStyle = '#FF2E63';
     ctx.strokeStyle = '#EEEEEE';
-    if (buttonHover) {
+    if (addButtonHover) {
         ctx.fillStyle = '#EEEEEE';
         ctx.strokeStyle = '#FF2E63';
     }
-    ctx.lineWidth = smallestEdge / 100;
+    ctx.lineWidth = smallestEdge / 120;
     ctx.lineCap = 'round';
 
     ctx.beginPath();
@@ -147,11 +261,6 @@ function loop() {
     ctx.lineTo(smallestEdge / 12 - smallestEdge / 12 / 4, smallestEdge / 12 / 2);
     ctx.stroke();
 
-
-    // ctx.font = '24px cousine';
-    // ctx.textBaseline = 'top';
-    // ctx.fillText('oooooooooooooooooOoooooooooooooooo', 0, 0);
-
     // - End -
     requestAnimationFrame(loop);
 }
@@ -161,7 +270,15 @@ cnv.oncontextmenu = function (e) {
     e.preventDefault();
 }
 
-dialogBtnContainer.children[0].children[0].addEventListener('click', closeModal);
+dialogBtnContainer.children[0].children[0].addEventListener('click', function () {
+    closeModal(dBoxEl, true)
+});
+helpBtnContainer.children[0].children[0].addEventListener('click', function () {
+    closeModal(hBoxEl, false)
+});
+saveBtnContainer.children[0].children[0].addEventListener('click', function () {
+    closeModal(sBoxEl, false)
+});
 cnv.addEventListener('wheel', scrollHandler);
 cnv.addEventListener('mousedown', clickHandler);
 cnv.addEventListener('mouseup', clickHandler);
@@ -171,37 +288,42 @@ cnv.addEventListener('mousemove', moveHandler);
 // -- Functions --
 
 // - Event Functions -
-function closeModal() {
-    dBoxEl.classList.remove('opening');
-    dBoxEl.classList.add('closing');
-    dBoxEl.addEventListener('animationend', modalClosed);
+function closeModal(dialogBox, deleteItems) {
+    dialogBox.classList.remove('opening');
+    dialogBox.classList.add('closing');
+    let tempFunc = function () {
+        modalClosed(dialogBox, tempFunc, deleteItems)
+    };
+    dialogBox.addEventListener('animationend', tempFunc)
 }
 
-function modalClosed() {
-    if (dBoxEl.classList[0] === 'closing') {
-        dBoxEl.close();
-        dBoxEl.classList.remove('closing');
+function modalClosed(dialogBox, tempFunc, deleteItems) {
+    if (dialogBox.classList[0] === 'closing') {
+        dialogBox.close();
+        dialogBox.classList.remove('closing');
     }
-    let removalArray = new Array();
-    for (const child of dBoxEl.children) {
-        removalArray.push(child);
-    }
-    removalArray.forEach((element, index) => {
-        if (index > 0) {
-            element.remove();
+    if (deleteItems) {
+        let removalArray = new Array();
+        for (const child of dialogBox.children) {
+            removalArray.push(child);
         }
-    });
-    dBoxEl.removeEventListener('animationend', modalClosed)
+        removalArray.forEach((element, index) => {
+            if (index > 0) {
+                element.remove();
+            }
+        });
+    }
+    dialogBox.removeEventListener('animationend', tempFunc)
 }
 
-function openModal() {
-    if (dBoxEl.classList[0] === 'closing') {
-        dBoxEl.close();
-        modalClosed();
-        dBoxEl.classList.remove('closing');
+function openModal(dialogBox) {
+    if (dialogBox.classList[0] === 'closing') {
+        dialogBox.close();
+        modalClosed(dialogBox);
+        dialogBox.classList.remove('closing');
     }
-    dBoxEl.classList.add('opening');
-    dBoxEl.showModal();
+    dialogBox.classList.add('opening');
+    dialogBox.showModal();
 }
 
 function scrollHandler(event) {
@@ -223,11 +345,17 @@ async function clickHandler(event) {
         case 'mousedown':
             if (clickHeld !== event.button && clickHeld !== -1 || event.button === 1) break;
             checkHover(event.clientX - cnvRect.left, event.clientY - cnvRect.top)
-            if (buttonHover) {
+            if (addButtonHover) {
                 if (event.button !== 0) break;
-                let treeParams = await createTreeItem()
+                let treeParams = await createTreeItem();
                 if (treeParams === undefined) break;
                 topTreeElements.push(new treeItem(null, ...treeParams));
+            } else if (helpButtonHover) {
+                if (event.button !== 0) break;
+                openModal(hBoxEl);
+            } else if (saveButtonHover) {
+                if (event.button !== 0) break;
+                openSaver();
             } else {
                 clickHeld = event.button;
                 beginDrag(event);
@@ -274,9 +402,9 @@ async function beginDrag(event) {
         case 0:
             mouse.x = event.clientX - cnvRect.left;
             mouse.y = event.clientY - cnvRect.top;
-            for(const child of topTreeElements){
+            for (const child of topTreeElements) {
                 child.checkHover(mouse);
-                if(await child.checkClick(topTreeElements) === true) break;
+                if (await child.checkClick(topTreeElements) === true) break;
             };
     }
 }
@@ -292,11 +420,25 @@ function endDrag() {
 }
 
 // - Functions -
+function readFile(file, callback) {
+    const reader = new FileReader();
+    reader.onload = function (event) {
+        callback(event.target.result);
+    };
+    reader.readAsText(file);
+}
+
 function checkHover(mouseX, mouseY) {
     // Check for button hover
     // If false, check for hover on 'treeItem's
-    if (polyPoint(buttonVertices, mouseX, mouseY)) buttonHover = true;
-    else buttonHover = false;
+    if (polyPoint(addButtonVertices, mouseX, mouseY)) addButtonHover = true;
+    else addButtonHover = false;
+
+    if (polyPoint(helpButtonVertices, mouseX, mouseY)) helpButtonHover = true;
+    else helpButtonHover = false;
+
+    if (polyPoint(saveButtonVertices, mouseX, mouseY)) saveButtonHover = true;
+    else saveButtonHover = false;
 }
 
 
@@ -319,6 +461,32 @@ function getWrappedLines(textArray, size, preferedLineSize) {
         if (measureWidth(lines[lines.length - 2], size) + elementWidth < preferedLineSize) lines.mergeStrings(lines.length - 2, 2, "");
     });
     return lines;
+}
+
+async function openSaver() {
+    openModal(sBoxEl);
+
+    async function buttonDetector(importBtn, closeBtn, exportBtn) {
+        let eventResult;
+        var waitPromise = new Promise((resolve) => {
+            dialogResolve = resolve
+        });
+        importBtn.addEventListener('mousedown', function () {
+            dialogResolve(1);
+        });
+        closeBtn.addEventListener('mousedown', function () {
+            dialogResolve(0);
+        });
+        exportBtn.addEventListener('mousedown', function () {
+            dialogResolve(-1);
+        });
+        await waitPromise.then((result) => {
+            eventResult = result
+        });
+        return eventResult;
+    }
+
+    
 }
 
 async function createTreeItem() {
@@ -363,7 +531,7 @@ async function createTreeItem() {
     }
 
     dBoxEl.append(titleTitle, titleInput, descriptionTitle, descriptionInput, costTitle, costInput, lb, submitButton);
-    openModal();
+    openModal(dBoxEl);
 
     async function buttonDetector(submitBtn, closeBtn) {
         let eventResult;
@@ -385,7 +553,7 @@ async function createTreeItem() {
     let result = await buttonDetector(submitButton, dialogBtnContainer.children[0].children[0]);
     if (result) {
         let output = [titleInput.value, descriptionInput.value, parseInt(costInput.value)];
-        closeModal();
+        closeModal(dBoxEl, true);
         return output;
     }
 }
@@ -432,7 +600,7 @@ async function editTreeItem(treeItem) {
     }
 
     dBoxEl.append(titleInput, lb, descriptionInput, lb1, costInput, lb2, submitButton);
-    openModal();
+    openModal(dBoxEl);
 
     async function buttonDetector(submitBtn, closeBtn, deleteBtn) {
         let eventResult;
@@ -460,7 +628,7 @@ async function editTreeItem(treeItem) {
     } else if (result === -1) {
         treeItem.delete(topTreeElements);
     }
-    if (result) closeModal();
+    if (result) closeModal(dBoxEl, true);
 }
 
 function drawTree() {
@@ -481,8 +649,8 @@ function drawTreeItem(item) {
             ctx.lineWidth = 3;
             ctx.beginPath();
             ctx.moveTo(...ctxCon.gac('xy', item.position.x + item.width, item.position.y + item.height / 2));
-            let distance = child.position.x - (item.position.x+item.width);
-            ctx.bezierCurveTo(...ctxCon.gac('xyxyxy', item.position.x + item.width + distance/2, item.position.y + item.height / 2, item.position.x + item.width + distance/2, child.position.y + child.height / 2, item.position.x + item.width + distance, child.position.y + child.height / 2))
+            let distance = child.position.x - (item.position.x + item.width);
+            ctx.bezierCurveTo(...ctxCon.gac('xyxyxy', item.position.x + item.width + distance / 2, item.position.y + item.height / 2, item.position.x + item.width + distance / 2, child.position.y + child.height / 2, item.position.x + item.width + distance, child.position.y + child.height / 2))
             ctx.stroke();
         }
     });
@@ -504,47 +672,47 @@ function drawTreeItem(item) {
 
         ctx.fillStyle = '#CCCCCC';
         ctx.beginPath();
-        ctx.fillRect(...ctxCon.gac('xywh', item.position.x+item.width-20, item.position.y+24, 20, item.height-28));
+        ctx.fillRect(...ctxCon.gac('xywh', item.position.x + item.width - 20, item.position.y + 24, 20, item.height - 28));
         ctx.fill();
 
         ctx.fillStyle = '#AAAAAA';
         ctx.beginPath();
-        ctx.moveTo(...ctxCon.gac('xy', item.position.x+item.width-20, item.position.y+24));
-        ctx.lineTo(...ctxCon.gac('xy', item.position.x+item.width-17, item.position.y+27));
-        ctx.lineTo(...ctxCon.gac('xy', item.position.x+item.width-3, item.position.y+item.height-7));
-        ctx.lineTo(...ctxCon.gac('xy', item.position.x+item.width, item.position.y+item.height-4));
-        ctx.lineTo(...ctxCon.gac('xy', item.position.x+item.width-20, item.position.y+item.height-4));
+        ctx.moveTo(...ctxCon.gac('xy', item.position.x + item.width - 20, item.position.y + 24));
+        ctx.lineTo(...ctxCon.gac('xy', item.position.x + item.width - 17, item.position.y + 27));
+        ctx.lineTo(...ctxCon.gac('xy', item.position.x + item.width - 3, item.position.y + item.height - 7));
+        ctx.lineTo(...ctxCon.gac('xy', item.position.x + item.width, item.position.y + item.height - 4));
+        ctx.lineTo(...ctxCon.gac('xy', item.position.x + item.width - 20, item.position.y + item.height - 4));
         ctx.closePath();
         ctx.fill();
 
         ctx.fillStyle = '#BBBBBB';
         ctx.beginPath();
-        ctx.fillRect(...ctxCon.gac('xywh', item.position.x+item.width-17, item.position.y+27, 14, item.height-34));
+        ctx.fillRect(...ctxCon.gac('xywh', item.position.x + item.width - 17, item.position.y + 27, 14, item.height - 34));
         ctx.fill();
 
-        let itemCenter = item.position.y+((item.height-20)/2)+20;
+        let itemCenter = item.position.y + ((item.height - 20) / 2) + 20;
 
 
         ctx.lineWidth = ctxCon.gac('w', 3)[0];
         ctx.lineCap = 'round';
 
         ctx.strokeStyle = '#EEEEEE';
-        if(item.buttonHover === 3) ctx.strokeStyle = '#555555';
+        if (item.buttonHover === 3) ctx.strokeStyle = '#555555';
         ctx.beginPath();
-        ctx.moveTo(...ctxCon.gac('xy', item.position.x+item.width-10, itemCenter-4));
-        ctx.lineTo(...ctxCon.gac('xy', item.position.x+item.width-10, itemCenter+4));
-        ctx.moveTo(...ctxCon.gac('xy', item.position.x+item.width-6, itemCenter));
-        ctx.lineTo(...ctxCon.gac('xy', item.position.x+item.width-14, itemCenter));
+        ctx.moveTo(...ctxCon.gac('xy', item.position.x + item.width - 10, itemCenter - 4));
+        ctx.lineTo(...ctxCon.gac('xy', item.position.x + item.width - 10, itemCenter + 4));
+        ctx.moveTo(...ctxCon.gac('xy', item.position.x + item.width - 6, itemCenter));
+        ctx.lineTo(...ctxCon.gac('xy', item.position.x + item.width - 14, itemCenter));
         ctx.stroke();
 
-        if(item.buttonHover === 3) {
-        ctx.strokeStyle = '#EEEEEE';
-        ctx.beginPath();
-        ctx.moveTo(...ctxCon.gac('xy', item.position.x+item.width-10, itemCenter-5));
-        ctx.lineTo(...ctxCon.gac('xy', item.position.x+item.width-10, itemCenter+3));
-        ctx.moveTo(...ctxCon.gac('xy', item.position.x+item.width-6, itemCenter-1));
-        ctx.lineTo(...ctxCon.gac('xy', item.position.x+item.width-14, itemCenter-1));
-        ctx.stroke();
+        if (item.buttonHover === 3) {
+            ctx.strokeStyle = '#EEEEEE';
+            ctx.beginPath();
+            ctx.moveTo(...ctxCon.gac('xy', item.position.x + item.width - 10, itemCenter - 5));
+            ctx.lineTo(...ctxCon.gac('xy', item.position.x + item.width - 10, itemCenter + 3));
+            ctx.moveTo(...ctxCon.gac('xy', item.position.x + item.width - 6, itemCenter - 1));
+            ctx.lineTo(...ctxCon.gac('xy', item.position.x + item.width - 14, itemCenter - 1));
+            ctx.stroke();
         }
 
         ctx.textBaseline = 'top';

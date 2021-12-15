@@ -1859,8 +1859,6 @@ class treeItem {
 
     maxWidth;
 
-    active = false;
-
     title;
 
     description;
@@ -2003,7 +2001,7 @@ class treeItem {
             else if (mouse.x > upButtonX && mouse.x < upButtonX + buttonsWH) this.buttonHover = 2;
             else this.buttonHover = -1;
         } else if (
-            mouse.x > addButtonPos[0] && mouse.x < addButtonPos[0] + addButtonPos[2] && 
+            mouse.x > addButtonPos[0] && mouse.x < addButtonPos[0] + addButtonPos[2] &&
             mouse.y > addButtonPos[1] && mouse.y < addButtonPos[1] + addButtonPos[3]) {
             this.buttonHover = 3;
         } else {
@@ -2030,14 +2028,14 @@ class treeItem {
                     break;
                 case 3:
                     let treeParams = await createTreeItem();
-                    if(treeParams) this.createChild(...treeParams)
+                    if (treeParams) this.createChild(...treeParams)
                     this.buttonHover = -1;
                     break;
             }
             return true;
         } else {
             for (const child of this.children) {
-                if (ctxCon.gac('x',child.position.x)[0] <= mouse.x) {
+                if (ctxCon.gac('x', child.position.x)[0] <= mouse.x) {
                     if (await child.checkClick(this.children) === true) return true;
                 }
             }
@@ -2167,6 +2165,18 @@ class boundingBox {
         this.min.x = minX;
         this.min.y = minY;
     }
+}
+
+// Tech Tree Deconstructor
+
+function decontructTree(constructedTree) {
+
+}
+
+// Tech Tree Constructor
+
+function constructTree(deconstructedTree) {
+    console.log(deconstructedTree);
 }
 
 //#endregion

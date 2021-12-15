@@ -36,6 +36,8 @@ dialog {
     border: 0px solid transparent;
     border-top: 6px solid #FF2E63;
 
+    max-width: 50%;
+
     padding: 16px;
     padding-top: 0px;
     padding-right: 64px;
@@ -46,6 +48,12 @@ dialog {
 
     -webkit-clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 0 100%);
     clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 0 100%);
+}
+
+dialog em {
+    font-style: normal;
+    font-weight: 800;
+    color: #EE0000;
 }
 
 dialog::backdrop{
@@ -114,9 +122,24 @@ dialog div.imgBtnContainer {
     vertical-align: center;
 }
 
-dialog div#divBtnContainer {
+dialog div#divBtnContainerDBox {
     display: grid;
     grid-template-columns: 29px 29px;
+}
+
+dialog div#divBtnContainerHBox {
+    display: grid;
+    grid-template-columns: 29px;
+}
+
+dialog div#divBtnContainerSBox {
+    display: grid;
+    grid-template-columns: 29px;
+}
+
+dialog div#saveBtnContainer {
+    display: grid;
+    grid-template-columns: 1fr 0.1fr 1fr;
 }
 
 dialog img:hover{
