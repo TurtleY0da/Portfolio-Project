@@ -1951,6 +1951,8 @@ class treeItem {
     newValues(valuesArray) {
         this.title = valuesArray[0];
         this.description = valuesArray[1];
+        if (this.title === undefined || this.title === '') this.title = 'Missing Title'
+        if (this.description === undefined || this.description === '') this.description = 'Missin Description';
         this.cost = valuesArray[2];
 
         this.wrappedDescription = getWrappedLines(this.description.match(/\S*\s*/g), 13, 268)
@@ -2193,8 +2195,37 @@ function deconstructTree(constructedTree) {
 
 // Tech Tree Constructor
 
-function constructTree(deconstructedTree) {
-    console.log(LZString.decompressFromUTF16(deconstructedTree));
+function constructTree(compressedTree) {
+    let deconstructedTree = LZString.decompressFromUTF16(compressedTree);
+    function throwError() {
+        throw new Error(`Could not execute 'constructTree': Provided file is not a valid tree.`);
+    }
+    let parsedTree = parseJSON(deconstructedTree);
+
+    if(parsedTree instanceof Array === false) throwError();
+
+    let result = new Array();
+    function constructItem(item, children) {
+        
+        if(item instanceof treeItem === false) throwError();
+        children.forEach(child => {
+            if(child instanceof Object === false) throwError();
+            if(!child.a || !child.t || !child.d || isNaN(child.c)) throwError();
+            item.createChild(child.t, child.d, child.c);
+        });
+        item.children.forEach((child, index) => {
+            constructItem(child, children[index].a);
+        });
+    }
+
+    parsedTree.forEach((item, index) => {
+        if(item instanceof Object === false) throwError();
+        if(!item.a || !item.t || !item.d || isNaN(item.c)) throwError();
+        result.push(new treeItem(null, item.t, item.d, item.c));
+        constructItem(result[index], item.a);
+    });
+
+    topTreeElements = result;
 }
 
 //#endregion
