@@ -2169,14 +2169,32 @@ class boundingBox {
 
 // Tech Tree Deconstructor
 
-function decontructTree(constructedTree) {
+function deconstructTree(constructedTree) {
+    let topLevel = new Array();
+    function deconstructItem(item){
+        let currLevel = {
+            t:item.title,
+            d:item.description,
+            c:item.cost,
+            a:new Array()
+        }
+        item.children.forEach(child => {
+            currLevel.a.push(deconstructItem(child));
+        });
+        return currLevel;
+    }
 
+    constructedTree.forEach(item => {
+        topLevel.push(deconstructItem(item));
+    });
+
+    return JSON.stringify(topLevel);
 }
 
 // Tech Tree Constructor
 
 function constructTree(deconstructedTree) {
-    console.log(deconstructedTree);
+    console.log(LZString.decompressFromUTF16(deconstructedTree));
 }
 
 //#endregion

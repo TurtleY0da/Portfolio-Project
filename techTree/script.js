@@ -486,7 +486,19 @@ async function openSaver() {
         return eventResult;
     }
 
-    
+    let result = await buttonDetector(sBoxEl.children[3].children[0], saveBtnContainer.children[0].children[0], sBoxEl.children[3].children[2]);
+
+    if(result === 1){
+        if(sBoxEl.children[1].value !== '') readFile(sBoxEl.children[1].files[0], constructTree);
+    }
+    if(result === -1){
+        let deconstructedTree = deconstructTree(topTreeElements);
+        let compressedTree = LZString.compressToUTF16(deconstructedTree);
+        let blob = new Blob([compressedTree], {type: "text/plain;charset=utf-16"});
+        saveAs(blob, "techTree.dat");
+    }
+
+    if(result) closeModal(sBoxEl);
 }
 
 async function createTreeItem() {
