@@ -1,3 +1,4 @@
+// This is a template file
 // [Name] by Timothy V 
 
 // -- Initialize Variables --

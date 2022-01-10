@@ -1,4 +1,7 @@
 // Dropdown Manager Script by Timothy V
+/*
+This script manages the dropdown menu on every single page
+*/
 
 // -- Initialize Variables --
 
@@ -60,15 +63,17 @@ let homeBtnEl = docGetID("homeBtn");
 let dropdownToggleBool = true;
 
 // -- Add Event Listeners --
+// If "Projects" if clicked, toggle the dropdown menu open/closed
 projectBtnEl.addEventListener('click', function() {
     dropdownToggleBool = dropdownToggle(dropdownToggleBool, buttonsArrayEl)
 });
 
+// If not on the home page, and the button is clicked, go to the home page
 if(!homeBtnEl.classList.contains("active")){
     homeBtnEl.addEventListener('click', gotoHome);
 }
 
-// Add CSS Rules
+// Add CSS Rules procedurally
 for (let n = 1; n <= buttonsArrayEl.length; n++) {
     sheet.insertRule(`#dropdownList :nth-child(${n}) div.smallDropdown {transition-delay: 0.${n-1}s;`, cssRulesNum);
 }

@@ -1,4 +1,7 @@
 //#region -- Global Functions --
+/*
+These are functions that are intended to be used by any of my projects
+*/
 
 // - Async Pause -
 const timer = ms => new Promise(res => setTimeout(res, ms));
@@ -13,61 +16,73 @@ function docGetClass(className) {
 }
 
 // - Dropdown Menu -
+// Used for the toolbar
 function dropdownToggle(toggle, array) {
-    toggle = !toggle;
-    if (toggle === true) {
+    toggle = !toggle; // Invert the toggle
+    if (toggle === true) { // If true, open the dropdown
         for (let n = 0; n < array.length; n++) {
             array[n].classList.add("smallDropdown");
         }
     }
-    if (toggle === false) {
+    if (toggle === false) { // If false, close the dropdown
         for (let n = 0; n < array.length; n++) {
             array[n].classList.remove("smallDropdown");
         }
     }
-    return toggle;
+    return toggle; // return toggle value
 }
 
 // - Add button -
+// Used for toolbar
 function addDropdownButton(string) {
-    let menuEl = docGetID("dropdownList");
+    // Create / Get document elements
+    let menuEl = docGetID("dropdownList"); 
     const listEL = document.createElement('li');
     let buttonEl = document.createElement('div');
 
+    // Set button name
     buttonEl.append(string);
 
+    // Modify elements
     buttonEl.classList.add("dropdownButton");
     buttonEl.classList.add("smallDropdown");
     buttonEl.setAttribute("unselectable", 'on');
     buttonEl.setAttribute("onselectstart", 'return false;');
     buttonEl.setAttribute("onmousedown", 'return false;');
 
+    // Append new button to new list item
     listEL.append(buttonEl);
 
+    // Append new list item(+button) to dropdown menu
     menuEl.append(listEL);
 
+    // Return the button element
     return buttonEl;
 }
 
-// - Mouse handlers -
+// - Mouse handler -
 function getMousePos(event, canvas) {
+    // Create / Get variables
     let canvasOffset = canvas.getBoundingClientRect();
     let mouse = {
         x: 0,
         y: 0
     }
     event.preventDefault();
+    // Get mouse position
     mouse.x = 1 + (Math.round(+event.clientX - canvasOffset.left));
     mouse.y = 1 + (Math.round(+event.clientY - canvasOffset.top));
+    // return mouse position object
     return mouse;
 }
 
 // - Go to Home Page -
+// Go to the home page
 function gotoHome() {
     location.replace("../mainPage/")
 }
 
-// - Rounded Rectangle -
+// - Beveled rectangle -
 CanvasRenderingContext2D.prototype.cutCorner = function (x, y, width, height, distance) {
     this.moveTo(x, y);
     this.lineTo(x + (width - distance), y);
@@ -77,6 +92,7 @@ CanvasRenderingContext2D.prototype.cutCorner = function (x, y, width, height, di
     this.closePath();
 }
 
+// - Rounded Rectangle -
 CanvasRenderingContext2D.prototype.roundRect = function (x, y, width, height, radius) {
     if (width < 2 * radius) radius = width / 2;
     if (height < 2 * radius) radius = height / 2;
@@ -87,14 +103,13 @@ CanvasRenderingContext2D.prototype.roundRect = function (x, y, width, height, ra
     this.arcTo(x, y + height, x, y, radius);
     this.arcTo(x, y, x + width, y, radius);
     this.closePath();
-    return this;
 }
 
-// Parellelogram
+// - Parellelogram [Unfinished] -
 CanvasRenderingContext2D.prototype.parallelogram = function (x, y, width, height, angle, rotated) {
+    // Error catching
     if (typeof rotated !== 'boolean' && rotated !== undefined) throw `ReferenceError: ${rotated} is not a Boolean`
     if (Math.abs(angle) > 44) throw `RangeError: Invalid angle (cannot be greater than 44 or less than -44, given value: ${angle})`;
-
 
     if (!rotated) {
         let offset = height * Math.tan(angle * (Math.PI / 180));
@@ -133,138 +148,207 @@ CanvasRenderingContext2D.prototype.parallelogram = function (x, y, width, height
 }
 
 // - Create an Image -
+// Draw and image
 function createImage(source, canvas2dContext, canvas) {
+    // source = {
+        // url: image,
+        // zoom: number,
+        // zoomVal: number,
+        // zoomSin: number,
+        // zooming: number,
+        // prevZooming: number,
+        // prevZoom: number,
+        // x: number,
+        // y: number
+    // }
 
+    // Get canvas width & height
     let width = canvas.width + (source.zoom * (canvas.width / canvas.height))
     let height = canvas.height + source.zoom;
 
+    // Get source image coordinates
     let coords = {
         x: 0 - (source.x / canvas.width) * (width - canvas.width),
         y: 0 - (source.y / canvas.height) * (height - canvas.height)
     };
 
+    // Draw the image
     canvas2dContext.drawImage(source.url, coords.x, coords.y, width, height);
 }
 
 // - Insertion Sort -
+// Insertion sort
 function insertionSort(array) {
+    // Create variable
     let result = [...array];
 
+    // For each index
     for (let a = 1; a < result.length; a++) {
 
+        // Store the value of the current index
         let key = result[a];
 
+        // Store the index of the previous index
         let b = a - 1;
 
+        // While previous index is greater than or equal to 0 AND value of previous index
         while (b >= 0 && key < result[b]) {
+            // Set current index to previous index
             result[b + 1] = result[b];
+            // Move current and preious index back one
             b--;
         }
         result[b + 1] = key;
     }
+    // Return final result
     return result;
 }
 
 // - Merge Two Arrays -
 function mergeArrays(leftArray, rightArray) {
+    // Create variable
     let result = new Array();
 
+    // While left array and right array are both longer than 0
     while (leftArray.length && rightArray.length) {
 
+        // If value of left array, index 0 is greater than value of right array, index 0
         if (leftArray[0] < rightArray[0]) {
+            // Shift left array, index 0 to result array
             result.push(leftArray.shift());
-        } else {
+        } else { //Otherwise
+            // Shift right array, index 0 to result array
             result.push(rightArray.shift());
         }
     }
 
+    // Return array composed of result array, remainder of left array or remainder of right array, whichever exists
     return [...result, ...leftArray, ...rightArray];
 }
 
 // - Merge Sort -
 function mergeSort(array) {
 
+    // if array length is less than two, return array
     if (array.length < 2) return array;
 
+    // Otherwise, set get split point in the middle
     let split = Math.floor(array.length / 2);
 
+    // Set left array to the first half of array
     const leftArray = array.splice(0, split);
 
+    // return the result of merging the result of sorting the left array and the right array
+    // (recursive)
     return mergeArrays(mergeSort(leftArray), mergeSort(array));
 }
 
 // - Swap Array Items In Place -
 function swapItems(array, indexA, indexB) {
+    // set temporary variable to value at index A
     let temp = array[indexA];
+    // set value at index A to value at index B
     array[indexA] = array[indexB];
+    // set value at index B to temporary variable (original value of index A)
     array[indexB] = temp;
 }
 
 // - Quick Sort Partition Sort -
 function quickSortPartition(array, left, right) {
+    // Set pivot point to average of left and right cursors
     let pivot = array[Math.floor((left + right) / 2)];
+    // Set cursor positions
     let leftCursor = left;
     let rightCursor = right;
 
+    // while the left cursor is to the left of, or on the same index as the right cursor
     while (leftCursor <= rightCursor) {
 
+        // while VALUE of left cursor's position is less than that of the pivot
         while (array[leftCursor] < pivot) {
+            // Move the left cursor to the right
             leftCursor++;
         }
+        // while VALUE of right cursor's position is greater than that of the pivot
         while (array[rightCursor] > pivot) {
+            // Move the right cursor to the left
             rightCursor--;
         }
 
+        // if the left cursor is to the left of, or on the same index as the right cursor
         if (leftCursor <= rightCursor) {
+            // Swap the values of the left cursor and the right cursor
             swapItems(array, leftCursor, rightCursor);
+            // Move the left crusor to the right, and the right cursor to the left
             leftCursor++;
             rightCursor--;
         }
 
     }
+    // Return the position of the left cursor
     return leftCursor;
 }
 
 // - Quick Sort -
 function quickSort(array, left, right) {
 
+    // if the array length is less than 2, return the array
     if (array.length < 2) return array;
 
+    // set index to the returned value of quicksorting a partition (returned value is position of left cursor when done sorting)
     let index = quickSortPartition(array, left, right);
 
+    // if default left position is less than that of the new left cursor position - 1
     if (left < index - 1) {
+        // quick sort the array from the default left cursor to the new left cursor - 1
+        // (recursive)
         quickSort(array, left, index - 1);
     }
 
+    // if default right position is greater than that of the new left cursor position
     if (right > index) {
+        // quick sort the array from the new left cursor to the default right cursor
+        // (recursive)
         quickSort(array, index, right);
     }
 
+    // return the array
     return array;
 }
 
 // - File Reading -
 function readJSONFile(file) {
+    // return a promise
     return new Promise(function (resolve, reject) {
+        // create a xml http request
         let rawFile = new XMLHttpRequest();
+        // set mime type (file type) to json
         rawFile.overrideMimeType("application/json");
+        // get the file
         rawFile.open("GET", file, true);
+        // if loaded
         rawFile.onload = function () {
+            // if loaded FULLY
             if (rawFile.readyState === 4 && rawFile.status == "200") {
+                // resolve (returns text contained within json file)
                 resolve(rawFile.responseText);
-            } else {
+            } else { // otherwise
+                // reject (throw error)
                 reject({
                     status: this.status,
                     statusText: rawFile.statusText
                 });
             }
         };
+        // if error
         rawFile.onerror = function () {
+            // reject (throw error)
             reject({
                 status: this.status,
                 statusText: rawFile.statusText
             });
         }
+        // send request
         rawFile.send(null);
     });
 }
@@ -281,39 +365,55 @@ function parseJSON(text) {
 }
 
 // - PVector Class -
+/*
+Point vector
+stores an x and a y
+can subtract or add two point vectors
+*/
 class PVector {
     x;
     y;
 
     constructor(x, y) {
+        // Error catching
         if (arguments.length < 2) throw new TypeError(`Failed to create new 'PVector' : 2 arguments required, but only ${arguments.length} present.`);
 
         if (typeof x !== 'number') throw new ReferenceError(`x is not of type Number`);
         if (typeof y !== 'number') throw new ReferenceError(`y is not of type Number`);
 
+        // Set x and y values
         this.x = x;
         this.y = y;
     }
     sub(vector) {
+        // Error catching
         if (arguments.length < 1) throw new TypeError(`Failed to execute 'sub' on 'PVector' : 1 arguments required, but only ${arguments.length} present.`);
 
         if (vector instanceof PVector !== true) throw new ReferenceError(`Failed to execute 'sub' on 'PVector' : vector is not of type PVector`);
 
+        // Subract x and y values
         this.x -= vector.x;
         this.y -= vector.y;
     }
     add(vector) {
+        // Error catching
         if (arguments.length < 1) throw new TypeError(`Failed to execute 'add' on 'PVector' : 1 arguments required, but only ${arguments.length} present.`);
 
         if (vector instanceof PVector !== true) throw new ReferenceError(`Failed to execute 'add' on 'PVector' : vector is not of type PVector`);
 
+        // Add x and y values
         this.x += vector.x;
         this.y += vector.y;
     }
 }
 
 // - Poly vs Poly Intersection -
+/*
+Polygon against Polygon Intersection detection
+deconstructs one polygon into line segments
+*/
 function polyPoly(vectorArray1, vectorArray2) {
+    // Error catching
     if (arguments.length < 2) throw new TypeError(`Failed to execute 'polyPoly' : 2 arguments required, but only ${arguments.length} present.`);
 
     if (vectorArray1 instanceof Array === true) {
@@ -334,21 +434,31 @@ function polyPoly(vectorArray1, vectorArray2) {
         if (vectorArray2.length < 3) throw new TypeError(`Failed to execute 'polyPoly' : at least 3 PVectors required in vectorArray2, but only ${vectorArray2.length} present.`);
     } else throw new ReferenceError(`Failed to execute 'polyPoly' : vectorArray2 is not of type Array`);
 
+    // create next
     let next = 0;
+    // for each PVector in the first polygon
     for (let current = 0; current < vectorArray1.length; current++) {
+        // Set next index to current index + 1
         next = current + 1;
+        // if next index is equal to total number of vectors + 1, set next index to 0
         if (next === vectorArray1.length) next = 0;
 
+        // Get current, and next vertices
         let currentVert = vectorArray1[current];
         let nextVert = vectorArray1[next];
 
+        // Check for intersections between Second polygon and individual line segments
         let collision = polyLine(vectorArray2, currentVert.x, currentVert.y, nextVert.x, nextVert.y);
+        // If true, return true
         if (collision) return true;
-
+        // Otherwise
+        // Check if first vector is anywhere inside second polygon
         collision = polyPoint(vectorArray1, vectorArray2[0].x, vectorArray2[0].y);
+        // If true, return true
         if (collision) return true;
     }
-
+    // Otherwise
+    // Return false
     return false;
 }
 
@@ -2427,6 +2537,17 @@ function getCanvasCoord(coord, unitSize, upDown) {
 //#region -- Debugging & Benchmarking --
 
 // - Test a sorter -
+/*
+How to use:
+    testSorter(insertionSort, [Size of random array to sort])
+    testSorter(mergeSort, [Size of random array to sort])
+    testSorter(quickSort, [Size of random array to sort], 0, [Size of random array to sort MINUS ONE])
+Examples:
+I want to sort 3 randomly generated arrays, each with 500 indices
+    testSorter(insertionSort, 500)
+    testSorter(mergeSort, 500)
+    testSorter(quickSort, 500, 0, 499)
+*/
 function testSorter(callback, arraySize) {
     let additionalParams = new Array();
     for (let n = 2; n < arguments.length; n++) {
