@@ -463,7 +463,12 @@ function polyPoly(vectorArray1, vectorArray2) {
 }
 
 // - Poly vs Line Intersection -
+/*
+Polygon against Line Segment Intersection detection
+Deconstructs polygon into line segments
+*/
 function polyLine(vertices, x1, y1, x2, y2) {
+    // Error catching
     if (arguments.length < 5) throw new TypeError(`Failed to execute 'polyLine' : 5 arguments required, but only ${arguments.length} present.`);
 
     if (vertices instanceof Array === true) {
@@ -490,26 +495,38 @@ function polyLine(vertices, x1, y1, x2, y2) {
         }
     }
 
+    // Create next
     let next = 0;
+    // For each PVector in the polygon
     for (let current = 0; current < vertices.length; current++) {
+        // Set next index to current index + 1
         next = current + 1;
+        // If next index is equal to total number of vectors + 1, set next index to 0
         if (next === vertices.length) next = 0;
 
+        // Get current and next vertices
         let
             x3 = vertices[current].x,
             y3 = vertices[current].y,
             x4 = vertices[next].x,
             y4 = vertices[next].y;
 
+        // Check for collision between line segment and current line segment
         let hit = lineLine(x1, y1, x2, y2, x3, y3, x4, y4);
+        // If true, return true
         if (hit) return true;
     }
-
+    // Otherwise
+    // return false
     return false;
 }
 
 // - Poly vs Point Collision -
+/*
+Polygon against point containment detection
+*/
 function polyPoint(vertices, pointX, pointY) {
+    // Error catching
     if (arguments.length < 3) throw new TypeError(`Failed to execute 'polyPoint' : 3 arguments required, but only ${arguments.length} present.`);
 
     if (typeof pointX !== 'number') throw new ReferenceError(`Failed to execute 'polyPoint' : pointX is not of type Number`);
@@ -524,25 +541,76 @@ function polyPoint(vertices, pointX, pointY) {
         if (vertices.length < 3) throw new TypeError(`Failed to execute 'polyPoint' : at least 3 PVectors required in vertices, but only ${vertices.length} present.`);
     } else throw new ReferenceError(`Failed to execute 'polyPoint' : vertices is not of type Array`);
 
+    // Create collision
     let collision = false;
-
+    // Create next
     let next = 0;
+    // For each PVector in polygon
     for (let current = 0; current < vertices.length; current++) {
+        // Set next index to current index + 1
         next = current + 1;
+        // If next index is equal to total number of vectors + 1, set next index to 0
         if (next === vertices.length) next = 0;
-
+        // Get current and next vertices
         let currentVert = vertices[current];
         let nextVert = vertices[next];
 
+        /*
+        Vertices:
+            current,
+            next,
+            point
+        The following is adapted from
+        http://www.jeffreythompson.org/collision-detection/poly-poly.php
+
+        If:
+        (   
+            (   
+                (
+                    current vertex's y is greater than point's y
+                    AND
+                    next vertex's y is less than point's y
+                )
+                OR
+                (
+                    current vertex's y is less than point's y
+                    AND
+                    next vertex's y is greater than point's y
+                )
+            )
+            AND
+            (
+                point's x is less than
+                (
+                    (
+                        next vertex's x minus current vertex's x
+                    )
+                    multiplied by
+                    (
+                        point's y minus current vertex's y
+                    )
+                    divided by
+                    (
+                        next vertex's y minus current vertex's y
+                    )
+                    plus current vertex's x
+                )
+            )
+        */
         if (((currentVert.y > pointY && nextVert.y < pointY) || (currentVert.y < pointY && nextVert.y > pointY)) && (pointX < (nextVert.x - currentVert.x) * (pointY - currentVert.y) / (nextVert.y - currentVert.y) + currentVert.x)) {
             collision = !collision;
         }
     }
+    // Return collision (true/false)
     return collision;
 }
 
 // - Line vs Line Intersection -
+/*
+    Line Segment against Line Segment intersection detection
+*/
 function lineLine(x1, y1, x2, y2, x3, y3, x4, y4) {
+    // Error catching
     if (arguments.length < 8) throw new TypeError(`Failed to execute 'lineLine' : 8 arguments required, but only ${arguments.length} present.`);
 
     for (let i = 0; i < 8; i++) {
@@ -568,16 +636,24 @@ function lineLine(x1, y1, x2, y2, x3, y3, x4, y4) {
         }
     }
 
+    // The following is adapted from
+    // http://www.jeffreythompson.org/collision-detection/poly-poly.php
     let uA = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / ((y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1));
     let uB = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)) / ((y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1));
 
+    // If uA and UB are both between 0 and 1
     if (uA >= 0 && uA <= 1 && uB >= 0 && uB <= 1) {
+        // return true
         return true;
     }
+    // Otherwise
+    // return false
     return false;
 }
 
 // - Generate UUIDv4 -
+// Taken from
+// https://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid
 function uuidv4() {
     return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
         (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
@@ -585,15 +661,22 @@ function uuidv4() {
 }
 
 // - Join Strings in an Array -
+// Joins multiple strings inside of an array together into one index
 Array.prototype.mergeStrings = function (startIndex, joinCount, splitter) {
+    // Error catching
     if (startIndex + joinCount > this.length) throw new RangeError('Invalid join count')
+    // For every index in the specified range
     for (let index = startIndex + 1; index < startIndex + joinCount; index++) {
+        // Join indices together
         this[startIndex] = this[startIndex] + splitter + this[index];
     }
+    // Remove excess indices
     this.splice(startIndex + 1, Math.max(0, joinCount - 1));
 }
 
 // - Remap range to other range -
+// Adapted from
+// https://stackoverflow.com/questions/5649803/remap-or-map-function-in-javascript
 function mapRange(value, oldMin, oldMax, newMin, newMax) {
     return (((value - oldMin) * (newMax - newMin)) / (oldMax - oldMin)) + newMin
 }
@@ -601,20 +684,31 @@ function mapRange(value, oldMin, oldMax, newMin, newMax) {
 //#endregion
 
 //#region -- Local Functions --
+/*
+I'm not sure why I put these here
+Technically, they could each be put in their own local folders, and that would save on loading time, but I'm to lazy to do that now, so they stay here
+*/
 
 //#region - Gravity Sim -
 
+// Checks for the press of a fake button on the canvas
 function checkButtonPress(event, button, canvas) {
     !event.preventDefault();
+    // get the mouse position
     mousePos = getMousePos(event, canvas);
+    // If it's on the button
     if (mousePos.x > button.x && mousePos.y > button.y && mousePos.x < button.x + button.w && mousePos.y < button.y + button.h) {
+        // return true
         return true;
-    } else {
+    } else { //Otherwise
+        // return false
         return false;
     }
 }
 
+// Check if shift key is held
 function checkShift(shiftBool, newValue, oldValue) {
+    // If shift is held
     if (shiftBool) {
         if (newValue > oldValue) {
             return 4;
@@ -632,6 +726,7 @@ function checkShift(shiftBool, newValue, oldValue) {
 //#region - Maze Generator -
 
 // Generate Grid Array
+// Generates a 2D array
 function generateGrid(gridWidth, gridHeight) {
     let grid = new Array()
     let set = 0;
@@ -652,20 +747,24 @@ function generateGrid(gridWidth, gridHeight) {
 // Draw Grid
 
 function drawGrid(canvas, canvasContext, gridArray, margin, backgroundColor) {
+    // Set canvas width and height to Maze dimensions
     canvas.width = (gridArray.length * 20 - 10) + margin * 2;
     canvas.height = (gridArray[0].length * 20 - 10) + margin * 2;
 
+    // Create background
     canvasContext.fillStyle = 'black';
     canvasContext.fillRect(0, 0, canvas.width, canvas.height);
     canvasContext.fillStyle = backgroundColor;
     canvasContext.fillRect(margin, margin, canvas.width - margin * 2, canvas.height - margin * 2);
 
+    // Draw cells
     canvasContext.fillStyle = backgroundColor;
     for (let x = 0; x < gridArray.length; x++) {
         for (let y = 0; y < gridArray[0].length; y++) {
             canvasContext.fillRect((x * 20) + margin, (y * 20) + margin, 10, 10);
         }
     }
+    // Draw permanent walls
     canvasContext.fillStyle = 'black';
     for (let x = 0; x < gridArray.length - 1; x++) {
         for (let y = 0; y < gridArray[0].length - 1; y++) {
@@ -681,6 +780,7 @@ function generateWalls(gridArray) {
     let verticalWalls = new Array();
 
     // Generate Horizontal Walls
+    // Generates a 2D array
     for (let y = 0; y < (gridArray[0].length); y++) {
         horizontalWalls.push(new Array());
         for (let x = 0; x < (gridArray.length - 1); x++) {
@@ -690,6 +790,8 @@ function generateWalls(gridArray) {
             }));
         }
     }
+    // Generate Vertical Walls
+    // Generates a 2D array
     for (let x = 0; x < (gridArray.length); x++) {
         verticalWalls.push(new Array());
         for (let y = 0; y < (gridArray[0].length - 1); y++) {
@@ -699,23 +801,26 @@ function generateWalls(gridArray) {
             }));
         }
     }
+    // Create wall object
     let walls = {
         horizontalWalls: horizontalWalls,
         verticalWalls: verticalWalls
     };
+    // return wall object
     return walls;
 }
 
 // Draw Walls
 
 function drawWalls(canvasContext, wallsObject, margin) {
-
+    // Draw horizontal walls
     canvasContext.fillStyle = 'black';
     for (let y = 0; y < wallsObject.horizontalWalls.length; y++) {
         for (let x = 0; x < wallsObject.horizontalWalls[y].length; x++) {
             canvasContext.fillRect((wallsObject.horizontalWalls[y][x].leftCell.x * 20 + 10) + margin, (wallsObject.horizontalWalls[y][x].leftCell.y * 20) + margin, 10, 10);
         }
     }
+    // Draw vertical walls
     for (let x = 0; x < wallsObject.verticalWalls.length; x++) {
         for (let y = 0; y < wallsObject.verticalWalls[x].length; y++) {
             canvasContext.fillRect((wallsObject.verticalWalls[x][y].aboveCell.x * 20) + margin, (wallsObject.verticalWalls[x][y].aboveCell.y * 20 + 10) + margin, 10, 10);
@@ -726,52 +831,74 @@ function drawWalls(canvasContext, wallsObject, margin) {
 // Check for disconnected Cells
 
 function checkCells(gridArray) {
+    // Get set of first cell
     let cellCheck = gridArray[0][0].set
+    // For each cell
     for (let x = 0; x < gridArray.length; x++) {
         for (let y = 0; y < gridArray[0].length; y++) {
+            // If cell does not have the same set as the first cell, return false
             if (cellCheck != gridArray[x][y].set) return false;
         }
     }
+    // Otherwise
+    // return true
     return true;
 }
 
 // Calculate Decorative Squares
-
+// Determine largest group of connected cells
 function calculateSquares(gridArray) {
     let sets = new Object();
+    // For each cell
     for (let x = 0; x < gridArray.length; x++) {
         for (let y = 0; y < gridArray[0].length; y++) {
+            // If the value of the set is not undefined
             if (sets[gridArray[x][y].set] !== undefined) {
+                // increment value of set by one
                 sets[gridArray[x][y].set] = sets[gridArray[x][y].set] + 1;
-            } else {
+            } else { //Otherwise
+                // set value to one
                 sets[gridArray[x][y].set] = 1;
             }
 
         }
     }
 
+    // Get values and keys
     const setsArray = Object.values(sets);
     const setsKey = Object.keys(sets);
+    // Get the largest set (highest value)
     const maxNum = Math.max(...setsArray);
+    // Get index of largest set
     const maxNumArrayIndex = setsArray.indexOf(maxNum);
+    // Get set number
     const propertyValue = +setsKey[maxNumArrayIndex]
 
     let result = new Array();
 
+    // For each cell
     for (let x = 0; x < gridArray.length; x++) {
         for (let y = 0; y < gridArray[0].length; y++) {
+            // If cell is in largest set
             if (gridArray[x][y].set === propertyValue) {
+                // Add to result array
                 result.push(gridArray[x][y]);
             }
         }
     }
+    // return result array
     return result;
 }
 
 // Convert cells and walls to maze
+/*
+converts array of cells, and arrays of walls to single 2D array of nodes for use in A* Pathfinding algorithm
+*/
 function convertToMaze(wallsObject, gridSize) {
+    // Create maze array
     let mazeArray = new Array();
 
+    // Generate 2d Array
     for (let x = 0; x < (gridSize.width * 2) - 1; x++) {
         mazeArray.push(new Array());
         for (let y = 0; y < (gridSize.height * 2) - 1; y++) {
@@ -784,15 +911,15 @@ function convertToMaze(wallsObject, gridSize) {
                 type: undefined,
                 parent: undefined
             }));
-
+            // Set cells
             if (x % 2 === 0 && y % 2 === 0) {
                 mazeArray[x][y].type = 'emptyCell';
             }
-
+            // Set permanent walls
             if (x % 2 === 1 && y % 2 === 1) {
                 mazeArray[x][y].type = 'wall';
             }
-
+            // Set remaining horizontal walls
             if (x % 2 === 1 && y % 2 === 0) {
                 check_horizontal_walls: for (let arrayY = 0; arrayY < wallsObject.horizontalWalls.length; arrayY++) {
                     for (let arrayX = 0; arrayX < wallsObject.horizontalWalls[arrayY].length; arrayX++) {
@@ -803,7 +930,7 @@ function convertToMaze(wallsObject, gridSize) {
                     }
                 }
             }
-
+            // Set remaining vertical walls
             if (x % 2 === 0 && y % 2 === 1) {
                 check_vertical_walls: for (let arrayX = 0; arrayX < wallsObject.verticalWalls.length; arrayX++) {
                     for (let arrayY = 0; arrayY < wallsObject.verticalWalls[arrayX].length; arrayY++) {
@@ -814,62 +941,83 @@ function convertToMaze(wallsObject, gridSize) {
                     }
                 }
             }
-
+            // Everything left over is a cell
             if (mazeArray[x][y].type === undefined) {
                 mazeArray[x][y].type = 'emptyCell';
             }
-
+            // Top right corner is the exit
             if (x === gridSize.width * 2 - 2 && y === 0) {
                 mazeArray[x][y].type = 'exitCell';
             }
-
+            // Bottom left is the entrance
             if (x === 0 && y === gridSize.height * 2 - 2) {
                 mazeArray[x][y].type = 'entranceCell';
             }
 
         }
     }
+    // Return maze array
     return mazeArray;
 }
 
 // Find a path to the end
 function findPath(startingNode, targetNode, mazeGrid) {
+    // create open and closed sets
     let openSet = new Array();
     let closedSet = new Array();
 
+    // Starting from the starting node
+    // hCost (or heuristic cost) is the approximate distance (without walls) to the end
+    // gCost is the exact distance to the starting node (in this case: 0)
+    // fCost is gCost + hCost
     startingNode.hCost = getDistance(startingNode, targetNode);
     startingNode.fCost = startingNode.gCost + startingNode.hCost;
 
+    // Add the starting node the the open set
     openSet.push(startingNode);
+    // as long as the open set is longer than 0 (has contents)
     while (openSet.length > 0) {
+        // set current node to the first item in the open set
         let node = openSet[0]
         let index = 0;
 
+        // Starting from the second index, for every index in the open set
         for (let n = 1; n < openSet.length; n++) {
+            // If the current index's fCost is lower than, or equal to the current node's fCost
             if (openSet[n].fCost <= node.fCost) {
+                // If the current index's hCost is lower than the current node's hCost
                 if (openSet[n].hCost < node.hCost) {
+                    // Set the current node to the current index
                     node = openSet[n];
+                    // Set the index value to the current index position
                     index = n;
                 }
             }
         }
-
+        // Remove the current node from the open set, and add it to the closed set
         openSet.splice(index, 1);
         closedSet.push(node);
 
+        // If the current node is the target node (the exit)
         if (node === targetNode) {
+            // retrace the path
             let path = retracePath(startingNode, targetNode);
+            // create result object (path and closed set)
             let result = {
                 path: path,
                 closedSet: closedSet,
             }
             return result;
         }
-
+        // Otherwise
+        // for every neighbour node of the current node
         for (const neighbour of getNeighbours(mazeGrid, node)) {
+            // If the neighbour node is a wall, or the neighbour is in the closed set, then skip
             if (neighbour.type === 'wall' || closedSet.includes(neighbour)) continue;
-
+            // Otherwise
+            // Set newGCost to the current node's gCost plus the distance between the current node and the neighbour
             let newGCost = node.gCost + getDistance(node, neighbour);
+            // If the newGCost is less than that of the neighbour's current gCost
             if (newGCost < neighbour.gCost || !openSet.includes(neighbour)) {
                 neighbour.gCost = newGCost;
                 neighbour.hCost = getDistance(neighbour, targetNode);
@@ -882,12 +1030,18 @@ function findPath(startingNode, targetNode, mazeGrid) {
 }
 
 // Retrace Final Path
+// Retrace path through maze
 function retracePath(startingNode, targetNode) {
+    // Create array
     let path = new Array();
+    // Start from end node
     let currentNode = targetNode;
 
+    // As long as you haven't reached the first node
     while (currentNode != startingNode) {
+        // add node to array
         path.push(currentNode);
+        // set current node to current node's parent node
         currentNode = currentNode.parent;
     }
 
@@ -896,32 +1050,43 @@ function retracePath(startingNode, targetNode) {
 }
 
 // Get distance to a cell
+// Get distance between two nodes
 function getDistance(startingNode, targetNode) {
+    // Get distance between starting node and target node on the x and on the y
     const dstX = Math.abs(startingNode.x - targetNode.x);
     const dstY = Math.abs(startingNode.y - targetNode.y);
 
+    // If x distance is greater than y distance, return fourteen times y distance plus x distance minus y distance times 10
     if (dstX > dstY) return 14 * dstY + 10 * (dstX - dstY);
-
+    // Otherwise
+    // return fourteen times x distance plus y distance minus x distance times 10
     return 14 * dstX + 10 * (dstY - dstX);
 }
 
 // Get neighbours of cell
+// Get neighbouring nodes of single node
 function getNeighbours(mazeGrid, node) {
+    // Create array
     let neighbours = new Array();
 
+    // For every node around the single node
     for (let x = -1; x <= 1; x++) {
         for (let y = -1; y <= 1; y++) {
+            // If node is the single node, skip
             if (x === 0 && y === 0) continue;
+            // If node is a corner node, skip
             if (Math.abs(x) === 1 && Math.abs(y) === 1) continue;
 
             let checkX = node.x + x;
             let checkY = node.y + y;
-
+            // If the selected node is not beyond the bounds
             if (checkX >= 0 && checkX < mazeGrid.length && checkY >= 0 && checkY < mazeGrid[0].length) {
+                // Add node to array
                 neighbours.push(mazeGrid[checkX][checkY]);
             }
         }
     }
+    // return array (Max length = 4)
     return neighbours;
 }
 //#endregion

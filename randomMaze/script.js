@@ -298,7 +298,7 @@ function genLoop() {
                 maze = convertToMaze(walls, gridSize); // Convert the cells and walls to a single grid of nodes
 
                 result = findPath(maze[0][maze[0].length - 1], maze[maze.length - 1][0], maze); // Find the path from the bottom left to the top right
-
+                console.log(result.closedSet)
             } else { // If nothing has to be done
 
                 color = 'white'; // Set the background color to white
