@@ -1017,12 +1017,15 @@ function findPath(startingNode, targetNode, mazeGrid) {
             // Otherwise
             // Set newGCost to the current node's gCost plus the distance between the current node and the neighbour
             let newGCost = node.gCost + getDistance(node, neighbour);
-            // If the newGCost is less than that of the neighbour's current gCost
+            // If the newGCost is less than that of the neighbour's current gCost OR is not in the open set
             if (newGCost < neighbour.gCost || !openSet.includes(neighbour)) {
+                // Set cost values and parent value
                 neighbour.gCost = newGCost;
                 neighbour.hCost = getDistance(neighbour, targetNode);
+                neighbour.fCost = neighbour.gCost + neighbour.hCost;
                 neighbour.parent = node;
 
+                // If node is not in open set, add it to open set
                 if (!openSet.includes(neighbour)) openSet.push(neighbour);
             }
         }
@@ -1074,8 +1077,6 @@ function getNeighbours(mazeGrid, node) {
         for (let y = -1; y <= 1; y++) {
             // If node is the single node, skip
             if (x === 0 && y === 0) continue;
-            // If node is a corner node, skip
-            if (Math.abs(x) === 1 && Math.abs(y) === 1) continue;
 
             let checkX = node.x + x;
             let checkY = node.y + y;
@@ -1092,8 +1093,10 @@ function getNeighbours(mazeGrid, node) {
 //#endregion
 
 //#region - Grid snapping -
+// It's really just a pixel art thing, but I had other plans for it at the start.
 
 // Generate 80 x 45 grid
+// Generates a 2D array
 function create80x45() {
 
     let array = new Array();
@@ -1125,6 +1128,8 @@ function create80x45() {
 // Firework class
 
 class firework {
+    // Firework class
+    // Has an x and y value, x and y motion value, a heat, and both a base color and a current color
     x;
     y;
     motionX;
@@ -1133,6 +1138,8 @@ class firework {
     baseColor;
     color;
 
+    // Class constructor
+    // Sets values
     constructor(canvas, color) {
 
         this.x = canvas.width / 2 + (Math.random() * 800 - 400);
@@ -1144,17 +1151,24 @@ class firework {
         this.color = 'rgb(255,255,255)';
 
     }
+    // Update method
+    // Updates fields
     update(deltaTime, drag) {
+        // Gravity
         this.motionY += 0.98 * deltaTime / 30;
+        // Change heat value
         this.heat = this.heat / 1.05;
 
+        // Create helper array
         let helperArray = this.baseColor.slice(4, -1).split(',');
+        // Convert heat and base color to 'rgb([red], [green], [blue])'
         this.color = `rgb(${Math.min(255, +helperArray[0]+this.heat)},${Math.min(255, +helperArray[1]+this.heat)},${Math.min(255, +helperArray[2]+this.heat)})`;
 
         // Add drag
         this.motionX = this.motionX * Math.exp(-drag * deltaTime);
         this.motionY = this.motionY * Math.exp(-drag * deltaTime);
 
+        // Modify x and y based on motion
         this.y += Math.round(this.motionY * (deltaTime * 0.1) * 100) / 100;
         this.x += Math.round(this.motionX * (deltaTime * 0.1) * 100) / 100;
     }
@@ -1163,6 +1177,7 @@ class firework {
 // Firework trail class
 
 class trail {
+    // Has an x and a y value, an x and a y motion value, a color, and a size
     x;
     y;
     motionX;
@@ -1170,6 +1185,8 @@ class trail {
     color;
     size;
 
+    // Class constructor
+    // Sets values from parent firework
     constructor(firework) {
 
         this.x = firework.x;
@@ -1180,10 +1197,15 @@ class trail {
         this.size = Math.max(0.01, firework.heat / 15 * 2);
 
     }
+    // Update method
+    // Updates fields
     update(deltaTime) {
+        // Gravity
         this.motionY += 0.98 * deltaTime / 600;
+        // Change size over time
         this.size -= deltaTime / 50
 
+        // Modify x and y based on motion
         this.y += Math.round(this.motionY * 100) / 100;
         this.x += Math.round(this.motionX * 100) / 100;
     }
@@ -1192,6 +1214,7 @@ class trail {
 // Firework explosion class
 
 class explosion {
+    // Has x and y values, an x and a y motion value, a color, a size, and a time to decay
     x;
     y;
     motionX;
@@ -1200,8 +1223,11 @@ class explosion {
     size;
     decayTime;
 
+    // Class constructor
+    // Sets fields from parent firework, and external values
     constructor(firework, direction, magnitude, decayTime) {
 
+        // \/ This is me trying to fix a thing that doesn't need to be fixed \/
         if (JSON.stringify(Math.sin(direction * (Math.PI / 180))).slice(-4) === 'e-16') {
             this.motionX = -magnitude;
             this.motionY = 0;
@@ -1227,45 +1253,56 @@ class explosion {
     }
 
     update(deltaTime, drag) {
-        // this.motionY += 0.98 * deltaTime / 30;
+        // Change size value
         this.size -= deltaTime / this.decayTime
 
         // Add drag
         this.motionX = this.motionX * Math.exp(-drag * deltaTime);
         this.motionY = this.motionY * Math.exp(-drag * deltaTime);
 
+        // Modify x and y from motion
         this.y += Math.round(this.motionY * (deltaTime * 0.1) * 100) / 100;
         this.x += Math.round(this.motionX * (deltaTime * 0.1) * 100) / 100;
     }
 }
 
 // Create an explosion
-
 async function createExplosion(fireworkExplosionArray, firework, explosionStyle) {
+    // Switch statement
+    // changes based on firework type selected
     switch (explosionStyle) {
         case 0:
+            // Generates circular firework
             for (let n = -90; n < 90; n++) {
                 fireworkExplosionArray.push(new explosion(firework, n * 2 + (Math.random() * 2 - 1), 6 + (Math.random() * 6 - 5.9), 80));
             }
+            // Wait 30 ms
             await timer(30);
+            // Generates second part
             for (let n = -45; n < 45; n++) {
                 fireworkExplosionArray.push(new explosion(firework, n * 4 + (Math.random() * 2 - 1), 4 + (Math.random() * 4 - 3.9), 80));
             }
             break;
         case 1:
+            // Generates cone fireowrk
             for (let n = -120; n < -60; n++) {
                 fireworkExplosionArray.push(new explosion(firework, n + (Math.random() * 2 - 1), 6 + (Math.random() * 6 - 5.9), 80));
             }
+            // Wait 30 ms
             await timer(30);
+            // Generates second part
             for (let n = -105; n < -85; n++) {
                 fireworkExplosionArray.push(new explosion(firework, n + (Math.random() * 2 - 1), 4 + (Math.random() * 4 - 3.9), 80));
             }
             break;
         case 2:
+            // Generates ring firework
             for (let n = -45; n < 45; n++) {
                 fireworkExplosionArray.push(new explosion(firework, n * 4 + (Math.random() * 2 - 1), 6 + (Math.random() * 6 - 5.9), 80));
             }
+            // Wait 30 ms
             await timer(30);
+            // Generates second part, and ring
             for (let n = -45; n < 45; n++) {
                 fireworkExplosionArray.push(new explosion(firework, n * 4 + (Math.random() * 2 - 1), 4 + (Math.random() * 4 - 3.9), 80));
             }
@@ -1275,11 +1312,13 @@ async function createExplosion(fireworkExplosionArray, firework, explosionStyle)
             }
             break;
         case 3:
+            // Generate spiral firework
             for (let n = -15; n < 15; n++) {
                 fireworkExplosionArray.push(new explosion(firework, n * 6 + 180 + (Math.random() * 2 - 1), 6 + (Math.random() * 2 - 1.9), 80));
                 fireworkExplosionArray.push(new explosion(firework, n * -6 + (Math.random() * 2 - 1), 6 + (Math.random() * 2 - 1.9), 80));
                 fireworkExplosionArray.push(new explosion(firework, n * 6 + 183 + (Math.random() * 2 - 1), 6 + (Math.random() * 2 - 1.9), 80));
                 fireworkExplosionArray.push(new explosion(firework, n * -6 + 3 + (Math.random() * 2 - 1), 6 + (Math.random() * 2 - 1.9), 80));
+                // wait 0.2 ms
                 await timer(0.2);
             }
     }
@@ -1290,6 +1329,7 @@ async function createExplosion(fireworkExplosionArray, firework, explosionStyle)
 
 // Menu superclass
 class menu {
+    // Every menu has a name, both an active and a hover boolean, a position and scale, and a hover overlay
     name;
     hover = false;
     active = false;
@@ -1299,10 +1339,13 @@ class menu {
         width: 0,
         height: 0
     };
+    // Object not necessary, but I did it anyway
     decorations = {
         hoverOverlay: 0
     };
 
+    // Class constructor
+    // Sets fields
     constructor(name, posX, posY, width, height) {
         if (name) this.name = name;
         if (posX) this.transform.posX = posX;
@@ -1311,6 +1354,7 @@ class menu {
         if (height) this.transform.height = height;
     }
 
+    // Transform modifier method
     modifyTransform(posX, posY, width, height) {
         if (posX) this.transform.posX = posX;
         if (posY) this.transform.posY = posY;
@@ -1318,6 +1362,7 @@ class menu {
         if (height) this.transform.height = height;
     }
 
+    // Check for mouse hover using transform values
     checkMouse(mouseObject, event, canvasBoundingBox) {
         mouseObject.x = event.clientX - canvasBoundingBox.left;
         mouseObject.y = event.clientY - canvasBoundingBox.top;
@@ -1329,16 +1374,20 @@ class menu {
         }
     }
 
+    // Draw menu
     draw(ctx, color) {
+        // Background
         ctx.fillStyle = color;
         ctx.fillRect(this.transform.posX, this.transform.posY, this.transform.width, this.transform.height);
 
+        // Text (name)
         ctx.fillStyle = 'white';
         ctx.font = `${((this.transform.height - this.transform.height/6)/2.2)}px openSans`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(this.name, this.transform.posX + this.transform.width / 2, this.transform.posY + this.transform.height / 2);
 
+        // Hover overlay
         ctx.save();
         ctx.fillStyle = 'black';
         ctx.globalAlpha = `${this.decorations.hoverOverlay}`;
@@ -1347,27 +1396,36 @@ class menu {
 
     }
 
+    // Update method
     updateVariables(deltaTime) {
+        // If hovering
         if (this.hover && this.decorations.hoverOverlay < 0.3) {
             this.decorations.hoverOverlay += 0.004 * deltaTime;
-        } else if (!this.hover && this.decorations.hoverOverlay > 0) {
+        } else if (!this.hover && this.decorations.hoverOverlay > 0) { // If NOT hovering
             this.decorations.hoverOverlay -= 0.004 * deltaTime;
-        }
+        } // Min value
         if (this.decorations.hoverOverlay < 0) {
             this.decorations.hoverOverlay = 0;
-        }
+        } // Max value
         if (this.decorations.hoverOverlay > 0.3) {
             this.decorations.hoverOverlay = 0.3;
         }
     }
 }
 
+// Parent menu
 class parentMenu extends menu {
+    // Array of children
     children = new Array();
+    // Inital width value
     trueWidth;
 
+    // Class constructor
+    // Sets fields
     constructor(name, posX, posY, width, height, startingY, childNames, childCallbacks, childParameters) {
+        // Calls superclass
         super(name, posX, posY, width, height);
+
         this.trueWidth = width;
 
         if (Array.isArray(childNames) && Array.isArray(childCallbacks) && Array.isArray(childParameters)) {
@@ -1379,7 +1437,9 @@ class parentMenu extends menu {
         }
     }
 
+    // Check hover on children
     checkMouse(mouseObject, event, canvasBoundingBox) {
+        // Calls superclass
         super.checkMouse(mouseObject, event, canvasBoundingBox);
 
         if (this.active) {
@@ -1390,6 +1450,8 @@ class parentMenu extends menu {
 
     }
 
+    // Sets values and draws
+    // Draws children if active
     draw(ctx, color, menuArray) {
         this.transform.width = this.trueWidth;
         if (Array.isArray(menuArray)) {
@@ -1398,6 +1460,7 @@ class parentMenu extends menu {
             });
         }
 
+        // Calls superclass
         super.draw(ctx, color);
 
         if (this.active) {
@@ -1408,7 +1471,10 @@ class parentMenu extends menu {
 
     }
 
+    // Update method
+    // Updates children
     updateVariables(deltaTime) {
+        // Calls superclass
         super.updateVariables(deltaTime);
 
         if (this.active) {
@@ -1420,16 +1486,21 @@ class parentMenu extends menu {
     }
 }
 
+// Child menu
 class childMenu extends menu {
+    // Callback function + parameters
     callback;
     callbackParams;
 
+    // Class constructor
     constructor(name, posX, posY, width, height, callback, parameters) {
+        // Calls superclass
         super(name, posX, posY, width, height);
 
         this.callback = callback;
         this.callbackParams = parameters;
     }
+    // Click detection
     click() {
         this.callback(this.callbackParams);
         this.hover = false;

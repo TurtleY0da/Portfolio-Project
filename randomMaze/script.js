@@ -108,55 +108,55 @@ function drawLoop() {
             drawWalls(ctx, walls, margin); // Call function from ../global-scripts/lib.js
 
         }
+        for (let i = 0; i < 3; i++) {
+            if (solutionDraw.closedSet !== result.closedSet.length) { // If it has not drawn all of the orange tiles:
 
-        if (solutionDraw.closedSet !== result.closedSet.length) { // If it has not drawn all of the orange tiles:
+                if (solutionDraw.closedSet === 0) { // If at the beginning of the path
 
-            if (solutionDraw.closedSet === 0) { // If at the beginning of the path
+                    ctx.fillStyle = '#00FF00' // Set the fill color to green
 
-                ctx.fillStyle = '#00FF00' // Set the fill color to green
+                } else if (solutionDraw.closedSet === result.closedSet.length - 1) { // If at the end of the path
 
-            } else if (solutionDraw.closedSet === result.closedSet.length - 1) { // If at the end of the path
+                    ctx.fillStyle = '#FF0000' // Set the fill color to red
 
-                ctx.fillStyle = '#FF0000' // Set the fill color to red
+                } else { // If drawing any other tile
 
-            } else { // If drawing any other tile
+                    ctx.fillStyle = 'orange' // Set the fill color to orange 
 
-                ctx.fillStyle = 'orange' // Set the fill color to orange 
+                }
 
+                ctx.fillRect(result.closedSet[solutionDraw.closedSet].x * 10 + margin, result.closedSet[solutionDraw.closedSet].y * 10 + margin, 10, 10); // Draw the tile at the location given by the array
+
+                solutionDraw.closedSet++; // Iterate
+            } else if (solutionDraw.path !== result.path.length) { // If done drawing tiles, but not solution line:
+
+                ctx.lineWidth = 2; // Set the line width to 2 pixels
+                ctx.lineCap = "round"; // Set the cap of the line to be rounded
+                ctx.strokeStyle = '#12756b'; // Set the line color to cyan
+
+                if (solutionDraw.path === 0) { // If at the beginning of the path
+
+                    ctx.beginPath();
+
+                    // Create a line from the starting tile to the first tile of the solution array
+                    ctx.moveTo(maze[0][maze[0].length - 1].x * 10 + margin + 5, maze[0][maze[0].length - 1].y * 10 + margin + 5);
+                    ctx.lineTo(result.path[solutionDraw.path].x * 10 + margin + 5, result.path[solutionDraw.path].y * 10 + margin + 5);
+
+                    ctx.stroke(); // Draw the line
+
+                } else { // If not at the beginning path
+
+                    ctx.beginPath();
+
+                    // Create a line from the previous tile to the current one
+                    ctx.moveTo(result.path[solutionDraw.path - 1].x * 10 + margin + 5, result.path[solutionDraw.path - 1].y * 10 + margin + 5);
+                    ctx.lineTo(result.path[solutionDraw.path].x * 10 + margin + 5, result.path[solutionDraw.path].y * 10 + margin + 5);
+
+                    ctx.stroke(); // Draw the line
+                }
+
+                solutionDraw.path++; // Iterate
             }
-
-            ctx.fillRect(result.closedSet[solutionDraw.closedSet].x * 10 + margin, result.closedSet[solutionDraw.closedSet].y * 10 + margin, 10, 10); // Draw the tile at the location given by the array
-
-            solutionDraw.closedSet++; // Iterate
-
-        } else if (solutionDraw.path !== result.path.length) { // If done drawing tiles, but not solution line:
-
-            ctx.lineWidth = 2; // Set the line width to 2 pixels
-            ctx.lineCap = "round"; // Set the cap of the line to be rounded
-            ctx.strokeStyle = '#12756b'; // Set the line color to cyan
-
-            if (solutionDraw.path === 0) { // If at the beginning of the path
-
-                ctx.beginPath();
-
-                // Create a line from the starting tile to the first tile of the solution array
-                ctx.moveTo(maze[0][maze[0].length - 1].x * 10 + margin + 5, maze[0][maze[0].length - 1].y * 10 + margin + 5);
-                ctx.lineTo(result.path[solutionDraw.path].x * 10 + margin + 5, result.path[solutionDraw.path].y * 10 + margin + 5);
-
-                ctx.stroke(); // Draw the line
-
-            } else { // If not at the beginning path
-
-                ctx.beginPath();
-
-                // Create a line from the previous tile to the current one
-                ctx.moveTo(result.path[solutionDraw.path - 1].x * 10 + margin + 5, result.path[solutionDraw.path - 1].y * 10 + margin + 5);
-                ctx.lineTo(result.path[solutionDraw.path].x * 10 + margin + 5, result.path[solutionDraw.path].y * 10 + margin + 5);
-
-                ctx.stroke(); // Draw the line
-            }
-
-            solutionDraw.path++; // Iterate
         }
     }
     // - End -
@@ -298,7 +298,6 @@ function genLoop() {
                 maze = convertToMaze(walls, gridSize); // Convert the cells and walls to a single grid of nodes
 
                 result = findPath(maze[0][maze[0].length - 1], maze[maze.length - 1][0], maze); // Find the path from the bottom left to the top right
-                console.log(result.closedSet)
             } else { // If nothing has to be done
 
                 color = 'white'; // Set the background color to white
