@@ -36,7 +36,7 @@ function dropdownToggle(toggle, array) {
 // Used for toolbar
 function addDropdownButton(string) {
     // Create / Get document elements
-    let menuEl = docGetID("dropdownList"); 
+    let menuEl = docGetID("dropdownList");
     const listEL = document.createElement('li');
     let buttonEl = document.createElement('div');
 
@@ -151,15 +151,15 @@ CanvasRenderingContext2D.prototype.parallelogram = function (x, y, width, height
 // Draw and image
 function createImage(source, canvas2dContext, canvas) {
     // source = {
-        // url: image,
-        // zoom: number,
-        // zoomVal: number,
-        // zoomSin: number,
-        // zooming: number,
-        // prevZooming: number,
-        // prevZoom: number,
-        // x: number,
-        // y: number
+    // url: image,
+    // zoom: number,
+    // zoomVal: number,
+    // zoomSin: number,
+    // zooming: number,
+    // prevZooming: number,
+    // prevZoom: number,
+    // x: number,
+    // y: number
     // }
 
     // Get canvas width & height
@@ -1509,12 +1509,15 @@ class childMenu extends menu {
 
 // Grid of tiles
 class mineGrid {
+    // Has a number of uncovered cells, a size value, a grid array, the current clicked square, and the current gamestate
     uncoveredCells = 0;
     size;
     grid = new Array();
     clickedSquare;
     gameState = 0;
 
+    // Class constructor
+    // Sets fields, creates 2D array
     constructor(size) {
         this.size = size;
 
@@ -1525,41 +1528,52 @@ class mineGrid {
             }
         }
     }
+    // Populates the grid with mines (After the first click)
     populateMines(canvasBoundingBox, mouseObject, event, minesNum) {
+        // Gets position of click on the canvas
         mouseObject.x = event.clientX - canvasBoundingBox.left;
         mouseObject.y = event.clientY - canvasBoundingBox.top;
 
+        // If the mouse is inside the play area
         if (mouseObject.x > 254.1 && mouseObject.x < 785.9 && mouseObject.y > 26.6 && mouseObject.y < 558.4) {
-
+            // Start the game (Gamestate 1)
             this.gameState = 1;
 
+            // Gets clicked positino between 0 and 1
             mouseObject.squareX = (mouseObject.x - 254.1) / 531.8;
             mouseObject.squareY = (mouseObject.y - 26.6) / 531.8;
-
+            // Get clicked tile
             this.clickedSquare = {
                 x: Math.floor(mouseObject.squareX * this.size),
                 y: Math.floor(mouseObject.squareY * this.size)
             };
 
-            for (let n = 0; n < minesNum; n++) {
-                let canPlace = true;
+            // Places mines
+            // Note: this is not the most efficient way, as it simply checks to see if it can place a mine at a random set of coordinates, placing a mine if it can, or retries if it can't. If something were to occur that would try to place more mines than there are squares, this would stall your browser.
 
+            // For each mine that should be placed
+            for (let n = 0; n < minesNum; n++) {
+                // Set canplace to true
+                let canPlace = true;
+                // Generate random coordinates
                 let coords = {
                     x: Math.round(Math.random() * (this.size - 1)),
                     y: Math.round(Math.random() * (this.size - 1))
                 }
-
+                // For every tile in a 3x3 area around the random tile
                 for (let a = -1; a <= 1; a++) {
                     for (let b = -1; b <= 1; b++) {
+                        // If the tile is the clicked tile, then set canplace to false
                         if (coords.x === this.clickedSquare.x + a && coords.y === this.clickedSquare.y + b) canPlace = false;
                     }
                 }
-
+                // If the random tile is not already a mine AND is not within a 3x3 area around the mouse
                 if (this.grid[coords.x][coords.y].mine === false && canPlace) {
-
+                    // Place the mine
                     this.grid[coords.x][coords.y].mine = true;
 
-                } else {
+                } else { // Otherwise
+                    // Try again
                     n--;
                 }
             }
@@ -1573,82 +1587,100 @@ class mineGrid {
 
 // A single tile
 class mineCell {
+    // Has an x and a y, a mine boolean, and a state
     x;
     y;
     mine = false;
-    state = -1;
+    state = -1; // -1 equals covered
 
+    // Class constructor
+    // Sets x and y
     constructor(x, y) {
         this.x = x;
         this.y = y;
     }
+    // Cell checking/uncovering method
     checkCell(mineGrid) {
+        // Increase the number of uncovered tiles by 1
         mineGrid.uncoveredCells++;
+        // Set the tile's state to 0 (uncovered)
         this.state = 0;
-
+        // For every tile in a 3x3 area around this one
         for (let x = -1; x <= 1; x++) {
             for (let y = -1; y <= 1; y++) {
+                // If tile is this tile, or is outside bounds, skip
                 if (y === 0 && x === 0 || this.x + x < 0 || this.x + x >= mineGrid.size || this.y + y < 0 || this.y + y >= mineGrid.size) continue;
-
+                // Otherwise
+                // If the tile is a mine, increase state by 1 (State is number of surrounding mines)
                 if (mineGrid.grid[this.x + x][this.y + y].mine) this.state++;
             }
         }
-
+        // If this is uncovered, and has no neighbouring mines
         if (this.state === 0) {
+            // For every cell in a 3x3 area around this one
             for (let x = -1; x <= 1; x++) {
                 for (let y = -1; y <= 1; y++) {
+                    // If tile is this tile, or is outside bounds, skip
                     if (y === 0 && x === 0 || this.x + x < 0 || this.x + x >= mineGrid.size || this.y + y < 0 || this.y + y >= mineGrid.size) continue;
-
+                    // Otherwise
+                    // Uncover cell
                     if (mineGrid.grid[this.x + x][this.y + y].state === -1) mineGrid.grid[this.x + x][this.y + y].checkCell(mineGrid);
                 }
             }
         }
     }
+    // Set flags
     swapFlag() {
+        // If still covered, with no flag
         if (this.state === -1) {
-            this.state = -2;
-        } else if (this.state === -2) {
-            this.state = -1;
+            this.state = -2; // Set flag (state -2)
+        } else if (this.state === -2) { //Otherwise, if still covered, with a flag
+            this.state = -1; // Unset flag
         }
     }
 }
 
 // Check a click on a tile
 function checkMineClick(canvasBoundingBox, mouseObject, mineGrid, event) {
+    // Get mouse position
     mouseObject.x = event.clientX - canvasBoundingBox.left;
     mouseObject.y = event.clientY - canvasBoundingBox.top;
-
+    // If mouse is in play area
     if (mouseObject.x > 254.1 && mouseObject.x < 785.9 && mouseObject.y > 26.6 && mouseObject.y < 558.4) {
-
+        // Get clicked position between 0 and 1
         mouseObject.squareX = (mouseObject.x - 254.1) / 531.8;
         mouseObject.squareY = (mouseObject.y - 26.6) / 531.8;
-
+        // Get clicked tile
         let clickedSquare = mineGrid.grid[Math.floor(mouseObject.squareX * mineGrid.size)][Math.floor(mouseObject.squareY * mineGrid.size)];
-
+        // If tile is not covered, or has a flag, return
         if (clickedSquare.state !== -1) return;
+        // If tile is a mine
         if (clickedSquare.mine) {
-            mineGrid.gameState = 2;
+            mineGrid.gameState = 2; // Set gamestate to 2 (Lost), and return
             return;
         }
-
+        // Otherwise
+        // Uncover the cell
         mineGrid.grid[clickedSquare.x][clickedSquare.y].checkCell(mineGrid);
     }
 }
 
 // Place a flag
 function placeFlag(canvasBoundingBox, mouseObject, mineGrid, event) {
+    // Get mouse position
     mouseObject.x = event.clientX - canvasBoundingBox.left;
     mouseObject.y = event.clientY - canvasBoundingBox.top;
-
+    // If mouse is in play area
     if (mouseObject.x > 254.1 && mouseObject.x < 785.9 && mouseObject.y > 26.6 && mouseObject.y < 558.4) {
-
+        // Get clicked position between 0 and 1
         mouseObject.squareX = (mouseObject.x - 254.1) / 531.8;
         mouseObject.squareY = (mouseObject.y - 26.6) / 531.8;
-
+        // Get clicked square
         let clickedSquare = mineGrid.grid[Math.floor(mouseObject.squareX * mineGrid.size)][Math.floor(mouseObject.squareY * mineGrid.size)];
-
+        // If tile is uncovered, return
         if (clickedSquare.state > -1) return;
-
+        // Otherwise
+        // Swap flag state
         mineGrid.grid[clickedSquare.x][clickedSquare.y].swapFlag();
 
     }
@@ -1656,8 +1688,9 @@ function placeFlag(canvasBoundingBox, mouseObject, mineGrid, event) {
 
 // Check for victory
 function checkMineVictoryConditions(gameSetup, mineGrid) {
+    // If game size squared minue total mines is less than or equal to the number of uncovered cells
     if (gameSetup.size ** 2 - gameSetup.mines <= mineGrid.uncoveredCells) {
-        mineGrid.gameState = 3;
+        mineGrid.gameState = 3; // Set the game state to 3 (Won)
     }
 }
 
@@ -1666,30 +1699,33 @@ function checkMineVictoryConditions(gameSetup, mineGrid) {
 //#region - To Do List -
 
 // Create a new item
+// I don't actually use this function at all, so I don't know why I put it here
 function createToDoItem(description, date) {
     results = new Array();
     results.push(description, date)
     return results;
 }
-
+// Refresh the todo items array from storage
 function refreshArray(itemsArray) {
     let storageKeys = new Array();
-
+    // If localstorage length is greater than that of itemsarray length, set repeat to the length of localstorage. Otherwise, set it to the length of itemsarray
     let repeat = (localStorage.length > itemsArray.length) ? localStorage.length : itemsArray.length
-
+    // For the number of times as repeat
     for (let n = 0; n < repeat; n++) {
-
+        // Add the key of the current localstorage item to the array
         storageKeys.push(localStorage.key(n));
-
+        // If local storage contains something that does not exist
         if (localStorage[`${storageKeys[n]}`] === undefined) {
+            // Remove that item from the item list
             itemsArray.splice(n, 1);
+            // Skip
             continue;
         }
-
+        // If the item at the current index in the item list is an object
         if (typeof itemsArray[n] === 'object') {
-
+            // If there is a difference between the item list item and the localstorage item
             if (itemsArray[n].name !== storageKeys[n] || itemsArray[n].desc !== JSON.parse(localStorage[`${storageKeys[n]}`])[0] || itemsArray[n].date !== JSON.parse(localStorage[`${storageKeys[n]}`])[1]) {
-
+                // Set the current index in the item list to a new to do item, with the values from local storage
                 itemsArray[n] = (new Object({
                     name: storageKeys[n],
                     desc: JSON.parse(localStorage[`${storageKeys[n]}`])[0],
@@ -1699,8 +1735,8 @@ function refreshArray(itemsArray) {
 
             }
 
-        } else {
-
+        } else { //Otherwise
+            // Set the current index in the item list to a new to do item, with the values from local storage
             itemsArray[n] = (new Object({
                 name: storageKeys[n],
                 desc: JSON.parse(localStorage[`${storageKeys[n]}`])[0],
@@ -1712,32 +1748,39 @@ function refreshArray(itemsArray) {
     }
 }
 
+// Order the item list
 function orderArray(itemsArrayOrdered, sortList) {
+    // Deep copy the item list (The wrong way)
     let tempArray = JSON.parse(JSON.stringify(itemsArrayOrdered));
-
+    // If sort by date
     if (sortList.value === 'date') {
+        // Sort the array by date (using Array.sort() )
         tempArray.sort(function comparefn(a, b) {
             new Date(a.date) - new Date(b.date)
         });
     }
+    // If sort by priority
     if (sortList.value === 'importance') {
+        // Sort the array by priority (using Array.sort() )
         tempArray.sort(function comparefn(a, b) {
             a.priority - b.priority
         });
     }
-
+    // Return the sorted array
     return tempArray;
 }
-
+// I also don't use this one, don't know why I put it here
 function sort(a, b) {
     return new Date(a.date) - new Date(b.date);
 }
-
+// Creates all html elements
 function createElements(sorter, orderedItemsArray, outputEl) {
+    // swithc based on sorter type
     switch (sorter) {
-        case 'date':
+        case 'date': // If sorting by date
+            // Get current date
             let currentDate = new Date();
-
+            // Create headers, and helper values
             let dateHeaders = [
                 [
                     'Late',
@@ -1759,33 +1802,34 @@ function createElements(sorter, orderedItemsArray, outputEl) {
                     'Later'
                 ]
             ]
-
+            // For each date header
             dateHeaders.forEach(text => {
-
+                // Create elements
                 const parentEl = document.createElement('div');
                 let divEl = document.createElement('div');
                 let headerEl = document.createElement('h2');
-
+                // Modify elements
                 headerEl.innerText = text[0];
 
                 divEl.classList.add("toDoHeaderElement");
                 divEl.setAttribute("unselectable", 'on');
                 divEl.setAttribute("onselectstart", 'return false;');
                 divEl.setAttribute("onmousedown", 'return false;');
-
+                // Append elements
                 divEl.append(headerEl);
 
                 parentEl.append(divEl);
 
                 outputEl.append(parentEl);
             });
-
+            // For every item in the sorted array
             for (let x = 0; x < orderedItemsArray.length; x++) {
-
+                // Create element
                 let parentDivEl = document.createElement('div');
-
+                // Modify element
                 parentDivEl.classList.add('toDoListElement');
-
+                // Could have probably replaced this with
+                // parentDivEl.classlist.add(`priority${orderedItemsArray[x].priority}`)
                 if (orderedItemsArray[x].priority === 1) {
                     parentDivEl.classList.add('priority1');
 
@@ -1796,7 +1840,7 @@ function createElements(sorter, orderedItemsArray, outputEl) {
                     parentDivEl.classList.add('priority3');
 
                 }
-
+                // Create elements, and modify elements
                 let titleSpanEl = document.createElement('span');
 
                 titleSpanEl.innerText = orderedItemsArray[x].name;
@@ -1821,21 +1865,28 @@ function createElements(sorter, orderedItemsArray, outputEl) {
                 rmvBtnEl.setAttribute('onmousedown', 'return false;');
 
                 parentDivEl.append(titleSpanEl, descSpanEl, dateSpanEl, rmvBtnEl);
-
+                // For if else thing (If it matches an if statement, do something, and then break, or if it matches nothing, then do something else)
                 forElse01: {
+                    // For almost every dateHeader
                     for (let y = 0; y < dateHeaders.length - 1; y++) {
+                        // If this date comes before the helper date
                         if (new Date(orderedItemsArray[x].date) < new Date(dateHeaders[y][1])) {
+                            // append to header
                             outputEl.children[y].append(parentDivEl);
+                            // break
                             break forElse01;
                         }
                     }
+                    // Else
+                    // Append to final header
                     outputEl.children[dateHeaders.length - 1].append(parentDivEl);
                 }
             }
 
 
             break;
-        case 'importance':
+        case 'importance': // If sorting by priority
+            // Create priority headers, and helper values
             let priorityHeaders = [
                 [
                     'High Priority',
@@ -1849,33 +1900,34 @@ function createElements(sorter, orderedItemsArray, outputEl) {
                     'Low Priority'
                 ]
             ]
-
+            // For each header
             priorityHeaders.forEach(text => {
-
+                // Create elements
                 const parentEl = document.createElement('div');
                 let divEl = document.createElement('div');
                 let headerEl = document.createElement('h2');
-
+                // Modify elements
                 headerEl.innerText = text[0];
-
+                
                 divEl.classList.add("toDoHeaderElement");
                 divEl.setAttribute("unselectable", 'on');
                 divEl.setAttribute("onselectstart", 'return false;');
                 divEl.setAttribute("onmousedown", 'return false;');
-
+                // Append elements
                 divEl.append(headerEl);
 
                 parentEl.append(divEl);
 
                 outputEl.append(parentEl);
             });
-
+            // For every item in the sorted array
             for (let x = 0; x < orderedItemsArray.length; x++) {
-
+                // Create element
                 let parentDivEl = document.createElement('div');
-
+                // Modify element
                 parentDivEl.classList.add('toDoListElement');
-
+                // Could have probably replaced this with
+                // parentDivEl.classlist.add(`priority${orderedItemsArray[x].priority}`)
                 if (orderedItemsArray[x].priority === 1) {
                     parentDivEl.classList.add('priority1');
 
@@ -1886,7 +1938,7 @@ function createElements(sorter, orderedItemsArray, outputEl) {
                     parentDivEl.classList.add('priority3');
 
                 }
-
+                // Create and modufy elements
                 let titleSpanEl = document.createElement('span');
 
                 titleSpanEl.innerText = orderedItemsArray[x].name;
@@ -1909,9 +1961,9 @@ function createElements(sorter, orderedItemsArray, outputEl) {
                 rmvBtnEl.setAttribute('unselectable', 'on');
                 rmvBtnEl.setAttribute('onselectstart', 'return false;');
                 rmvBtnEl.setAttribute('onmousedown', 'return false;');
-
+                // Append elements
                 parentDivEl.append(titleSpanEl, descSpanEl, dateSpanEl, rmvBtnEl);
-
+                // Append elements based on priority
                 switch (orderedItemsArray[x].priority) {
                     case 1:
                         outputEl.children[0].append(parentDivEl);
@@ -1934,15 +1986,18 @@ function createElements(sorter, orderedItemsArray, outputEl) {
 
 // - Chart Class -
 class sortingChart {
+    // Has a height, an array of values, and a randomized array
     height;
     chartsArray;
     randomArray = new Array();
-
+    // Constructor class
+    // Creates the chart
     constructor(itemNum, chartTypes, callback) {
         this.createChart(itemNum, chartTypes, callback);
     }
-
+    // Async, so I can slow it down, to make everything slower, so you can see it
     async createChart(itemNum, chartTypes, callback) {
+        // Set the height value
         this.height = 565 / chartTypes.length - (10 * (chartTypes.length - 1));
 
         this.chartsArray = chartTypes;
@@ -1969,7 +2024,7 @@ class sortingChart {
                 item.activeItem = i;
             });
         }
-
+        // Create sortable charts
         this.chartsArray.forEach(item => {
             let tempArray = new Array();
             item.array.forEach(element => {
@@ -1977,10 +2032,11 @@ class sortingChart {
             });
             item.array = tempArray;
         });
-
+        // Call the callback
         if (typeof callback === 'function') callback();
     }
-
+    // Async insertion sort
+    // It's like the insertion sort in global scripts, but simply slowed down, so I'm not gonna comment this one. If you want to see the comments for this, go to line 181
     async asyncInsertionSort(index) {
 
         for (let a = 1; a < this.chartsArray[index].array.length; a++) {
@@ -1997,13 +2053,14 @@ class sortingChart {
             }
             this.chartsArray[index].array[b + 1] = key;
         }
-
+        // Decorations
         for (let n = 0; n < this.chartsArray[index].array.length; n++) {
             await timer(10);
             this.chartsArray[index].activeItem = n;
         }
     }
-
+    // Async array merger
+    // It's like the array merger in global scripts, but simply slowed down, so I'm not gonna comment this one. If you want to see the comments for this, go to line 208
     async mergeArrays(leftArray, rightArray, actItemIndex) {
         let result = new Array();
 
@@ -2024,15 +2081,16 @@ class sortingChart {
 
         return [...result, ...leftArray, ...rightArray];
     }
-
+    // Async merge sort manager
     async asyncMergeSort(index) {
+        // Copies the array
         let array = new Array();
         this.chartsArray[index].array.forEach(element => {
             array.push(element);
         });
-
+        // Merge sort
         await this.mergeSort(array, index);
-
+        // Decorations
         this.chartsArray[index].secondaryItems = [];
 
         for (let n = 0; n < this.chartsArray[index].array.length; n++) {
@@ -2040,7 +2098,8 @@ class sortingChart {
             this.chartsArray[index].activeItem = n;
         }
     }
-
+    // Async merge sort
+    // It's like the merge sort in global scripts, but simply slowed down, so I'm not gonna comment this one. If you want to see the comments for this, go to line 230
     async mergeSort(array, actItemIndex) {
         if (array.length < 2) return array;
 
@@ -2054,15 +2113,16 @@ class sortingChart {
 
         return result;
     }
-
+    // Async quick sort manager
     async asyncQuickSort(index) {
+        // Copies the array
         let array = new Array();
         this.chartsArray[index].array.forEach(element => {
             array.push(element);
         });
-
+        // Quick sort
         await this.quickSort(array, 0, array.length - 1, index);
-
+        // Decorations
         this.chartsArray[index].secondaryItems = [];
 
         for (let n = 0; n < this.chartsArray[index].array.length; n++) {
@@ -2070,7 +2130,8 @@ class sortingChart {
             this.chartsArray[index].activeItem = n;
         }
     }
-
+    // Async quick sort
+    // It's like the quick sort in global scripts, but simply slowed down, so I'm not gonna comment this one. If you want to see the comments for this, go to line 293
     async quickSort(array, left, right, actItemIndex) {
 
         if (array.length < 2) return array;
@@ -2089,7 +2150,8 @@ class sortingChart {
 
         return array;
     }
-
+    // Async partitioned quick sort
+    // It's like the partitioned quick sort in global scripts, but simply slowed down, so I'm not gonna comment this one. If you want to see the comments for this, go to line 257
     async quickSortPartition(array, left, right, actItemIndex) {
         this.chartsArray[actItemIndex].activeItem = array[Math.floor((left + right) / 2)]
         let pivot = array[Math.floor((left + right) / 2)];
@@ -2119,11 +2181,13 @@ class sortingChart {
         }
         return leftCursor;
     }
-
+    // Draw method
     draw(canvas2dContext) {
+        // for each sorter
         for (let i = 0; i < this.chartsArray.length; i++) {
+            // for each item in the array(s)
             for (let n = 0; n < this.randomArray.length; n++) {
-
+                // Draw
                 canvas2dContext.beginPath();
                 canvas2dContext.moveTo((1000 / this.randomArray.length) * n + (20 + (1000 / sorterChart.randomArray.length) / 2), 575 - this.height * i - (10 * (this.chartsArray.length - 1) * i));
 
@@ -2142,21 +2206,6 @@ class sortingChart {
     }
 
 }
-
-/*
-    {
-    widthArray: [widthofeverythingincolumn]
-    containedObject: {
-        widthArray: [widthofeverythingincolumn]
-        containedObject: {
-            widthArray: [widthofeverythingincolumn]
-            containedObject: {
-                
-            }
-        }
-    }
-    }
-*/
 
 //#endregion
 
@@ -2187,6 +2236,17 @@ class treeItem {
             >118px Title | Headers | Description | Cost
             64px
     */
+
+    /*
+    Has:
+    children and a parent,
+    an inner width and height, a normal width and height, and a position,
+    a universally unique identifier (uuid),
+    a margin (constant, value of 16),
+    a total height and width, and a max width,
+    a title, description, wrapped description, and cost,
+    and button hover value
+    */
     children = new Array();
     parent;
 
@@ -2213,7 +2273,7 @@ class treeItem {
     cost;
 
     buttonHover = -1;
-
+    // Class constructor
     constructor(parent, title, description, cost) {
         this.title = title.toString();
         if (this.title === undefined || this.title === '') this.title = 'Missing Title'
@@ -2519,12 +2579,13 @@ class boundingBox {
 
 function deconstructTree(constructedTree) {
     let topLevel = new Array();
-    function deconstructItem(item){
+
+    function deconstructItem(item) {
         let currLevel = {
-            t:item.title,
-            d:item.description,
-            c:item.cost,
-            a:new Array()
+            t: item.title,
+            d: item.description,
+            c: item.cost,
+            a: new Array()
         }
         item.children.forEach(child => {
             currLevel.a.push(deconstructItem(child));
@@ -2543,20 +2604,22 @@ function deconstructTree(constructedTree) {
 
 function constructTree(compressedTree) {
     let deconstructedTree = LZString.decompressFromUTF16(compressedTree);
+
     function throwError() {
         throw new Error(`Could not execute 'constructTree': Provided file is not a valid tree.`);
     }
     let parsedTree = parseJSON(deconstructedTree);
 
-    if(parsedTree instanceof Array === false) throwError();
+    if (parsedTree instanceof Array === false) throwError();
 
     let result = new Array();
+
     function constructItem(item, children) {
-        
-        if(item instanceof treeItem === false) throwError();
+
+        if (item instanceof treeItem === false) throwError();
         children.forEach(child => {
-            if(child instanceof Object === false) throwError();
-            if(!child.a || !child.t || !child.d || isNaN(child.c)) throwError();
+            if (child instanceof Object === false) throwError();
+            if (!child.a || !child.t || !child.d || isNaN(child.c)) throwError();
             item.createChild(child.t, child.d, child.c);
         });
         item.children.forEach((child, index) => {
@@ -2565,8 +2628,8 @@ function constructTree(compressedTree) {
     }
 
     parsedTree.forEach((item, index) => {
-        if(item instanceof Object === false) throwError();
-        if(!item.a || !item.t || !item.d || isNaN(item.c)) throwError();
+        if (item instanceof Object === false) throwError();
+        if (!item.a || !item.t || !item.d || isNaN(item.c)) throwError();
         result.push(new treeItem(null, item.t, item.d, item.c));
         constructItem(result[index], item.a);
     });
