@@ -2222,7 +2222,7 @@ class treeItem {
 
     /*
     Structure:
-        Vertical T-B:
+        Vertical Top-Bottom:
             6px Border
             47px Image(s)
             28px Title
@@ -2231,7 +2231,7 @@ class treeItem {
             22px Header : Cost
             13px cost
             16px Padding
-        Horizontal L-R:
+        Horizontal Left-Right:
             16px Padding
             >118px Title | Headers | Description | Cost
             64px
@@ -2241,7 +2241,7 @@ class treeItem {
     Has:
     children and a parent,
     an inner width and height, a normal width and height, and a position,
-    a universally unique identifier (uuid),
+    a universally unique identifier (UUID),
     a margin (constant, value of 16),
     a total height and width, and a max width,
     a title, description, wrapped description, and cost,
@@ -2274,125 +2274,170 @@ class treeItem {
 
     buttonHover = -1;
     // Class constructor
+    // Set fields
     constructor(parent, title, description, cost) {
         this.title = title.toString();
+        // If no title was provided, set to Missing Title
         if (this.title === undefined || this.title === '') this.title = 'Missing Title'
         this.description = description.toString();
+        // If no description was provided, set to Missing Description
         if (this.description === undefined || this.description === '') this.description = 'Missing Description'
         this.cost = cost;
+        // Parent item
         this.parent = parent;
-
+        // Generate UUID
         this.uuid = uuidv4();
-
+        // Turn description, into severak lines, wrapped to fit a size
         this.wrappedDescription = getWrappedLines(this.description.match(/\S*\s*/g), 13, 268)
+        // Calculate width and height values
         this.calculateHeightWidth();
 
         this.maxWidth = this.width;
         this.totalWidth = this.maxWidth + 100;
         this.totalHeight = this.height + this.margin * 2;
-
+        // If at the top level, trigger an update chain
         if (this.parent === null) this.updateChain();
     }
-
+    // Update chaining method
     updateChain() {
+        // Total height is the max between the item's height, and the Total Height values of all of this item's children, added together
         this.totalHeight = Math.max(this.children.reduce((a, b) => a + b.totalHeight, 0), this.height + this.margin * 2);
-
+        // If this item is not top level, call parent's update caining method
         if (this.parent instanceof treeItem) this.parent.updateChain();
-        else if (this.parent === null) {
+        else if (this.parent === null) { // Otherwise, if this item is top level
+            // Create widthMap
             let widthMap = new Array();
-            this.updateMaxWidth(widthMap, 0);
+            // Update Max width values in width map
+            this.updateWidthMap(widthMap, 0);
+            // Update Positions based on width, height, maxwidth, etc.
             this.updatePositions(widthMap, 0);
         }
     }
-
+    // Position updating method
     updatePositions(widthMap, depth) {
+        // Set max width to the value at the current depth
         this.maxWidth = widthMap[depth];
+        // Set the total width to this item's max width plus 100 plus the largest of the children's total width values
         this.totalWidth = this.maxWidth + 100 + this.children.reduce((a, b) => Math.max(a, b.totalWidth), 0);
-
+        // If this iten is not top level
         if (this.parent instanceof treeItem) {
+            // Set x position based on parent's position
             this.position.x = this.parent.position.x + this.parent.maxWidth + 100;
-        } else {
+        } else { // Otherwise
+            // Set x position to 0
             this.position.x = 0;
         }
-
+        // Set current y to this item's y position plus this item's height divided by two minus this item's total height divided by two
         let currentY = (this.position.y + this.height / 2) - this.totalHeight / 2;
+        // For each of this item's children
         this.children.forEach(child => {
+            // Set their y position to current y plus the child's total height divided by two minus the child's height divided by two
             child.position.y = (currentY + child.totalHeight / 2) - child.height / 2;
+            // Set current y to current y plus the child's total height
             currentY += child.totalHeight;
         });
-
+        // For each of this item's children
         for (const child of this.children) {
+            // Call the child's position update method, passing the widthmap, and thee current depth plus 1
             child.updatePositions(widthMap, depth + 1);
         }
     }
-
-    updateMaxWidth(widthMap, depth) {
+    // Width Map updating method
+    updateWidthMap(widthMap, depth) {
+        // If the index at the current depth is not a number, set it to 0
         if (isNaN(widthMap[depth])) widthMap[depth] = 0;
+        // Set the index at the current depth to the max of the current value, and this item's width
         widthMap[depth] = Math.max(this.width, widthMap[depth]);
+        // For each of this item's children
         for (const child of this.children) {
-            child.updateMaxWidth(widthMap, depth + 1);
+            // Update the width map, passing the width map, and the current depth plus 1
+            child.updateWidthMap(widthMap, depth + 1);
         }
     }
-
+    // Height and width calculations
     calculateHeightWidth() {
+        // Set inner width equal to the max of the width of the title, the width of the description, and the minimum width (118)
         this.innerWidth = Math.max(
             measureWidth(this.title, 24),
             this.wrappedDescription.reduce((a, b) => Math.max(a, measureWidth(b.trim(), 13)), 0),
             118
         );
+        // Wet the inner height equal to to 132 plus the number of lines in the description times thirteen
         this.innerHeight = 132 + this.wrappedDescription.length * 13;
+        // Set the width to the inner width plus 80
         this.width = this.innerWidth + 80;
+        // Set the height to the inner height plus 22
         this.height = this.innerHeight + 22;
     }
-
+    // Child creation method
     createChild(title, description, cost) {
+        // Add a now tree item to this item's children
         this.children.push(new treeItem(this, title, description, cost));
+        // Trigger an update chain from the new child
         this.children[this.children.length - 1].updateChain([]);
     }
-
+    // Set this item's parent to a new parent
     inheritParent(newParent) {
         this.parent = newParent;
     }
-
+    // Give new values
     newValues(valuesArray) {
+        // Set title
         this.title = valuesArray[0];
+        // Set description
         this.description = valuesArray[1];
+        // If no title or description, set Missing message
         if (this.title === undefined || this.title === '') this.title = 'Missing Title'
         if (this.description === undefined || this.description === '') this.description = 'Missin Description';
+        // Set the cost
         this.cost = valuesArray[2];
-
+        // Get wrapped description
         this.wrappedDescription = getWrappedLines(this.description.match(/\S*\s*/g), 13, 268)
+        // Get width and height values
         this.calculateHeightWidth();
 
         this.totalWidth = this.maxWidth + 100;
         this.totalHeight = this.height + this.margin * 2;
-
+        // Trigger update chain
         this.updateChain();
     }
-
+    // Deletes this item from the tree
     delete(optionalArray) {
+        // If this item is not top level
         if (this.parent !== null) {
+            // Remove this item from the parent's list of children, by searching for this item's uuid, and replace it with all of this item's children
             this.parent.children.splice(this.parent.children.findIndex(element => element.uuid === this.uuid), 1, ...this.children)
+            // For each of this item's children
             for (const child of this.children) {
+                // Inherit a new parent
                 child.inheritParent(this.parent);
             }
-        } else if (this.parent === null) {
+        } else if (this.parent === null) { // Otherwise, if this is top level
+            // If optionalArray is an array
             if (optionalArray instanceof Array) {
+                // Remove this item from the top level array, by searching for this item's uuid, and reokace it with all of this item's children
                 optionalArray.splice(optionalArray.findIndex(element => element.uuid === this.uuid), 1, ...this.children);
+                // For each of this item's children
                 for (const child of this.children) {
+                    // Set parent to null (Making them top level)
                     child.inheritParent(null);
                 }
-            } else {
+            } else { // Otherwise
+                // Throw an error
                 throw new ReferenceError(`Failed to execute 'delete' on 'treeItem' : optionalArray is not of type Array`)
             }
         }
+        // If this is not top level, trigger an update chain on the parent
         if (this.parent instanceof treeItem) this.parent.updateChain();
-        else this.children.forEach(child => {
+        else this.children.forEach(child => { // Otherwise, for each of this item's children
+            // Trigger an update chain on it's children
             child.updateChain();
         });
+        // At his point, there are no references to this item (I think), meaning that the browser's garbage collector can get rid of it.
     }
-
+    // Check for mouse hover
     checkHover(mouse) {
+        // Get button location values
         let buttonsY = ctxCon.gac('y', this.position.y + 18)[0]
         let buttonsWH = ctxCon.gac('w', 20)[0]
         let editButtonX = ctxCon.gac('xywh', this.position.x + 16)[0]
@@ -2400,105 +2445,140 @@ class treeItem {
         let upButtonX = ctxCon.gac('xywh', this.position.x + 74)[0]
 
         let addButtonPos = ctxCon.gac('xywh', this.position.x + this.width - 20, this.position.y + 24, 20, this.height - 28)
-
+        // If within the button region
         if (
             mouse.y > buttonsY && mouse.y < buttonsY + buttonsWH && mouse.x > editButtonX && mouse.x < upButtonX + buttonsWH
         ) {
+            // If over a specific button, set buttonhover to 0, 1 or 2
             if (mouse.x > editButtonX && mouse.x < editButtonX + buttonsWH) this.buttonHover = 0;
             else if (mouse.x > downButtonX && mouse.x < downButtonX + buttonsWH) this.buttonHover = 1;
             else if (mouse.x > upButtonX && mouse.x < upButtonX + buttonsWH) this.buttonHover = 2;
-            else this.buttonHover = -1;
-        } else if (
+            else this.buttonHover = -1; // Otherwise, set it to -1
+        } else if ( // Otherwise, if over Add button
             mouse.x > addButtonPos[0] && mouse.x < addButtonPos[0] + addButtonPos[2] &&
             mouse.y > addButtonPos[1] && mouse.y < addButtonPos[1] + addButtonPos[3]) {
-            this.buttonHover = 3;
-        } else {
+            this.buttonHover = 3; // Set button hover to 3
+        } else { // Otherwise
+            // Set button hover to -1
             this.buttonHover = -1;
         }
+        // For each of this item's children
         this.children.forEach(child => {
+            // If their x position is less than or equal to the mouse's x
             if (ctxCon.gac('x', child.position.x)[0] <= mouse.x) {
+                // Check for hover on children
                 child.checkHover(mouse);
             }
         });
     }
-
+    // Check for click
     async checkClick(childArray) {
+        // If any button is being hovered over
         if (this.buttonHover > -1) {
+            // Switch based on button hover
             switch (this.buttonHover) {
-                case 0:
+                case 0: // If button hover is 0
+                    // Edit this item
                     editTreeItem(this);
                     break;
-                case 1:
+                case 1: // If button hover is 1
+                    // Move this item down one
                     this.moveDown(childArray);
                     break;
-                case 2:
+                case 2: // If button hover is 2
+                    // Move this item up one
                     this.moveUp(childArray)
                     break;
-                case 3:
+                case 3: // If button hover is 3
+                    // Get parameters for new tree item
                     let treeParams = await createTreeItem();
+                    // If there are parameters, create a new child for this item
                     if (treeParams) this.createChild(...treeParams)
+                    // Set button hover back to -1
                     this.buttonHover = -1;
                     break;
             }
             return true;
-        } else {
+        } else { // Otherwise
+            // For each of this item's children
             for (const child of this.children) {
+                // If their x position is less than or equal to mouse's x
                 if (ctxCon.gac('x', child.position.x)[0] <= mouse.x) {
+                    // Check for click on child
                     if (await child.checkClick(this.children) === true) return true;
                 }
             }
         }
     }
-
+    // Move item up
     moveUp(upperArray) {
+        // Get this item's index
         let myIndex = upperArray.findIndex(element => element.uuid === this.uuid);
+        // If index is greater than 0
         if (myIndex > 0) {
+            // Swap items
             swapItems(upperArray, myIndex, myIndex - 1);
         }
     }
-
+    // Move item down
     moveDown(upperArray) {
+        // Get this item's index
         let myIndex = upperArray.findIndex(element => element.uuid === this.uuid);
+        // If index is less the array length minus one
         if (myIndex < upperArray.length - 1) {
+            // Swap items
             swapItems(upperArray, myIndex + 1, myIndex);
         }
     }
 }
 
-// Controller of context
+// Controller of canvas context
 class contextController {
+    // Has a canvas and a camera
     cnv;
     camera;
-
+    // Class constructor
     constructor(canvas) {
         this.cnv = canvas;
+        // Create new camera
         this.camera = new camera(canvas, 0, 0);
     }
-    // Get Accurate Coordinates
+    // Get Accurate Coordinates on canvas
     gac(specifyLocParams, ...callbackParams) {
+        // Seperate specifiers
         let specifier = specifyLocParams.match(/[a-z]/g)
+        // Create parameter array
         let params = new Array();
+        // For each specifier (passing the specifier and the index)
         specifier.forEach((item, index) => {
+            // Switch statement based on the specifier
             switch (item) {
-                case "x":
+                case "x": // If specifier is x
+                    // Add the re-mapped coordinates (along the x axis) based on the camera, to the parameter array
                     params.push(mapRange(callbackParams[index], this.camera.x, this.camera.x + this.camera.width, 0, this.camera.defaultWidth));
                     break;
-                case "y":
+                case "y": // If specifier is y
+                    // Add the re-mapped coordinates (along the y axis) based on the camera, to the parameter array
                     params.push(mapRange(callbackParams[index], this.camera.y, this.camera.y + this.camera.height, 0, this.camera.defaultHeight));
                     break;
-                case "w":
+                case "w": // If specifier is w
+                    // Add the re-mapped scale (along the x axis) based on the camera, to the parameter array
                     params.push(mapRange(callbackParams[index], 0, this.camera.width, 0, this.camera.defaultWidth))
                     break;
-                case "h":
+                case "h": // If specifier is h
+                    // Add the re-mapped scale (along the y axis) based on the camera, to the parameter array
                     params.push(mapRange(callbackParams[index], 0, this.camera.height, 0, this.camera.defaultHeight))
                     break;
-                default:
+                default: // Otherwise
+                    // Add the un-mapped item to the parameter array
                     params.push(callbackParams[index]);
                     break;
             }
         });
+        // Return the parameter array
         return params;
     }
+    // Update the camera position
     updateCamera(bounds) {
         this.camera.updateCamera(bounds);
     }
@@ -2506,6 +2586,7 @@ class contextController {
 
 // Virtual Camera
 class camera {
+    // Has an x and a y, an inital x and y, a center x and y, a zoom value, a default width and height, a width and a height, and a canvas
     centerX;
     centerY;
 
@@ -2524,7 +2605,8 @@ class camera {
     height;
 
     cnv;
-
+    // Class constructor
+    // Sets fields
     constructor(canvas, x, y) {
         this.cnv = canvas;
 
@@ -2540,12 +2622,14 @@ class camera {
         this.x = this.centerX - this.defaultWidth / 2;
         this.y = this.centerY - this.defaultHeight / 2;
     }
+    // Updates the camera's position
     updateCamera(bounds) {
+        // Constrain to bounding box
         if (this.centerX > bounds.max.x) this.centerX = bounds.max.x;
         if (this.centerY > bounds.max.y) this.centerY = bounds.max.y;
         if (this.centerX < bounds.min.x) this.centerX = bounds.min.x;
         if (this.centerY < bounds.min.y) this.centerY = bounds.min.y;
-
+        // Set fields
         this.defaultWidth = this.cnv.width;
         this.defaultHeight = this.cnv.height;
 
@@ -2862,5 +2946,3 @@ function testSorter(callback, arraySize) {
     console.timeEnd('test');
 }
 //#endregion
-
-//#region -- Testing & Helpers --

@@ -279,6 +279,24 @@ helpBtnContainer.children[0].children[0].addEventListener('click', function () {
 saveBtnContainer.children[0].children[0].addEventListener('click', function () {
     closeModal(sBoxEl, false)
 });
+dialogBtnContainer.children[0].children[0].addEventListener('mousedown', function () {
+    dialogResolve(0);
+});
+document.addEventListener('keydown', function (event) {
+    if(event.repeat === false && event.key === 'Escape'){
+        dBoxEl.classList.remove('opening');
+        dBoxEl.classList.add('closing');
+        let tempFunc = function () {
+            modalClosed(dBoxEl, tempFunc, true)
+        };
+        tempFunc();
+        dialogResolve(0);
+    }
+    
+});
+dialogBtnContainer.children[1].children[0].addEventListener('mousedown', function () {
+    dialogResolve(-1);
+});
 cnv.addEventListener('wheel', scrollHandler);
 cnv.addEventListener('mousedown', clickHandler);
 cnv.addEventListener('mouseup', clickHandler);
@@ -545,24 +563,20 @@ async function createTreeItem() {
     dBoxEl.append(titleTitle, titleInput, descriptionTitle, descriptionInput, costTitle, costInput, lb, submitButton);
     openModal(dBoxEl);
 
-    async function buttonDetector(submitBtn, closeBtn) {
+    async function buttonDetector() {
         let eventResult;
         var waitPromise = new Promise((resolve) => {
             dialogResolve = resolve
-        });
-        submitBtn.addEventListener('mousedown', function () {
-            dialogResolve(1);
-        });
-        closeBtn.addEventListener('mousedown', function () {
-            dialogResolve(0);
         });
         await waitPromise.then((result) => {
             eventResult = result
         });
         return eventResult;
     }
-
-    let result = await buttonDetector(submitButton, dialogBtnContainer.children[0].children[0]);
+    submitButton.addEventListener('mousedown', function () {
+        dialogResolve(1);
+    });
+    let result = await buttonDetector();
     if (result) {
         let output = [titleInput.value, descriptionInput.value, parseInt(costInput.value)];
         closeModal(dBoxEl, true);
@@ -614,19 +628,13 @@ async function editTreeItem(treeItem) {
     dBoxEl.append(titleInput, lb, descriptionInput, lb1, costInput, lb2, submitButton);
     openModal(dBoxEl);
 
-    async function buttonDetector(submitBtn, closeBtn, deleteBtn) {
+    async function buttonDetector() {
         let eventResult;
         var waitPromise = new Promise((resolve) => {
             dialogResolve = resolve
         });
-        submitBtn.addEventListener('mousedown', function () {
+        submitButton.addEventListener('mousedown', function () {
             dialogResolve(1);
-        });
-        closeBtn.addEventListener('mousedown', function () {
-            dialogResolve(0);
-        });
-        deleteBtn.addEventListener('mousedown', function () {
-            dialogResolve(-1);
         });
         await waitPromise.then((result) => {
             eventResult = result
@@ -634,7 +642,7 @@ async function editTreeItem(treeItem) {
         return eventResult;
     }
 
-    let result = await buttonDetector(submitButton, dialogBtnContainer.children[0].children[0], dialogBtnContainer.children[1].children[0]);
+    let result = await buttonDetector();
     if (result === 1) {
         treeItem.newValues([titleInput.value, descriptionInput.value, parseInt(costInput.value)]);
     } else if (result === -1) {
