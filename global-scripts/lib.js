@@ -2663,61 +2663,80 @@ class boundingBox {
 
 function deconstructTree(constructedTree) {
     let topLevel = new Array();
-
+    // Recursive function: Deconstructs a single item
     function deconstructItem(item) {
+        // Store title, description, and cost.
         let currLevel = {
             t: item.title,
             d: item.description,
             c: item.cost,
             a: new Array()
         }
+        // For each child of this item
         item.children.forEach(child => {
+            // Add the result of deconstructing the child to the array of children
             currLevel.a.push(deconstructItem(child));
         });
+        // Return the deconstructed item
         return currLevel;
     }
-
+    // For each item in the tree
     constructedTree.forEach(item => {
+        // Add the result of deconstruction to the top level array
         topLevel.push(deconstructItem(item));
     });
-
+    // Return the stringified version of the top level array
     return JSON.stringify(topLevel);
 }
 
 // Tech Tree Constructor
 
 function constructTree(compressedTree) {
+    // Decompress the tree (using LZString library)
     let deconstructedTree = LZString.decompressFromUTF16(compressedTree);
-
+    // Error throwing function
     function throwError() {
         throw new Error(`Could not execute 'constructTree': Provided file is not a valid tree.`);
     }
+    // Parse the tree
     let parsedTree = parseJSON(deconstructedTree);
-
+    // If the parsed tree is not an array, throw an error
     if (parsedTree instanceof Array === false) throwError();
 
     let result = new Array();
-
+    // Item construction function
     function constructItem(item, children) {
-
+        // If item is not a tree item, throw an error
         if (item instanceof treeItem === false) throwError();
+        // For each child
         children.forEach(child => {
+            // If the child is not an object, throw an error
             if (child instanceof Object === false) throwError();
+            // If the object does not have a title, description, cost, or array, throw an error
             if (!child.a || !child.t || !child.d || isNaN(child.c)) throwError();
+            // Otherwise
+            // Create a child on the item, with the provided title, description, and cost
             item.createChild(child.t, child.d, child.c);
         });
+        // For each child of the item
         item.children.forEach((child, index) => {
+            // Construct the child
             constructItem(child, children[index].a);
         });
     }
-
+    // For each top level item of the array
     parsedTree.forEach((item, index) => {
+        // If the item is not an object, throw an error
         if (item instanceof Object === false) throwError();
+        // If the object does not have a title, description, cost, or array, throw an error 
         if (!item.a || !item.t || !item.d || isNaN(item.c)) throwError();
+        // Otherwise
+        // Add a new tree item to the array of results, using this item's title, description, and cost
         result.push(new treeItem(null, item.t, item.d, item.c));
+        // Construct this item
         constructItem(result[index], item.a);
     });
-
+    // Set the array of top level elements to the result of this function
     topTreeElements = result;
 }
 
