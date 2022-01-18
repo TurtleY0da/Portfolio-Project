@@ -22,7 +22,7 @@ let prevLocalStore = new String;
 let prevListChoice = 'date';
 
 // Glbl Variables
-
+// Every 100 ms, update the list
 let interval = setInterval(outputList, 100);
 
 // -- Add Event Listeners
@@ -30,19 +30,19 @@ inputs.addBtn.addEventListener('mousedown', addNewItem)
 
 // -- Functions --
 
-// - Event Functions -
-
 // - Functions -
 
 // Output the list
 function outputList() {
+    // Refresh the items
     refreshArray(allItems);
-
+    // Deep copy the item (the wrong way)
     orderedItems = JSON.parse(JSON.stringify(allItems));
-
+    // Order the items
     orderedItems = orderArray(orderedItems, inputs.sortListEl);
-
+    // If the previous localStorage state is different than the state of the current localStorage, or previous sort choice is different than the current sort choice
     if(prevLocalStore !== JSON.stringify(localStorage) || prevListChoice !== inputs.sortListEl.value){
+        // Delet all of the elements
         let example = new Array()
         for (const child of docGetID('outputList').children) {
             example.push(child);
@@ -50,31 +50,35 @@ function outputList() {
         example.forEach(element => {
             element.remove();
         });
+        // Create all of the new elements
         createElements(inputs.sortListEl.value, orderedItems, outputListEl);
-        
-        let index = 0;
+        // For every delete button
         for (const element of docGetClass('toDoRemoveBtn')){
+            // Add an event listener
             element.addEventListener('mousedown', function(event) {
+                // When click, remove this item from local storage, and output the list
                 localStorage.removeItem(event.path[1].children[0].innerText);
                 outputList();
             })
-            index++;
         }
     }
-
+    // Set values
     prevLocalStore = JSON.stringify(localStorage);
     prevListChoice = inputs.sortListEl.value;
     
 }
-
+// Add a new item
 function addNewItem() {
+    // Try... catch statement
     try {
-
+        // If title input is empty
         if (inputs.titleEl.value.trim() === '') {
+            // throw 0
             throw (0);
-        } else if (localStorage[inputs.titleEl.value.trim()] !== undefined) {
+        } else if (localStorage[inputs.titleEl.value.trim()] !== undefined) { // localStorage slot is empty
+            // throw 1
             throw (1);
-        } else {
+        } else { // Otherwise
             localStorage[inputs.titleEl.value.trim()] = JSON.stringify([inputs.descriptionEl.value.trim(), inputs.dateEl.value, inputs.priorityListEl.value]);
 
             inputs.titleEl.value = '';
