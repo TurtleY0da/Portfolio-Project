@@ -12,13 +12,13 @@ let choices = [
     "with a handy Sorter",
     "with Tech Trees"
 ]
-
+// Pick random number
 let randNum = Math.floor(Math.random() * 9)
-
+// Set text
 experimentSpanEl.innerHTML = choices[randNum];
 
 playBtn.addEventListener('click', clickManager);
-
+// If button is pressed, send the user to the correct page
 function clickManager() {
     switch (randNum) {
         case 0:

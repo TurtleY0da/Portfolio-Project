@@ -34,7 +34,7 @@ let ctx = cnv.getContext("2d");
 ctx.imageSmoothingEnabled = false;
 cnv.width = 1040;
 cnv.height = 585;
-
+// Draw first frame
 createImage(image, ctx, cnv);
 
 // -- Main Loop --
@@ -42,6 +42,7 @@ requestAnimationFrame(loop);
 
 function loop() {
     // - Update Variables -
+    // Manages smooth zooming
     if (image.zoomVal > 0) {
         image.zoomVal++;
         image.zoomSin = ((Math.sin((image.zoomVal * 2 - 90) * (Math.PI / 180))) + 1) / 2;
@@ -57,7 +58,8 @@ function loop() {
         }
 
     }
-
+    // Controls movement
+    // If holding shift, go faster
     if(!controls.shift){
         if(controls.up && image.y > 0){
             image.y -= 6/image.zooming;
@@ -94,7 +96,7 @@ function loop() {
     }
 
     // - Draw -
-
+    // Draw image
     createImage(image, ctx, cnv);
 
     // - End -
@@ -109,10 +111,11 @@ document.addEventListener('keyup', keyUpHandler);
 
 // - Event Functions -
 function keyDownHandler(event) {
-
+    // Shift key
     if (event.key === 'Shift') {
         controls.shift = true;
     }
+    // If not zooming, manage movement kays
     if (image.zoomVal < 1) {
 
         if (event.key === 'ArrowUp') {
@@ -124,7 +127,7 @@ function keyDownHandler(event) {
         } else if (event.key === 'ArrowRight') {
             controls.right = true;
         }
-
+        // Manage zooming keys
         if (!event.repeat) {
             if (event.key === '-') {
                 if (image.zooming - 1 > 0) {
@@ -144,7 +147,7 @@ function keyDownHandler(event) {
 }
 
 function keyUpHandler(event) {
-
+    // Key up for shift and movement keys
     if (event.key === 'Shift') {
         controls.shift = false;
     } else if (event.key === 'ArrowUp') {

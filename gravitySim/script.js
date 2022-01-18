@@ -106,7 +106,7 @@ function loop() {
             circle.motionX = -circle.motionX / 3;
             circle.x = 0 + circle.r;
         }
-
+        // Add drag
         circle.motionX = circle.motionX * Math.exp(-drag * dt);
         circle.motionY = circle.motionY * Math.exp(-drag * dt);
 
@@ -114,8 +114,8 @@ function loop() {
         circle.y += Math.round(circle.motionY*(dt*0.1) * 100) / 100;
         circle.x += Math.round(circle.motionX*(dt*0.1) * 100) / 100;
     } else {
-        // Calculate Indicator
-
+        // Calculate Indicator Direction
+        // Probably more complex than this has to be
         indicator.width = +inputs.xMotionInEl.value;
         indicator.height = -(+inputs.yMotionInEl.value);
 
@@ -129,7 +129,7 @@ function loop() {
 
         indicator.destX = circle.x + (circle.r * Math.cos(indicator.angle));
         indicator.destY = circle.y + (circle.r * Math.sin(indicator.angle));
-
+        // Put circle in the middle, set motion to 0
         circle.x = +inputs.xPosInEl.value + 512;
         circle.y = 0 - (+inputs.yPosInEl.value + 288) + 576;
         circle.motionX = +inputs.xMotionInEl.value;
@@ -137,6 +137,7 @@ function loop() {
     }
 
     // - Draw -
+    // Draw background
     ctx.fillStyle = 'rgb(235, 235, 235)';
     ctx.fillRect(0, 0, cnv.width, cnv.height);
 
@@ -150,7 +151,7 @@ function loop() {
     ctx.fillStyle = 'rgb(100,180,240)';
     ctx.roundRect(button.x, button.y, button.w, button.h, button.r);
     ctx.fill();
-
+    // Draw button symbol
     if (button.active) {
         ctx.strokeStyle = 'grey';
         ctx.lineWidth = 3;
@@ -188,7 +189,7 @@ function loop() {
         ctx.closePath();
         ctx.fill();
     }
-
+    // If the button is not active, draw the direction indicator
     if (!button.active) {
         ctx.strokeStyle = 'red';
         ctx.lineWidth = 2;
@@ -197,7 +198,7 @@ function loop() {
         ctx.lineTo(indicator.destX, indicator.destY);
         ctx.stroke();
     }
-
+    // Draw mouse coordinates
     ctx.fillStyle = 'rgb(180,180,180)';
     ctx.font = 'bold 12px sans-serif';
     ctx.fillText(`[${mouse.x - cnv.width/2}, ${-(mouse.y - cnv.height/2)}]`, 0, 10);
@@ -206,15 +207,19 @@ function loop() {
 
 // -- Add Event Listeners
 cnv.addEventListener('click', function (e) {
+    // If canvas button pressed
     if (checkButtonPress(e, button, cnv)) {
+        // Toggle button state
         button.active = !button.active;
     }
 });
 
 cnv.addEventListener('mousemove', function (event) {
+    // Get mouse position
     mouse = getMousePos(event, cnv);
 });
 
+// Check for shift key
 document.addEventListener('keydown', function(event){
     if(event.key === 'Shift'){
         shiftDown = true;
@@ -228,7 +233,9 @@ document.addEventListener('keyup', function(event){
 });
 
 inputs.xPosInEl.addEventListener('input', function () {
+    // Increase / Decrease (direction) value by 1 / 5 (no shift held, shift held)
     inputs.xPosInEl.value = +inputs.xPosInEl.value + checkShift(shiftDown, +inputs.xPosInEl.value, lastValue.xPos);
+    // Constrain values
     if(+inputs.xPosInEl.value < -462){
         inputs.xPosInEl.value = -462;
     } else if(+inputs.xPosInEl.value > 462){
@@ -238,7 +245,9 @@ inputs.xPosInEl.addEventListener('input', function () {
 });
 
 inputs.yPosInEl.addEventListener('input', function () {
+    // Increase / Decrease (direction) value by 1 / 5 (no shift held, shift held)
     inputs.yPosInEl.value = +inputs.yPosInEl.value + checkShift(shiftDown, +inputs.yPosInEl.value, lastValue.yPos);
+    // Constrain values
     if(+inputs.yPosInEl.value < -238){
         inputs.yPosInEl.value = -238;
     } else if(+inputs.yPosInEl.value > 238){
@@ -248,7 +257,9 @@ inputs.yPosInEl.addEventListener('input', function () {
 });
 
 inputs.xMotionInEl.addEventListener('input', function () {
+    // Increase / Decrease (direction) value by 1 / 5 (no shift held, shift held)
     inputs.xMotionInEl.value = +inputs.xMotionInEl.value + checkShift(shiftDown, +inputs.xMotionInEl.value, lastValue.xMotion);
+    // Constrain values
     if(+inputs.xMotionInEl.value < -50){
         inputs.xMotionInEl.value = -50;
     } else if(+inputs.xMotionInEl.value > 50){
@@ -258,7 +269,9 @@ inputs.xMotionInEl.addEventListener('input', function () {
 });
 
 inputs.yMotionInEl.addEventListener('input', function () {
+    // Increase / Decrease (direction) value by 1 / 5 (no shift held, shift held)
     inputs.yMotionInEl.value = +inputs.yMotionInEl.value + checkShift(shiftDown, +inputs.yMotionInEl.value, lastValue.yMotion);
+    // Constrain values
     if(+inputs.yMotionInEl.value < -50){
         inputs.yMotionInEl.value = -50;
     } else if(+inputs.yMotionInEl.value > 50){
@@ -267,7 +280,8 @@ inputs.yMotionInEl.addEventListener('input', function () {
     lastValue.yMotion = +inputs.yMotionInEl.value;
 });
 
-
+// On window refocus, reload the page
+// This is my cut corners way of avoiding a bug to do with the physics, and unfocusing the tab.
 window.onfocus = function () {
     location.replace('../gravitySim/');
 };
