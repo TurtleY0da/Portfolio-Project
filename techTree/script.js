@@ -8,7 +8,7 @@ let cnv = docGetID("treeCanvas");
 let dBoxEl = docGetID('dialogueBox');
 let hBoxEl = docGetID('helpBox');
 let sBoxEl = docGetID('saveBox');
-
+// Register dialog boxes into dialog polyfill, permitting dialogs to be used with incompatible browsers (Firefox, Safari, etc.)
 dialogPolyfill.registerDialog(dBoxEl);
 dialogPolyfill.registerDialog(hBoxEl);
 dialogPolyfill.registerDialog(sBoxEl);
@@ -99,47 +99,58 @@ let dialogResolve;
 
 // -- Main Loop --
 requestAnimationFrame(loop);
-
+// Adds custom typeface
 document.fonts.add(cousine);
 
 measureWidth('abc', 24)
 
 function loop() {
     // - Update Variables -
+    // If right click is held
     if (clickHeld === 2) {
+        // Set the camera's center to the start point plus the offset divded by the zoom
         ctxCon.camera.centerX = dragStart.cX + dragOffset.x / ctxCon.camera.zoom
         ctxCon.camera.centerY = dragStart.cY + dragOffset.y / ctxCon.camera.zoom
     }
-
+    // Set current y to zero minus the total height of all top level elements divded by two
     let currentY = 0 - topTreeElements.reduce((a, b) => a + b.totalHeight, 0) / 2;
+    // For each top level element
     topTreeElements.forEach(child => {
+        // Set element y position to the current y plus the element's total height divded by two minus the element's height divded by two
         child.position.y = (currentY + child.totalHeight / 2) - child.height / 2;
+        // Add the element's total height to the current y
         currentY += child.totalHeight;
+        // Trigger an update chain from the element
         child.updateChain();
     });
-
+    // For each top level element
     topTreeElements.forEach(child => {
+        // Check for hover on element
         child.checkHover(mouse);
     });
-
+    // Calculate the tree's total height and width
     let totalHeight = topTreeElements.reduce((a, b) => a + b.totalHeight, 0);
     let totalWidth = topTreeElements.reduce((a, b) => Math.max(a, b.totalWidth), 0);
-
+    // Set the bounds based on the tree size
     bounds.min.x = -64;
     bounds.max.x = Math.max(totalWidth - 36, 576);
     bounds.min.y = Math.min(0 - totalHeight / 2 - 48, -320)
     bounds.max.y = Math.max(totalHeight / 2 + 48, 320)
-
+    // Update the camera's position
     ctxCon.updateCamera(bounds)
-
+    // If the screen's available width and height don't match the current screen size values
     if (screen.availWidth !== screenSize.width || screen.availHeight !== screenSize.height) {
+        // Set screen size values
         screenSize = {
             width: screen.availWidth,
             height: screen.availHeight
         }
+        // Set canvas width and height accordingly
         cnv.width = Math.max(screenSize.width / 1.5);
         cnv.height = Math.max(screenSize.height / 1.5);
+        // Calculate the smallest edge size
         smallestEdge = Math.min(cnv.width, cnv.height);
+        // Create vertices of on canvas button
         addButtonVertices = [
             new PVector(0, 0),
             new PVector(smallestEdge / 12, 0),
@@ -167,19 +178,21 @@ function loop() {
         ];
 
     }
-
+    // Set the canvas width and height
     cnv.width = Math.max(screenSize.width / 1.5);
     cnv.height = Math.max(screenSize.height / 1.5);
 
     // - Draw -
+    // Draw the background
     ctx.fillStyle = '#AADDAA';
     ctx.fillRect(0, 0, cnv.width, cnv.height);
-
+    // Draw the bounding box
     ctx.fillStyle = '#CCEECC'
     ctx.fillRect(...ctxCon.gac('xywh', bounds.min.x, bounds.min.y, bounds.max.x - bounds.min.x, bounds.max.y - bounds.min.y))
-
+    // Draw the tree
     drawTree();
-
+    
+    // Lines 196-225 Draw import/export button
     ctx.fillStyle = '#1BCC32';
     ctx.strokeStyle = '#EEEEEE';
     if (saveButtonHover) {
@@ -211,6 +224,7 @@ function loop() {
     ctx.lineTo(smallestEdge / 12 / 2 - smallestEdge / 12 / 7, smallestEdge / 12 * 2 + smallestEdge / 12 / 1.9 - smallestEdge / 12 / 7);
     ctx.stroke();
 
+    // Lines 228-251 Draw help button
     ctx.fillStyle = '#3A95EE';
     ctx.strokeStyle = '#EEEEEE';
     if (helpButtonHover) {
@@ -236,6 +250,7 @@ function loop() {
     ctx.lineTo(smallestEdge / 24, smallestEdge / 12 + smallestEdge / 24 + smallestEdge / 24 / 1.8);
     ctx.stroke();
 
+    // Lines 254-277 Draw Add button
     ctx.fillStyle = '#FF2E63';
     ctx.strokeStyle = '#EEEEEE';
     if (addButtonHover) {
@@ -266,10 +281,11 @@ function loop() {
 }
 
 // -- Add Event Listeners
+// Prevent context menu from opening when canvas right clicked
 cnv.oncontextmenu = function (e) {
     e.preventDefault();
 }
-
+// Dialog box closing
 dialogBtnContainer.children[0].children[0].addEventListener('click', function () {
     closeModal(dBoxEl, true)
 });
@@ -297,6 +313,16 @@ document.addEventListener('keydown', function (event) {
 dialogBtnContainer.children[1].children[0].addEventListener('mousedown', function () {
     dialogResolve(-1);
 });
+sBoxEl.children[5].children[0].addEventListener('mousedown', function () {
+    dialogResolve(1);
+});
+saveBtnContainer.children[0].children[0].addEventListener('mousedown', function () {
+    dialogResolve(0);
+});
+sBoxEl.children[5].children[2].addEventListener('mousedown', function () {
+    dialogResolve(-1);
+});
+// Scroll, click, and mouse move handlers
 cnv.addEventListener('wheel', scrollHandler);
 cnv.addEventListener('mousedown', clickHandler);
 cnv.addEventListener('mouseup', clickHandler);
@@ -307,51 +333,69 @@ cnv.addEventListener('mousemove', moveHandler);
 
 // - Event Functions -
 function closeModal(dialogBox, deleteItems) {
+    // Adjust classes
     dialogBox.classList.remove('opening');
     dialogBox.classList.add('closing');
+    // Create temporary function
     let tempFunc = function () {
         modalClosed(dialogBox, tempFunc, deleteItems)
     };
+    // When the box's animation ends (it is closed) call modalClosed
     dialogBox.addEventListener('animationend', tempFunc)
 }
 
 function modalClosed(dialogBox, tempFunc, deleteItems) {
+    // If the box is still closing, remove the class, and close the box
     if (dialogBox.classList[0] === 'closing') {
         dialogBox.close();
         dialogBox.classList.remove('closing');
     }
+    // If deleteItems is true
     if (deleteItems) {
         let removalArray = new Array();
+        // Insert references to each element into an array
         for (const child of dialogBox.children) {
             removalArray.push(child);
         }
+        // For each element
         removalArray.forEach((element, index) => {
+            // If they are not the first element, delete it
             if (index > 0) {
                 element.remove();
             }
         });
     }
+    // Remove the event listener
     dialogBox.removeEventListener('animationend', tempFunc)
 }
 
 function openModal(dialogBox) {
+    // If box is closing
     if (dialogBox.classList[0] === 'closing') {
+        // Fully close box
         dialogBox.close();
         modalClosed(dialogBox);
         dialogBox.classList.remove('closing');
     }
+    // Add the opening class
     dialogBox.classList.add('opening');
+    // Show the dialog box
     dialogBox.showModal();
 }
 
 function scrollHandler(event) {
+    // If scrolling variable is false, and the current held click is not right click
     if (scrolling === false && clickHeld < 2) {
+        // Set scrolling to true
         scrolling = true;
+        // After 50 ms
         setTimeout(function () {
+            // Set scrolling to false
             scrolling = false;
         }, 50)
+        // Increase or decrease the zoom value
         ctxCon.camera.zoom += -Math.sign(event.deltaY) / 4
-
+        // Constrain zoom
         if (ctxCon.camera.zoom < 0.25) ctxCon.camera.zoom = 0.25;
         if (ctxCon.camera.zoom > 2) ctxCon.camera.zoom = 2;
     }
@@ -359,47 +403,72 @@ function scrollHandler(event) {
 
 async function clickHandler(event) {
     cnvRect = cnv.getBoundingClientRect();
+    // Switch statement based on the type of the event
     switch (event.type) {
-        case 'mousedown':
+        case 'mousedown': // If mouse down
+            // If the held click is not the button that was released and the held click is not -1, or the button is middle mouse, break
             if (clickHeld !== event.button && clickHeld !== -1 || event.button === 1) break;
+            // Check for hover on canvas
             checkHover(event.clientX - cnvRect.left, event.clientY - cnvRect.top)
+            // If currently hovering over the add button
             if (addButtonHover) {
+                // If the button is not left click, break
                 if (event.button !== 0) break;
+                // Get the parameters of the new tree item
                 let treeParams = await createTreeItem();
+                // If no parameters were provided (canceled), break
                 if (treeParams === undefined) break;
+                // Otherwise, create a new top level item
                 topTreeElements.push(new treeItem(null, ...treeParams));
-            } else if (helpButtonHover) {
+            } else if (helpButtonHover) { // Otherwise, if currently hovering over the help button
+                // If it is not left click, break
                 if (event.button !== 0) break;
+                // Open the dialog box
                 openModal(hBoxEl);
-            } else if (saveButtonHover) {
+            } else if (saveButtonHover) { // Otherwise, if currently hovering over the import/export button
+                // If it is not left click, break
                 if (event.button !== 0) break;
+                // Open the dialog box
                 openSaver();
-            } else {
+            } else { // Otherwise
+                // Set the currently held button
                 clickHeld = event.button;
+                // Call beginDrag
                 beginDrag(event);
             }
+            // break
             break;
-        case 'mouseup':
+        case 'mouseup': // If mouse up
+            // If the held button is not this button, break
             if (clickHeld !== event.button) break;
-        case 'mouseleave':
+        case 'mouseleave': // If mouse up, or the mouse leaves the canvas
+            // If the held click is -1, break
             if (clickHeld === -1) break;
+            // End drag
             endDrag();
+            // Set held click to -1
             clickHeld = -1;
+            // break
             break;
     }
 }
 
 function moveHandler(event) {
     cnvRect = cnv.getBoundingClientRect();
+    // If clickHeld is not -1
     if (clickHeld > -1) {
+        // I was planning on maybe putting more options here, but didn't, that's why I didn't just put all of this in the szme if statement
         switch (clickHeld) {
-            case 2:
+            case 2: // If right click
+                // Get drag offset
                 dragOffset.x = (dragStart.x - (event.clientX - cnvRect.left))
                 dragOffset.y = (dragStart.y - (event.clientY - cnvRect.top))
                 break;
         }
-    } else {
+    } else { // Otherwise
+        // Check current hover
         checkHover(event.clientX - cnvRect.left, event.clientY - cnvRect.top);
+        // Set mouse x and y values
         mouse.x = event.clientX - cnvRect.left;
         mouse.y = event.clientY - cnvRect.top;
     }
@@ -408,30 +477,37 @@ function moveHandler(event) {
 async function beginDrag(event) {
     cnvRect = cnv.getBoundingClientRect();
     switch (event.button) {
-        case 2:
+        case 2: // If pressed button is right click
+            // Set drag start positions
             dragStart.x = event.clientX - cnvRect.left;
             dragStart.y = event.clientY - cnvRect.top;
             dragStart.cX = ctxCon.camera.centerX;
             dragStart.cY = ctxCon.camera.centerY;
-
+            // Reset drag offset
             dragOffset.x = 0;
             dragOffset.y = 0;
             break;
-        case 0:
+        case 0: // If pressed button is left click
+            // Set mouse x and y
             mouse.x = event.clientX - cnvRect.left;
             mouse.y = event.clientY - cnvRect.top;
+            // For each top level element
             for (const child of topTreeElements) {
+                // Check hover
                 child.checkHover(mouse);
+                // Then check for click
                 if (await child.checkClick(topTreeElements) === true) break;
             };
     }
 }
 
 function endDrag() {
+    // If the held click is right click
     if (clickHeld === 2) {
+        // Set the camera position
         ctxCon.camera.centerX = dragStart.cX + dragOffset.x / ctxCon.camera.zoom
         ctxCon.camera.centerY = dragStart.cY + dragOffset.y / ctxCon.camera.zoom
-
+        // Reset the drag offset
         dragOffset.x = 0;
         dragOffset.y = 0;
     }
@@ -439,16 +515,19 @@ function endDrag() {
 
 // - Functions -
 function readFile(file, callback) {
+    // Create new file reader
     const reader = new FileReader();
+    // On file load
     reader.onload = function (event) {
+        // Call the callback, passing the result
         callback(event.target.result);
     };
+    // Read the file
     reader.readAsText(file);
 }
 
 function checkHover(mouseX, mouseY) {
-    // Check for button hover
-    // If false, check for hover on 'treeItem's
+    // Check for button hover using Polygon vs point collision
     if (polyPoint(addButtonVertices, mouseX, mouseY)) addButtonHover = true;
     else addButtonHover = false;
 
@@ -461,67 +540,79 @@ function checkHover(mouseX, mouseY) {
 
 
 function measureWidth(text, size) {
+    // Set canvas font size
     ctx.font = `${size}px cousine`;
+    // Return the measured width of the provided text
     return ctx.measureText(text).width;
 }
-
+// This function isn't actually used in the project, but I used it to determine several values during developement
 function measureHeight(text, size) {
+    // Set canvas font size
     ctx.font = `${size}px cousine`;
+    // Get the text metrics for the provided text
     let textMetric = ctx.measureText(text)
+    // Return the ascent plus the descent
     return textMetric.actualBoundingBoxAscent + textMetric.actualBoundingBoxDescent;
 }
-
+// Converts a single line of text to multiple lines of text, if long enough
 function getWrappedLines(textArray, size, preferedLineSize) {
     let lines = [""]
+    // For each word followed by whitespace
     textArray.forEach(element => {
+        // Measure the width of just the word (without the whitespace)
         let elementWidth = measureWidth(element.match(/\S+/g), size);
+        // Add the word with whitespace to the array of lines
         lines.push(element);
-        if (measureWidth(lines[lines.length - 2], size) + elementWidth < preferedLineSize) lines.mergeStrings(lines.length - 2, 2, "");
+        // If the width of the current line plus the width of the newly added segment is shorter than the prefered line length
+        if (measureWidth(lines[lines.length - 2], size) + elementWidth < preferedLineSize) lines.mergeStrings(lines.length - 2, 2, ""); // Merge the current line and new segment together
     });
+    // return the lines in an array
     return lines;
 }
 
 async function openSaver() {
+    // Open the dialog box
     openModal(sBoxEl);
-
-    async function buttonDetector(importBtn, closeBtn, exportBtn) {
+    // Button Detector function
+    async function buttonDetector() {
         let eventResult;
-        var waitPromise = new Promise((resolve) => {
+        // Create a new promise
+        let waitPromise = new Promise((resolve) => {
+            // Set a global variable to the resolve function for this promise
             dialogResolve = resolve
         });
-        importBtn.addEventListener('mousedown', function () {
-            dialogResolve(1);
-        });
-        closeBtn.addEventListener('mousedown', function () {
-            dialogResolve(0);
-        });
-        exportBtn.addEventListener('mousedown', function () {
-            dialogResolve(-1);
-        });
+        // Wait until the promise is resolved (externally, by calling dialogResolve())
         await waitPromise.then((result) => {
+            // Set eventResult to the result of the promise
             eventResult = result
         });
+        // Return the event result
         return eventResult;
     }
-
-    let result = await buttonDetector(sBoxEl.children[5].children[0], saveBtnContainer.children[0].children[0], sBoxEl.children[5].children[2]);
-
+    // Get result from button detector
+    let result = await buttonDetector();
+    // If result is 1, if a file was attached, read it
     if(result === 1){
         if(sBoxEl.children[2].value !== '' ) readFile(sBoxEl.children[2].files[0], constructTree);
     }
+    // If result is -1
     if(result === -1){
+        // Deconstruct the tree
         let deconstructedTree = deconstructTree(topTreeElements);
+        // Compress the deconstructed tree
         let compressedTree = LZString.compressToUTF16(deconstructedTree);
+        // Download the compressed tree as a file (Using FileSaver.js)
         let blob = new Blob([compressedTree], {type: "text/plain;charset=utf-16"});
         saveAs(blob, "techTree.dat");
     }
-
+    // If there was a result, close the dialog box
     if(result) closeModal(sBoxEl);
 }
 
 async function createTreeItem() {
+    // Hide Delete button
     dialogBtnContainer.children[1].classList.add('displayNone');
-
+    // Create elements
     let titleTitle = document.createElement('h2');
     let titleInput = document.createElement('input');
 
@@ -534,7 +625,7 @@ async function createTreeItem() {
     let lb = document.createElement('br');
 
     let submitButton = document.createElement('button');
-
+    // Modify elements
     titleInput.type = 'text';
     descriptionInput.rows = '6';
     descriptionInput.cols = '35';
@@ -559,34 +650,47 @@ async function createTreeItem() {
     submitButton.onmousedown = function () {
         return false;
     }
-
+    // Append elements
     dBoxEl.append(titleTitle, titleInput, descriptionTitle, descriptionInput, costTitle, costInput, lb, submitButton);
+    // Open dialog box
     openModal(dBoxEl);
-
+    // Button Detector function
     async function buttonDetector() {
         let eventResult;
-        var waitPromise = new Promise((resolve) => {
+        // Create a new promise
+        let waitPromise = new Promise((resolve) => {
+            // Set a global variable to the resolve function for this promise
             dialogResolve = resolve
         });
+        // Wait until the promise is resolved (externally, by calling dialogResolve())
         await waitPromise.then((result) => {
+            // Set eventResult to the result of the promise
             eventResult = result
         });
+        // Return the event result
         return eventResult;
     }
     submitButton.addEventListener('mousedown', function () {
+        // When submit button is clicked, call dialog resolve
         dialogResolve(1);
     });
+    // Get result from button detector
     let result = await buttonDetector();
+    // If there was a result
     if (result) {
+        // Set output to the values input on the dialog box
         let output = [titleInput.value, descriptionInput.value, parseInt(costInput.value)];
+        // Close the dialog box (deleting contents)
         closeModal(dBoxEl, true);
+        // Return the output
         return output;
     }
 }
 
 async function editTreeItem(treeItem) {
+    // Show Delete button
     dialogBtnContainer.children[1].classList.remove('displayNone');
-
+    // Create elements
     let titleInput = document.createElement('input');
 
     let descriptionInput = document.createElement('textarea');
@@ -599,7 +703,7 @@ async function editTreeItem(treeItem) {
     lb2 = document.createElement('br');
 
     let submitButton = document.createElement('button');
-
+    // Modify elements
     titleInput.type = 'text';
     titleInput.value = treeItem.title;
 
@@ -624,47 +728,62 @@ async function editTreeItem(treeItem) {
     submitButton.onmousedown = function () {
         return false;
     }
-
+    // Append elements
     dBoxEl.append(titleInput, lb, descriptionInput, lb1, costInput, lb2, submitButton);
     openModal(dBoxEl);
-
+    // Button Detector function
     async function buttonDetector() {
         let eventResult;
-        var waitPromise = new Promise((resolve) => {
+        // Create a new promise
+        let waitPromise = new Promise((resolve) => {
+            // Set a global variable to the resolve function for this promise
             dialogResolve = resolve
         });
         submitButton.addEventListener('mousedown', function () {
+            // When submit button is clicked, call dialog resolve
             dialogResolve(1);
         });
+        // Wait until the promise is resolved (externally, by calling dialogResolve())
         await waitPromise.then((result) => {
+            // Set eventResult to the result of the promise
             eventResult = result
         });
+        // Return the event result
         return eventResult;
     }
-
+    // Get result from button detector
     let result = await buttonDetector();
+    // if the result is 1
     if (result === 1) {
+        // Set new values for the tree item
         treeItem.newValues([titleInput.value, descriptionInput.value, parseInt(costInput.value)]);
-    } else if (result === -1) {
+    } else if (result === -1) { // Otherwise, if the result is -1
+        // Delete the tree item
         treeItem.delete(topTreeElements);
     }
+    // if there was a result, close the box (deleting contents)
     if (result) closeModal(dBoxEl, true);
 }
 
 function drawTree() {
+    // For each top level tree item
     for (const tree of topTreeElements) {
+        // Draw the tree item
         drawTreeItem(tree);
     }
 }
 
 function drawTreeItem(item) {
+    // For each child of the item
     item.children.forEach(child => {
+        // If the area between the child and the item is on screen
         if (
             child.position.x >= ctxCon.camera.x &&
             item.position.x + item.width <= ctxCon.camera.x + ctxCon.camera.width &&
             Math.max(item.position.y + item.height / 2, child.position.y + child.height / 2) >= ctxCon.camera.y &&
             Math.min(item.position.y + item.height / 2, child.position.y + child.height / 2) <= ctxCon.camera.y + ctxCon.camera.height
         ) {
+            // Draw the connecting line
             ctx.strokeStyle = '#252A34';
             ctx.lineWidth = 3;
             ctx.beginPath();
@@ -674,12 +793,14 @@ function drawTreeItem(item) {
             ctx.stroke();
         }
     });
+    // If the item is on screen
     if (
         item.position.x + item.width >= ctxCon.camera.x &&
         item.position.x <= ctxCon.camera.x + ctxCon.camera.width &&
         item.position.y + item.height >= ctxCon.camera.y &&
         item.position.y <= ctxCon.camera.y + ctxCon.camera.height
     ) {
+        // Draw the item
         ctx.fillStyle = '#EEEEEE';
         ctx.beginPath();
         ctx.cutCorner(...ctxCon.gac('xywhw', item.position.x, item.position.y, item.width, item.height, 20));

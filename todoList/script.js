@@ -75,29 +75,31 @@ function addNewItem() {
         if (inputs.titleEl.value.trim() === '') {
             // throw 0
             throw (0);
-        } else if (localStorage[inputs.titleEl.value.trim()] !== undefined) { // localStorage slot is empty
+        } else if (localStorage[inputs.titleEl.value.trim()] !== undefined) { // localStorage slot has content
             // throw 1
             throw (1);
         } else { // Otherwise
+            // Add new item to local storage
             localStorage[inputs.titleEl.value.trim()] = JSON.stringify([inputs.descriptionEl.value.trim(), inputs.dateEl.value, inputs.priorityListEl.value]);
-
+            // Reset input values
             inputs.titleEl.value = '';
             inputs.descriptionEl.value = '';
             inputs.dateEl.value = '';
-
+            
             inputs.titleEl.style = 'border: 1px solid grey'
             inputs.titleEl.placeholder = 'Title'
-
+            // Output todo list
             outputList();
         }
 
-    } catch (error) {
+    } catch (error) { // If title input is empty, or item already exists
+        // Switch statement based on error value
         switch (error) {
-            case 0:
+            case 0: // If title input is empty
                 inputs.titleEl.style = 'border: 2px solid #ff0000'
                 inputs.titleEl.placeholder = 'Missing Title'
                 break;
-            case 1:
+            case 1: // If item with this title already exists
                 inputs.titleEl.value = '';
                 inputs.titleEl.style = 'border: 2px solid #ff0000'
                 inputs.titleEl.placeholder = 'Duplicate Title'
