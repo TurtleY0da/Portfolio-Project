@@ -2541,7 +2541,7 @@ class contextController {
     constructor(canvas) {
         this.cnv = canvas;
         // Create new camera
-        this.camera = new camera(canvas, 0, 0);
+        this.camera = new camera(canvas, 256, 0);
     }
     // Get Accurate Coordinates on canvas
     gac(specifyLocParams, ...callbackParams) {

@@ -800,22 +800,22 @@ function drawTreeItem(item) {
         item.position.y + item.height >= ctxCon.camera.y &&
         item.position.y <= ctxCon.camera.y + ctxCon.camera.height
     ) {
-        // Draw the item
+        // Item background
         ctx.fillStyle = '#EEEEEE';
         ctx.beginPath();
         ctx.cutCorner(...ctxCon.gac('xywhw', item.position.x, item.position.y, item.width, item.height, 20));
         ctx.fill();
-
+        // Top stripe
         ctx.fillStyle = '#FF2E63';
         ctx.beginPath();
         ctx.cutCorner(...ctxCon.gac('xywhw', item.position.x, item.position.y, item.width - 14, 6, 6));
         ctx.fill();
-
+        // Button light
         ctx.fillStyle = '#CCCCCC';
         ctx.beginPath();
         ctx.fillRect(...ctxCon.gac('xywh', item.position.x + item.width - 20, item.position.y + 24, 20, item.height - 28));
         ctx.fill();
-
+        // Button shadow
         ctx.fillStyle = '#AAAAAA';
         ctx.beginPath();
         ctx.moveTo(...ctxCon.gac('xy', item.position.x + item.width - 20, item.position.y + 24));
@@ -825,7 +825,7 @@ function drawTreeItem(item) {
         ctx.lineTo(...ctxCon.gac('xy', item.position.x + item.width - 20, item.position.y + item.height - 4));
         ctx.closePath();
         ctx.fill();
-
+        // Button main
         ctx.fillStyle = '#BBBBBB';
         ctx.beginPath();
         ctx.fillRect(...ctxCon.gac('xywh', item.position.x + item.width - 17, item.position.y + 27, 14, item.height - 34));
@@ -833,7 +833,7 @@ function drawTreeItem(item) {
 
         let itemCenter = item.position.y + ((item.height - 20) / 2) + 20;
 
-
+        // Draw button icon
         ctx.lineWidth = ctxCon.gac('w', 3)[0];
         ctx.lineCap = 'round';
 
@@ -857,7 +857,7 @@ function drawTreeItem(item) {
         }
 
         ctx.textBaseline = 'top';
-
+        // Draw headers
         ctx.fillStyle = '#08D9D6'
         ctx.font = `${ctxCon.gac('w', 18)[0]}px cousine`;
         ctx.fillText('Description', ...ctxCon.gac('xy', item.position.x + 16, item.position.y + 81));
@@ -865,17 +865,17 @@ function drawTreeItem(item) {
         ctx.fillText('Cost', ...ctxCon.gac('xy', item.position.x + 16, item.position.y + 103 + item.wrappedDescription.length * 13));
 
         ctx.fillStyle = '#252A34'
-
+        // Draw title
         ctx.font = `${ctxCon.gac('w', 24)[0]}px cousine`;
         ctx.fillText(item.title, ...ctxCon.gac('xy', item.position.x + 16, item.position.y + 53));
-
+        // Draw description
         ctx.font = `${ctxCon.gac('w', 13)[0]}px cousine`;
         item.wrappedDescription.forEach((line, index) => {
             ctx.fillText(line, ...ctxCon.gac('xy', item.position.x + 16, item.position.y + 103 + index * 13));
         });
-
+        // Draw cost
         ctx.fillText(item.cost + ' units', ...ctxCon.gac('xy', item.position.x + 16, item.position.y + 125 + item.wrappedDescription.length * 13));
-
+        // Draw Top buttons
         if (item.buttonHover === 0) {
             ctx.drawImage(editImg, ...ctxCon.gac('xywh', item.position.x + 14, item.position.y + 18, 24, 24));
         } else {
@@ -894,8 +894,11 @@ function drawTreeItem(item) {
             ctx.drawImage(upImg, ...ctxCon.gac('xywh', item.position.x + 74, item.position.y + 18, 20, 20));
         }
     }
+    // For each child of this item
     item.children.forEach(child => {
+        // If the child's position is less than or equal to that if the camera
         if (child.position.x <= ctxCon.camera.x + ctxCon.camera.width) {
+            // Draw the child
             drawTreeItem(child);
         }
     });
